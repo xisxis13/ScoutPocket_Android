@@ -5,7 +5,7 @@ abstract class SpaceObject(val location : Coordinates, private val _name: String
     val name: String
         get() {
             if (_name.isEmpty()) {
-                return "Obect unknown"
+                return "Object unknown"
             } else {
                 return _name
             }
