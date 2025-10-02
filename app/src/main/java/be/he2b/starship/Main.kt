@@ -2,11 +2,8 @@ package be.he2b.starship
 
 fun main() {
 
-    Planet.createRandomPlanet()
-    // println(Planet.createRandomPlanet().name)
-
-    Station.createRandomStation()
-    // println(Station.createRandomStation().name)
+    val gameConsole = GameConsole()
+    gameConsole.startGame()
 
 }
 
