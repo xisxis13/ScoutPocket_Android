@@ -20,12 +20,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import be.he2b.scoutpocket.Screens
 import be.he2b.scoutpocket.viewmodel.LoginViewModel
 
 @Composable
 fun LoginScreen(
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel,
+    navController: NavController,
 ) {
     Column(
         modifier = modifier
@@ -61,7 +64,13 @@ fun LoginScreen(
         )
 
         Button(
-            onClick = { viewModel.checkEmail(email) },
+            onClick = {
+                viewModel.checkEmail(email)
+
+                if (viewModel.isEmailValid.value) {
+                    navController.navigate(Screens.Main.name)
+                }
+            },
             modifier = modifier
                 .fillMaxWidth(),
         ) {
