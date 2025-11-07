@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -16,10 +17,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import be.he2b.scoutpocket.viewmodel.LoginViewModel
 
 @Composable
-fun LoginScreen(modifier: Modifier = Modifier) {
+fun LoginScreen(
+    modifier: Modifier = Modifier,
+    viewModel: LoginViewModel,
+) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -38,19 +45,31 @@ fun LoginScreen(modifier: Modifier = Modifier) {
 
         TextField(
             value = email,
-            onValueChange = { email = it },
+            onValueChange = {
+                email = it
+                viewModel.isEmailValid.value = true
+            },
             label = { Text("Email") },
+            keyboardOptions = KeyboardOptions.Default.copy(
+                keyboardType = KeyboardType.Email,
+                imeAction = ImeAction.Done,
+            ),
+            isError = !viewModel.isEmailValid.value,
             modifier = modifier
                 .fillMaxWidth()
                 .padding(bottom = 8.dp),
         )
 
         Button(
-            onClick = {  },
+            onClick = { viewModel.checkEmail(email) },
             modifier = modifier
                 .fillMaxWidth(),
         ) {
             Text("Connexion")
+        }
+
+        if (!viewModel.isEmailValid.value) {
+            Text("invalid email", color = MaterialTheme.colorScheme.error)
         }
     }
 }
