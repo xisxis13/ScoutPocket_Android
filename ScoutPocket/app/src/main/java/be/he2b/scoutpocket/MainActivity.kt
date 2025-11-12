@@ -4,14 +4,14 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import be.he2b.scoutpocket.ui.LoginScreen
+import be.he2b.scoutpocket.ui.MainScreen
 import be.he2b.scoutpocket.ui.theme.ScoutPocketTheme
+import be.he2b.scoutpocket.viewmodel.LoginViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,29 +19,23 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ScoutPocketTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                val loginViewModel: LoginViewModel = viewModel()
+                val navController = rememberNavController()
+                NavHost(
+                    navController,
+                    startDestination = Screens.Login.name
+                ) {
+                    composable(Screens.Login.name) {
+                        LoginScreen(
+                            viewModel = loginViewModel,
+                            navController = navController,
+                        )
+                    }
+                    composable(Screens.Main.name) {
+                        MainScreen()
+                    }
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ScoutPocketTheme {
-        Greeting("Android")
     }
 }
