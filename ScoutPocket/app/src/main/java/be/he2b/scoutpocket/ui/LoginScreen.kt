@@ -40,7 +40,7 @@ fun LoginScreen(
         var email by remember { mutableStateOf("") }
 
         Text(
-            text = "Connexion",
+            text = "Connectez-vous",
             style = MaterialTheme.typography.displaySmall,
             modifier = modifier
                 .padding(bottom = 16.dp)
