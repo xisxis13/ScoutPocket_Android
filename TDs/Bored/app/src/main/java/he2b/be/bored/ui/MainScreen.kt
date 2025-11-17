@@ -53,7 +53,9 @@ fun UserControls(mainViewModel : MainViewModel) {
     Button(
         modifier = Modifier
             .padding(8.dp),
-        onClick = { }
+        onClick = {
+            mainViewModel.fetchRandomActivity()
+        }
     ) {
         Text("Find a Random Activity")
     }
