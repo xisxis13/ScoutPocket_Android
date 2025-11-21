@@ -1,21 +1,31 @@
 package eu.epfc.coroutineexplore
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
-fun main() {
-    val theText = readTextFile("test1.txt")
-    println("The text is : $theText")
+suspend fun main() {
+    val job = GlobalScope.launch {
+        val theText = readTextFile("test1.txt")
+        println("The text is : $theText")
+    }
+
+    job.join()
 }
 
-private fun readTextFile(textFileName : String) : String? {
+private suspend fun readTextFile(textFileName : String) : String? {
     var content : String? = null
-    println("read text file $textFileName with context ${Thread.currentThread().name}")
+    withContext(Dispatchers.IO) {
+        println("read text file $textFileName with context ${Thread.currentThread().name}")
 
-    try {
-        val textFile = File(textFileName)
-        content = textFile.readText()
-    } catch (e: Exception) {
-        println("Error reading file $textFileName")
+        try {
+            val textFile = File(textFileName)
+            content = textFile.readText()
+        } catch (e: Exception) {
+            println("Error reading file $textFileName")
+        }
     }
 
     return content
