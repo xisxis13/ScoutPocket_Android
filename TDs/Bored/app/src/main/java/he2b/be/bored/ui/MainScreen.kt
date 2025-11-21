@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
@@ -38,19 +39,47 @@ fun MainScreen() {
 
 @Composable
 fun MessageDisplay(mainViewModel: MainViewModel) {
-    Text(
-        "Click on the button to find a random activity",
-        modifier = Modifier.height(128.dp),
-        textAlign = TextAlign.Center,
-        color = Color.LightGray,
-    )
+    when (mainViewModel.fetchResult.value) {
+        MainViewModel.BoredResult.ERROR -> {
+            Text(
+                text = "Error while fetching random activity",
+                modifier = Modifier
+                    .height(128.dp)
+                    .padding(16.dp),
+                textAlign = TextAlign.Center,
+                color = Color.LightGray,
+            )
+        }
+        MainViewModel.BoredResult.UNINITIALIZED -> {
+            Text(
+                text = "Click on the button to find a random activity",
+                modifier = Modifier
+                    .height(128.dp)
+                    .padding(16.dp),
+                textAlign = TextAlign.Center,
+                color = Color.LightGray,
+            )
+        }
+        else -> {
+            Text(
+                text = mainViewModel.displayedActivity.value,
+                fontSize = 28.sp,
+                lineHeight = 36.sp,
+                maxLines = 3,
+                modifier = Modifier
+                    .height(128.dp)
+                    .padding(16.dp),
+                textAlign = TextAlign.Center,
+            )
+        }
+    }
 }
 
 @Composable
 fun UserControls(mainViewModel: MainViewModel) {
     Button(
         modifier = Modifier.padding(8.dp),
-        onClick = {  }
+        onClick = { mainViewModel.fetchRandomActivity() }
     ) {
         Text("Find a Random Activity")
     }
