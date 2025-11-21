@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.res.AssetManager
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.io.InputStream
@@ -37,6 +38,8 @@ object Repository {
         var content : String? = null;
 
         withContext(Dispatchers.IO) {
+            delay(5000)
+
             try {
                 //read text file
                 val assetManager : AssetManager = context.assets

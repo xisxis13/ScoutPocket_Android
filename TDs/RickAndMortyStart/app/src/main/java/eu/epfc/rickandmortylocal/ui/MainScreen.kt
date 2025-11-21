@@ -49,6 +49,12 @@ fun MainScreen() {
 //                onClick = {mainViewModel.loadCharacters(context)}) {
 //                Text("Load Characters")
 //            }
+            Button(
+                modifier = Modifier.padding(8.dp),
+                onClick = { mainViewModel.cancelLoadCharacters() }
+            ) {
+                Text("Cancel")
+            }
             Spacer(modifier = Modifier.weight(1f))
             Text(text = stringResource(R.string.show_alive))
             Checkbox(checked = mainViewModel.showAlive.value, onCheckedChange = {
