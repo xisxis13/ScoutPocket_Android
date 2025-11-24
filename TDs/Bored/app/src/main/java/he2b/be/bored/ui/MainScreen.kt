@@ -1,15 +1,24 @@
 package he2b.be.bored.ui
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -77,10 +86,66 @@ fun MessageDisplay(mainViewModel: MainViewModel) {
 
 @Composable
 fun UserControls(mainViewModel: MainViewModel) {
-    Button(
-        modifier = Modifier.padding(8.dp),
-        onClick = { mainViewModel.fetchRandomActivity() }
-    ) {
-        Text("Find a Random Activity")
+    var expanded by remember { mutableStateOf(false) }
+    val participantsOptions = listOf(1,2,3,4)
+
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Button(
+            modifier = Modifier.padding(8.dp),
+            onClick = { mainViewModel.fetchRandomActivity() }
+        ) {
+            Text("Find a Random Activity")
+        }
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Checkbox(
+                checked = mainViewModel.isFreeOnly.value,
+                onCheckedChange = { isChecked ->
+                    mainViewModel.isFreeOnly.value = isChecked
+                }
+            )
+            Text("Only free activities")
+        }
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(8.dp),
+        ) {
+            Text(
+                text = "Participants: ",
+                modifier = Modifier.padding(end = 8.dp),
+            )
+
+            Box {
+                Button(
+                    onClick = { expanded = true }
+                ) {
+                    Text(text = mainViewModel.selectedParticipants.value?.toString() ?: "Any")
+                }
+
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Any") },
+                        onClick = {
+                            mainViewModel.selectedParticipants.value = null
+                            expanded = false
+                        }
+                    )
+
+                    participantsOptions.forEach { number ->
+                        DropdownMenuItem(
+                            text = { Text(number.toString()) },
+                            onClick = {
+                                mainViewModel.selectedParticipants.value = number
+                                expanded = false
+                            }
+                        )
+                    }
+                }
+            }
+        }
     }
 }
