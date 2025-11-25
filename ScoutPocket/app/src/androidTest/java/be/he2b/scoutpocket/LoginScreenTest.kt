@@ -11,7 +11,7 @@ import androidx.compose.ui.test.performTextInput
 import androidx.navigation.compose.ComposeNavigator
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import be.he2b.scoutpocket.ui.LoginScreen
+import be.he2b.scoutpocket.ui.screens.LoginScreen
 import be.he2b.scoutpocket.viewmodel.LoginViewModel
 import org.junit.Rule
 import org.junit.Test
