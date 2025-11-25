@@ -2,33 +2,49 @@ package be.he2b.scoutpocket.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import be.he2b.scoutpocket.R
 
-// Set of Material typography styles to start with
+// Poppins font
+val PoppinsFamily = FontFamily(
+    Font(R.font.poppins_regular, FontWeight.Normal),
+    Font(R.font.poppins_medium, FontWeight.Medium),
+    Font(R.font.poppins_semibold, FontWeight.SemiBold),
+    Font(R.font.poppins_bold, FontWeight.Bold),
+)
+
 val Typography = Typography(
-    bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
-    )
-    /* Other default text styles to override
-    titleLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 22.sp,
-        lineHeight = 28.sp,
-        letterSpacing = 0.sp
+    headlineLarge = TextStyle(
+        fontFamily = PoppinsFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 28.sp, // Maybe reduce the size to 20.sp
+        color = DarkPurple,
     ),
-    labelSmall = TextStyle(
-        fontFamily = FontFamily.Default,
+    titleLarge = TextStyle(
+        fontFamily = PoppinsFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 20.sp,
+        color = DarkPurple,
+    ),
+    labelLarge = TextStyle(
+        fontFamily = PoppinsFamily,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 16.sp,
+        color = BackgroundPrimary,
+    ),
+    bodyLarge = TextStyle(
+        fontFamily = PoppinsFamily,
         fontWeight = FontWeight.Medium,
-        fontSize = 11.sp,
-        lineHeight = 16.sp,
-        letterSpacing = 0.5.sp
-    )
-    */
+        fontSize = 16.sp,
+        color = DarkPurple,
+    ),
+    bodyMedium = TextStyle(
+        fontFamily = PoppinsFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 14.sp,
+        color = PrimaryPurple,
+    ),
 )
