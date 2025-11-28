@@ -25,4 +25,11 @@ class MainScreenViewModel : ViewModel() {
         }
     }
 
+    fun deleteNoteInTheDatabase(note: NoteItem) {
+        viewModelScope.launch {
+            Repository.deleteNoteInDatabase(note)
+            noteList.value = Repository.getAllNotesFromDatabase()
+        }
+    }
+
 }

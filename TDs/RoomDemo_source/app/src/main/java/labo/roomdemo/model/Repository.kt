@@ -21,6 +21,12 @@ object Repository {
         }
     }
 
+    suspend fun deleteNoteInDatabase(note: NoteItem) {
+        database?.let { theDataBase ->
+            theDataBase.theDAO().deleteNote(note)
+        }
+    }
+
     suspend fun getAllNotesFromDatabase() : List<NoteItem> {
         database?.let { theDatabase ->
             return theDatabase.theDAO().getAllNotes()
