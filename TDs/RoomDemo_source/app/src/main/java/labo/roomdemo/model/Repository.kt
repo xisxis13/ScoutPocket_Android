@@ -1,8 +1,10 @@
 package labo.roomdemo.model
 
 import android.content.Context
+import labo.roomdemo.database.Converters
 import labo.roomdemo.database.NoteDatabase
 import labo.roomdemo.database.NoteItem
+import java.util.Date
 
 object Repository {
 
@@ -15,8 +17,9 @@ object Repository {
     }
 
     suspend fun insertNoteInDatabase(note : String) {
+
         database?.let { theDataBase ->
-            val newNote = NoteItem(0, note)
+            val newNote = NoteItem(0, note, Date())
             theDataBase.theDAO().insertNote(newNote)
         }
     }

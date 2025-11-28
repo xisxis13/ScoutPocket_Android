@@ -5,11 +5,15 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 
 @Dao
 interface NotesDAO {
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertNote(item: NoteItem)
+
+    @Update
+    suspend fun updateNote(note: NoteItem)
 
     @Delete
     suspend fun deleteNote(item: NoteItem)

@@ -18,6 +18,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,6 +33,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.style.TextAlign
 import labo.roomdemo.database.NoteItem
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -74,11 +77,19 @@ fun NoteList(
                     .fillMaxWidth()
                     .padding(8.dp),
             ) {
-                Text(
-                    text = noteList[index].contentText,
-                    modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.Start,
-                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = note.contentText,
+                        modifier = Modifier.weight(1f),
+                        textAlign = TextAlign.Start,
+                    )
+                    val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+                    Text(
+                        text = sdf.format(note.creationDate),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
 
                 IconButton(
                     onClick = { onDeleteClick(note) }
