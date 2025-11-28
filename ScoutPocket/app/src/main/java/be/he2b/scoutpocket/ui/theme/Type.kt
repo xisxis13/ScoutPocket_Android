@@ -20,7 +20,7 @@ val Typography = Typography(
     headlineLarge = TextStyle(
         fontFamily = PoppinsFamily,
         fontWeight = FontWeight.Bold,
-        fontSize = 28.sp, // Maybe reduce the size to 20.sp
+        fontSize = 32.sp, // Maybe reduce the size to 20.sp
         color = DarkPurple,
     ),
     titleLarge = TextStyle(
