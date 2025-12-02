@@ -1,5 +1,6 @@
 package be.he2b.scoutpocket.ui.theme
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -21,36 +22,36 @@ val Typography = Typography(
         fontFamily = PoppinsFamily,
         fontWeight = FontWeight.Bold,
         fontSize = 32.sp, // Maybe reduce the size to 20.sp
-        color = DarkPurple,
+        color = LightPrimaryText,
     ),
     titleLarge = TextStyle(
         fontFamily = PoppinsFamily,
         fontWeight = FontWeight.Bold,
         fontSize = 20.sp,
-        color = DarkPurple,
+        color = LightPrimaryText,
     ),
     labelLarge = TextStyle(
         fontFamily = PoppinsFamily,
         fontWeight = FontWeight.SemiBold,
         fontSize = 16.sp,
-        color = BackgroundPrimary,
+        color = LightBackground,
     ),
     bodyLarge = TextStyle(
         fontFamily = PoppinsFamily,
         fontWeight = FontWeight.Medium,
         fontSize = 16.sp,
-        color = DarkPurple,
+        color = LightAccent,
     ),
     bodyMedium = TextStyle(
         fontFamily = PoppinsFamily,
         fontWeight = FontWeight.Normal,
         fontSize = 14.sp,
-        color = PrimaryPurple,
+        color = LightAccent,
     ),
     labelSmall = TextStyle(
         fontFamily = PoppinsFamily,
         fontWeight = FontWeight.SemiBold,
         fontSize = 12.sp,
-        color = PrimaryPurple,
+        color = LightAccent,
     ),
 )

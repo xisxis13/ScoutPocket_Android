@@ -50,9 +50,9 @@ fun LoginScreen(
     val errorMessage by remember { viewModel.errorMessage }
 
     val CornerRadius = 20.dp
-    val ButtonShape = RoundedCornerShape(CornerRadius)
     val BorderShape = RoundedCornerShape(CornerRadius)
     val BorderColor = MaterialTheme.colorScheme.secondaryContainer
+    val boxColor = MaterialTheme.colorScheme.surface
 
     LaunchedEffect(isAuthenticated) {
         if (isAuthenticated) {
@@ -75,12 +75,12 @@ fun LoginScreen(
             modifier = modifier
                 .fillMaxWidth()
                 .background(
-                    MaterialTheme.colorScheme.onPrimary,
+                    boxColor,
                     shape = RoundedCornerShape(24.dp)
                 )
                 .border(
                     width = 1.dp,
-                    color = MaterialTheme.colorScheme.secondaryContainer,
+                    color = BorderColor,
                     shape = RoundedCornerShape(24.dp)
                 )
                 .padding(24.dp)
@@ -92,7 +92,7 @@ fun LoginScreen(
                 Text(
                     text = stringResource(R.string.email_label),
                     style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = MaterialTheme.colorScheme.onBackground,
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -108,7 +108,7 @@ fun LoginScreen(
                     placeholder = {
                         Text(
                             text = stringResource(R.string.email_placeholder),
-                            color = MaterialTheme.colorScheme.primary,
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                     },
                     keyboardOptions = KeyboardOptions.Default.copy(
@@ -119,7 +119,7 @@ fun LoginScreen(
                     modifier = modifier
                         .fillMaxWidth()
                         .background(
-                            color = MaterialTheme.colorScheme.background,
+                            color = MaterialTheme.colorScheme.surface,
                             shape = BorderShape,
                         )
                         .border(
@@ -138,8 +138,8 @@ fun LoginScreen(
                         disabledContainerColor = Color.Transparent,
                         errorContainerColor = Color.Transparent,
 
-                        focusedTextColor = MaterialTheme.colorScheme.onBackground,
-                        unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+                        focusedTextColor = MaterialTheme.colorScheme.primary,
+                        unfocusedTextColor = MaterialTheme.colorScheme.primary,
                     ),
                 )
             }
@@ -153,7 +153,7 @@ fun LoginScreen(
                 Text(
                     text = stringResource(R.string.password_label),
                     style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = MaterialTheme.colorScheme.onBackground,
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -168,7 +168,7 @@ fun LoginScreen(
                     placeholder = {
                         Text(
                             text = stringResource(R.string.password_placeholder),
-                            color = MaterialTheme.colorScheme.primary,
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                     },
                     visualTransformation = PasswordVisualTransformation(),
@@ -180,7 +180,7 @@ fun LoginScreen(
                     modifier = modifier
                         .fillMaxWidth()
                         .background(
-                            color = MaterialTheme.colorScheme.background,
+                            color = boxColor,
                             shape = BorderShape,
                         )
                         .border(
@@ -199,8 +199,8 @@ fun LoginScreen(
                         disabledContainerColor = Color.Transparent,
                         errorContainerColor = Color.Transparent,
 
-                        focusedTextColor = MaterialTheme.colorScheme.onBackground,
-                        unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+                        focusedTextColor = MaterialTheme.colorScheme.primary,
+                        unfocusedTextColor = MaterialTheme.colorScheme.primary,
                     ),
                 )
             }
@@ -211,7 +211,7 @@ fun LoginScreen(
                 onClick = {
                     viewModel.authenticate(email, password)
                 },
-                shape = ButtonShape,
+                shape = BorderShape,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary,
