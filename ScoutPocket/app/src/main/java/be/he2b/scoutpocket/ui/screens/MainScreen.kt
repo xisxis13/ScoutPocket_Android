@@ -25,9 +25,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.dropShadow
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -105,7 +109,6 @@ fun BottomBar(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.primary)
             .padding(16.dp, 24.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -128,13 +131,22 @@ fun NavigationBar(
     Box(
         modifier = modifier
             .fillMaxWidth()
+            .dropShadow(
+                shape = CircleShape,
+                shadow = Shadow(
+                    radius = 15.dp,
+                    spread = 0.dp,
+                    color = Color(0xFF000000).copy(alpha = 0.10f),
+                    offset = DpOffset(x = 0.dp, y = 2.dp)
+                )
+            )
             .clip(CircleShape)
             .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f))
             .border(1.dp, MaterialTheme.colorScheme.surface, CircleShape)
             .padding(4.dp),
         contentAlignment = Alignment.Center,
     ) {
-        // Background
+        // Blur effect
         Box(
             modifier = modifier
                 .fillMaxWidth()
