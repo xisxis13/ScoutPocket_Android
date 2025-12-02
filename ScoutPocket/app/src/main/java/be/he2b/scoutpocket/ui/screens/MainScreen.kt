@@ -72,7 +72,7 @@ fun MainScreen(
                 AgendaScreen(modifier = Modifier.fillMaxSize())
             }
             composable(BottomNavItem.Members.route) {
-                AgendaScreen(modifier = Modifier.fillMaxSize())
+                MembersScreen(modifier = Modifier.fillMaxSize())
             }
             composable(BottomNavItem.About.route) {
                 AboutScreen(modifier = Modifier.fillMaxSize())
