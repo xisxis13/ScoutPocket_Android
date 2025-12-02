@@ -25,17 +25,18 @@ fun AboutScreen(
     ) {
         Text(
             text = "Ravasco Alexis",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 8.dp)
+            style = MaterialTheme.typography.headlineLarge,
+            color = MaterialTheme.colorScheme.onBackground,
         )
         Text(
             text = "Id: 62664",
             style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onBackground,
         )
         Text(
             text = "Groupe: E112",
             style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onBackground,
         )
     }
 }
