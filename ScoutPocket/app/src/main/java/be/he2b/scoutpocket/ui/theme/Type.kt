@@ -47,4 +47,10 @@ val Typography = Typography(
         fontSize = 14.sp,
         color = PrimaryPurple,
     ),
+    labelSmall = TextStyle(
+        fontFamily = PoppinsFamily,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 12.sp,
+        color = PrimaryPurple,
+    ),
 )

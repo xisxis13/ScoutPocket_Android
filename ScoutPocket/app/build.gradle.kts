@@ -47,6 +47,9 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-moshi:3.0.0")
     implementation("com.squareup.moshi:moshi-kotlin:1.15.2")
 
+    // Lucide Icons
+    implementation("com.composables:icons-lucide-android:1.0.0")
+
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.0")
     implementation("androidx.navigation:navigation-compose:2.6.0")
     implementation(libs.androidx.core.ktx)

@@ -1,20 +1,33 @@
 package be.he2b.scoutpocket.ui.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -22,12 +35,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import be.he2b.scoutpocket.BottomNavItem
 import be.he2b.scoutpocket.R
-import be.he2b.scoutpocket.Screens
+import be.he2b.scoutpocket.navigation.BottomNavItem
 
-private val navItems = listOf(
-    BottomNavItem.Home,
+private val bottomNavItems = listOf(
+    BottomNavItem.Agenda,
+    BottomNavItem.Members,
     BottomNavItem.About,
 )
 
@@ -40,18 +53,25 @@ fun MainScreen(
     Scaffold(
         modifier = modifier.fillMaxSize(),
         bottomBar = {
-            BottomNavigationBar(navController = navBarController)
+            BottomBar(
+                navController = navBarController,
+                items = bottomNavItems,
+                modifier = modifier,
+            )
         }
     ) { paddingValues ->
         NavHost(
             navController = navBarController,
-            startDestination = Screens.Home.route,
+            startDestination = BottomNavItem.Agenda.route,
             modifier = Modifier.padding(paddingValues)
         ) {
-            composable(Screens.Home.route) {
-                HomeScreen(modifier = Modifier.fillMaxSize())
+            composable(BottomNavItem.Agenda.route) {
+                AgendaScreen(modifier = Modifier.fillMaxSize())
             }
-            composable(Screens.About.route) {
+            composable(BottomNavItem.Members.route) {
+                AgendaScreen(modifier = Modifier.fillMaxSize())
+            }
+            composable(BottomNavItem.About.route) {
                 AboutScreen(modifier = Modifier.fillMaxSize())
             }
         }
@@ -59,7 +79,7 @@ fun MainScreen(
 }
 
 @Composable
-fun HomeScreen(
+fun AgendaScreen(
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -77,23 +97,126 @@ fun HomeScreen(
 }
 
 @Composable
-fun BottomNavigationBar(navController: NavController) {
-    NavigationBar {
-        val navBarStackEntry by navController.currentBackStackEntryAsState()
-        val currentDestination = navBarStackEntry?.destination
+fun BottomBar(
+    navController: NavController,
+    items: List<BottomNavItem>,
+    modifier: Modifier,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.primary)
+            .padding(16.dp, 24.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        NavigationBar(
+            navController = navController,
+            items = items,
+            modifier = Modifier.weight(1f),
+        )
+    }
+}
 
-        navItems.forEach { item ->
-            NavigationBarItem(
-                icon = { Icon(item.icon, contentDescription = item.label) },
-                label = { Text(item.label) },
-                selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
-                onClick = {
-                    navController.navigate(item.route) {
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                },
-            )
+@Composable
+fun NavigationBar(
+    navController: NavController,
+    items: List<BottomNavItem>,
+    modifier: Modifier,
+) {
+    // Large Pill
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f))
+            .border(1.dp, MaterialTheme.colorScheme.surface, CircleShape)
+            .padding(4.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        // Background
+        Box(
+            modifier = modifier
+                .fillMaxWidth()
+                .clip(CircleShape)
+                .blur(24.dp),
+            contentAlignment = Alignment.Center,
+        ) { }
+
+        // Items
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(CircleShape),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceAround,
+        ) {
+            val navBarStackEntry by navController.currentBackStackEntryAsState()
+            val currentDestination = navBarStackEntry?.destination
+
+            items.forEach { item ->
+                NavigationBarItem(
+                    item = item,
+                    selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
+                    onClick = {
+                        navController.navigate(item.route) {
+                            popUpTo(navController.graph.startDestinationId)
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                )
+            }
         }
     }
+}
+
+@Composable
+fun RowScope.NavigationBarItem(
+    item: BottomNavItem,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val backgroundColor = if (selected) {
+        MaterialTheme.colorScheme.secondaryContainer
+    } else {
+        Color.Transparent
+    }
+
+    Column(
+        modifier = modifier
+            .weight(1f)
+            .clip(CircleShape)
+            .background(backgroundColor)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onClick,
+            )
+            .padding(12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        Icon(
+            imageVector = item.icon,
+            contentDescription = item.label,
+            tint = MaterialTheme.colorScheme.onBackground,
+        )
+        Text(
+            text = item.label,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onBackground,
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun BottomBarPreview() {
+    BottomBar(
+        navController = rememberNavController(),
+        items = bottomNavItems,
+        modifier = Modifier,
+    )
 }

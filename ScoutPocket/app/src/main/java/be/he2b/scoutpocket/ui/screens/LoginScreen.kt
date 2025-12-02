@@ -34,7 +34,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import be.he2b.scoutpocket.R
-import be.he2b.scoutpocket.Screens
+import be.he2b.scoutpocket.navigation.AppScreen
 import be.he2b.scoutpocket.viewmodel.LoginViewModel
 
 @Composable
@@ -56,7 +56,7 @@ fun LoginScreen(
 
     LaunchedEffect(isAuthenticated) {
         if (isAuthenticated) {
-            navController.navigate(Screens.Main.name)
+            navController.navigate(AppScreen.Main.name)
         }
     }
 
@@ -74,7 +74,10 @@ fun LoginScreen(
         Column(
             modifier = modifier
                 .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.onPrimary)
+                .background(
+                    MaterialTheme.colorScheme.onPrimary,
+                    shape = RoundedCornerShape(24.dp)
+                )
                 .border(
                     width = 1.dp,
                     color = MaterialTheme.colorScheme.secondaryContainer,
