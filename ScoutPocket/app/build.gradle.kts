@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -49,6 +50,11 @@ dependencies {
 
     // Lucide Icons
     implementation("com.composables:icons-lucide-android:1.0.0")
+
+    // room
+    implementation("androidx.room:room-runtime:2.8.4}")
+    ksp("androidx.room:room-compiler:2.8.4")
+    implementation ("androidx.room:room-ktx:2.8.4")
 
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.0")
     implementation("androidx.navigation:navigation-compose:2.6.0")
