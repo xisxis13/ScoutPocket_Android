@@ -43,11 +43,11 @@ fun LoginScreen(
     viewModel: LoginViewModel,
     navController: NavController,
 ) {
-    val email by remember { viewModel.email }
-    val password by remember { viewModel.password }
-    val isEmailValid by remember { viewModel.isEmailValid }
-    val isAuthenticated by remember { viewModel.isAuthenticated }
-    val errorMessage by remember { viewModel.errorMessage }
+    val email by viewModel.email
+    val password by viewModel.password
+    val isEmailValid by viewModel.isEmailValid
+    val isAuthenticated by viewModel.isAuthenticated
+    val errorMessage by viewModel.errorMessage
 
     val CornerRadius = 20.dp
     val BorderShape = RoundedCornerShape(CornerRadius)
@@ -72,7 +72,7 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(32.dp))
 
         Column(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxWidth()
                 .background(
                     boxColor,
@@ -86,7 +86,7 @@ fun LoginScreen(
                 .padding(24.dp)
         ) {
             Column(
-                modifier = modifier
+                modifier = Modifier
                     .fillMaxWidth()
             ) {
                 Text(
@@ -116,7 +116,7 @@ fun LoginScreen(
                         imeAction = ImeAction.Next,
                     ),
                     isError = !isEmailValid,
-                    modifier = modifier
+                    modifier = Modifier
                         .fillMaxWidth()
                         .background(
                             color = MaterialTheme.colorScheme.surface,
@@ -147,7 +147,7 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Column(
-                modifier = modifier
+                modifier = Modifier
                     .fillMaxWidth()
             ) {
                 Text(
@@ -177,7 +177,7 @@ fun LoginScreen(
                         imeAction = ImeAction.Done,
                     ),
                     isError = !viewModel.isPasswordValid.value,
-                    modifier = modifier
+                    modifier = Modifier
                         .fillMaxWidth()
                         .background(
                             color = boxColor,
@@ -216,7 +216,7 @@ fun LoginScreen(
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary,
                 ),
-                modifier = modifier
+                modifier = Modifier
                     .fillMaxWidth(),
             ) {
                 Text(

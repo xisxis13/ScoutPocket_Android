@@ -6,4 +6,8 @@
     <string name="email_placeholder">ex: example@email.com</string>
     <string name="password_label">Mot de passe</string>
     <string name="password_placeholder">ex: •••••••</string>
+
+    <string name="events_loading_error">Erreur lors du chargement des événements</string>
+    <string name="wrong_login_or_password_error">Mauvais login ou mot de passe</string>
+    <string name="auth_connection_error">Erreur de connexion : impossible de joindre le serveur.</string>
 </resources>

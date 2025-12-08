@@ -3,6 +3,7 @@ package be.he2b.scoutpocket.viewmodel
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import be.he2b.scoutpocket.R
 import be.he2b.scoutpocket.network.AuthBody
 import be.he2b.scoutpocket.network.AuthService
 import kotlinx.coroutines.launch
@@ -46,10 +47,10 @@ class LoginViewModel : ViewModel() {
                 if (response.isSuccessful) {
                     isAuthenticated.value = true
                 } else {
-                    errorMessage.value = "Mauvais login ou mot de passe"
+                    errorMessage.value = R.string.wrong_login_or_password_error.toString()
                 }
             } catch (e: Exception) {
-                errorMessage.value = "Erreur de connexion : impossible de joindre le serveur."
+                errorMessage.value = R.string.auth_connection_error.toString()
             }
         }
     }

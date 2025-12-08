@@ -1,6 +1,5 @@
 package be.he2b.scoutpocket.ui.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -12,7 +11,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -26,24 +28,29 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.shadow.Shadow
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import be.he2b.scoutpocket.R
+import be.he2b.scoutpocket.database.entity.Event
+import be.he2b.scoutpocket.model.formattedDateShort
+import be.he2b.scoutpocket.model.formattedTimeRange
 import be.he2b.scoutpocket.navigation.BottomNavItem
+import be.he2b.scoutpocket.viewmodel.AgendaViewModel
+import be.he2b.scoutpocket.viewmodel.AgendaViewModelFactory
 
 private val bottomNavItems = listOf(
     BottomNavItem.Agenda,
@@ -60,6 +67,8 @@ fun MainScreen(
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
+        containerColor = Color.Transparent,
+        // contentWindowInsets = WindowInsets(0,0,0,0),
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
@@ -80,28 +89,34 @@ fun MainScreen(
                 )
             )
         },
-        bottomBar = {
+    ) { paddingValues ->
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize(),
+        ) {
+            NavHost(
+                navController = navBarController,
+                startDestination = BottomNavItem.Agenda.route,
+                modifier = Modifier.padding(paddingValues)
+            ) {
+                composable(BottomNavItem.Agenda.route) {
+                    AgendaScreen(modifier = Modifier.fillMaxSize())
+                }
+                composable(BottomNavItem.Members.route) {
+                    MembersScreen(modifier = Modifier.fillMaxSize())
+                }
+                composable(BottomNavItem.About.route) {
+                    AboutScreen(modifier = Modifier.fillMaxSize())
+                }
+            }
+
             BottomBar(
                 navController = navBarController,
                 items = bottomNavItems,
-                modifier = modifier,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter),
             )
-        }
-    ) { paddingValues ->
-        NavHost(
-            navController = navBarController,
-            startDestination = BottomNavItem.Agenda.route,
-            modifier = Modifier.padding(paddingValues)
-        ) {
-            composable(BottomNavItem.Agenda.route) {
-                AgendaScreen(modifier = Modifier.fillMaxSize())
-            }
-            composable(BottomNavItem.Members.route) {
-                MembersScreen(modifier = Modifier.fillMaxSize())
-            }
-            composable(BottomNavItem.About.route) {
-                AboutScreen(modifier = Modifier.fillMaxSize())
-            }
         }
     }
 }
@@ -109,18 +124,100 @@ fun MainScreen(
 @Composable
 fun AgendaScreen(
     modifier: Modifier = Modifier,
+    viewModel: AgendaViewModel = viewModel(
+        factory = AgendaViewModelFactory(LocalContext.current.applicationContext)
+    ),
 ) {
+    val events = viewModel.events.value
+    val isLoading = viewModel.isLoading.value
+    val errorMessage = viewModel.errorMessage.value
 
+    Box(
+        modifier = modifier
+            .fillMaxSize(),
+        contentAlignment = Alignment.Center,
+    ) {
+        if (isLoading) {
+            Text("Ça charge...")
+        } else if (errorMessage != null) {
+            Text(
+                text = errorMessage,
+                color = MaterialTheme.colorScheme.error
+            )
+        } else if (events.isNotEmpty()) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                items(events) { event ->
+                    EventCard(event = event)
+                }
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                val texts = listOf("HELLO") + List(15) { "Aucun évènement trouvé" }
+                items(texts) { text ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(60.dp)
+                            .background(MaterialTheme.colorScheme.primary),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = text,
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
+                }
+            }
+            /*Box(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .height(64.dp)
+                    .background(MaterialTheme.colorScheme.primary),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = "Aucun évènement trouvé",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                )
+            }*/
+        }
+    }
+}
+
+@Composable
+fun EventCard(
+    event: Event,
+    modifier: Modifier = Modifier,
+) {
     Column(
         modifier = modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surface, shape = MaterialTheme.shapes.medium)
+            .padding(16.dp),
     ) {
-        Image(
-            painter = painterResource(R.drawable.logo),
-            contentDescription = "ESI logo",
+        Text(
+            text = event.name,
+            style = MaterialTheme.typography.titleMedium
+        )
+        Text(
+            text = event.formattedDateShort(),
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Text(
+            text = event.formattedTimeRange(),
+            style = MaterialTheme.typography.bodyMedium
         )
     }
 }
@@ -129,14 +226,14 @@ fun AgendaScreen(
 fun BottomBar(
     navController: NavController,
     items: List<BottomNavItem>,
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
             .padding(16.dp, 24.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalArrangement = Arrangement.Center,
     ) {
         NavigationBar(
             navController = navController,
@@ -166,20 +263,11 @@ fun NavigationBar(
                 )
             )
             .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f))
+            .background(MaterialTheme.colorScheme.surface)
             .border(1.dp, MaterialTheme.colorScheme.surface, CircleShape)
             .padding(4.dp),
         contentAlignment = Alignment.Center,
     ) {
-        // Blur effect
-        Box(
-            modifier = modifier
-                .fillMaxWidth()
-                .clip(CircleShape)
-                .blur(24.dp),
-            contentAlignment = Alignment.Center,
-        ) { }
-
         // Items
         Row(
             modifier = Modifier
