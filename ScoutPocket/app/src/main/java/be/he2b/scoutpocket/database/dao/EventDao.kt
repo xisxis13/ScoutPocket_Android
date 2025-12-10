@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import be.he2b.scoutpocket.database.entity.Event
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface EventDao {
@@ -19,7 +20,7 @@ interface EventDao {
     suspend fun delete(event: Event)
 
     @Query("SELECT * FROM events ORDER BY date, startTime")
-    suspend fun getAllEvents(): List<Event>
+    fun getAllEvents(): Flow<List<Event>>
 
     @Query("SELECT * FROM events WHERE id = :eventId")
     suspend fun getEventById(eventId: Int): Event?

@@ -7,6 +7,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,11 +17,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -35,6 +38,7 @@ import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
@@ -46,11 +50,20 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import be.he2b.scoutpocket.database.entity.Event
+import be.he2b.scoutpocket.model.Section
+import be.he2b.scoutpocket.model.backgroundColor
 import be.he2b.scoutpocket.model.formattedDateShort
 import be.he2b.scoutpocket.model.formattedTimeRange
+import be.he2b.scoutpocket.model.textColor
 import be.he2b.scoutpocket.navigation.BottomNavItem
+import be.he2b.scoutpocket.ui.theme.ScoutPocketTheme
 import be.he2b.scoutpocket.viewmodel.AgendaViewModel
 import be.he2b.scoutpocket.viewmodel.AgendaViewModelFactory
+import com.composables.icons.lucide.Clock
+import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.MapPin
+import java.time.LocalDate
+import java.time.LocalTime
 
 private val bottomNavItems = listOf(
     BottomNavItem.Agenda,
@@ -147,43 +160,19 @@ fun AgendaScreen(
         } else if (events.isNotEmpty()) {
             LazyColumn(
                 modifier = Modifier
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                    .fillMaxSize()
+                    .padding(16.dp, 0.dp),
+                contentPadding = PaddingValues(bottom = 100.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 items(events) { event ->
                     EventCard(event = event)
                 }
             }
         } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(32.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                val texts = listOf("HELLO") + List(15) { "Aucun évènement trouvé" }
-                items(texts) { text ->
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(60.dp)
-                            .background(MaterialTheme.colorScheme.primary),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            text = text,
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold,
-                        )
-                    }
-                }
-            }
-            /*Box(
+            Box(
                 modifier = modifier
-                    .fillMaxWidth()
-                    .height(64.dp)
-                    .background(MaterialTheme.colorScheme.primary),
+                    .fillMaxSize(),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
@@ -191,7 +180,7 @@ fun AgendaScreen(
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                 )
-            }*/
+            }
         }
     }
 }
@@ -201,26 +190,184 @@ fun EventCard(
     event: Event,
     modifier: Modifier = Modifier,
 ) {
-    Column(
+    Surface(
         modifier = modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surface, shape = MaterialTheme.shapes.medium)
-            .padding(16.dp),
+            .background(
+                color = MaterialTheme.colorScheme.surface,
+                shape = RoundedCornerShape(24.dp),
+            )
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.secondaryContainer,
+                shape = RoundedCornerShape(25.dp),
+            ),
+        shape = RoundedCornerShape(25.dp),
     ) {
-        Text(
-            text = event.name,
-            style = MaterialTheme.typography.titleMedium
-        )
-        Text(
-            text = event.formattedDateShort(),
-            style = MaterialTheme.typography.bodyMedium
-        )
-        Text(
-            text = event.formattedTimeRange(),
-            style = MaterialTheme.typography.bodyMedium
-        )
+        Column(
+            modifier = modifier
+                .fillMaxWidth()
+                .background(
+                    color = MaterialTheme.colorScheme.surface,
+                    shape = MaterialTheme.shapes.medium,
+                )
+                .padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Row(
+                modifier = modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                // Section
+                Box(
+                    modifier = modifier
+                        .background(
+                            color = event.section.backgroundColor(),
+                            shape = RoundedCornerShape(24.dp),
+                        )
+                        .padding(12.dp, 4.dp),
+                ) {
+                    Text(
+                        text = event.section.label,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = event.section.textColor(),
+                    )
+                }
+
+                // Date
+                Box(
+                    modifier = modifier
+                        .background(
+                            color = MaterialTheme.colorScheme.secondaryContainer,
+                            shape = RoundedCornerShape(24.dp),
+                        )
+                        .padding(12.dp, 4.dp),
+                ) {
+                    Text(
+                        text = event.formattedDateShort(),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    )
+                }
+            }
+
+            // Title
+            Text(
+                text = event.name,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+
+            // Infos
+            Row(
+                modifier = modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                // Time
+                Column(
+                    modifier = modifier
+                        .weight(1f)
+                        .background(
+                            color = MaterialTheme.colorScheme.secondaryContainer,
+                            shape = MaterialTheme.shapes.large,
+                        )
+                        .padding(12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    Row(
+                        modifier = modifier
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                    ) {
+                        Icon(
+                            imageVector = Lucide.Clock,
+                            contentDescription = null,
+                            modifier = modifier.height(20.dp),
+                            tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                        )
+                        Text(
+                            text = "Heures",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            textAlign = TextAlign.Center,
+                        )
+                    }
+                    Text(
+                        text = event.formattedTimeRange(),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        textAlign = TextAlign.Center,
+                    )
+                }
+
+                // Location
+                Column(
+                    modifier = modifier
+                        .weight(1f)
+                        .background(
+                            color = MaterialTheme.colorScheme.secondaryContainer,
+                            shape = MaterialTheme.shapes.large,
+                        )
+                        .padding(12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    Row(
+                        modifier = modifier
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                    ) {
+                        Icon(
+                            imageVector = Lucide.MapPin,
+                            contentDescription = null,
+                            modifier = modifier.height(20.dp),
+                            tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                        )
+                        Text(
+                            text = "Lieu",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            textAlign = TextAlign.Center,
+                        )
+                    }
+                    Text(
+                        text = event.location,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        textAlign = TextAlign.Center,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
+        }
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+fun EventCardPreview() {
+    val sampleEvent = Event(
+        id = 1,
+        name = "Réunion Classique",
+        section = Section.LOUVETEAUX,
+        date = LocalDate.now().plusDays(10),
+        startTime = LocalTime.of(14, 0),
+        endTime = LocalTime.of(17, 30),
+        location = "Au local de l'unité"
+    )
+
+
+    ScoutPocketTheme {
+        Box(modifier = Modifier.padding(16.dp)) {
+            EventCard(event = sampleEvent)
+        }
+    }
+}
+
 
 @Composable
 fun BottomBar(
@@ -336,7 +483,7 @@ fun RowScope.NavigationBarItem(
     }
 }
 
-@Preview(showBackground = true)
+// @Preview(showBackground = true)
 @Composable
 fun BottomBarPreview() {
     BottomBar(

@@ -1,10 +1,12 @@
 package be.he2b.scoutpocket.database
 
 import android.content.Context
+import androidx.activity.result.launch
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.sqlite.db.SupportSQLiteDatabase
 import be.he2b.scoutpocket.database.converter.EnumConverters
 import be.he2b.scoutpocket.database.converter.TimeConverters
 import be.he2b.scoutpocket.database.dao.EventDao
@@ -13,6 +15,12 @@ import be.he2b.scoutpocket.database.dao.PresenceDao
 import be.he2b.scoutpocket.database.entity.Event
 import be.he2b.scoutpocket.database.entity.Member
 import be.he2b.scoutpocket.database.entity.Presence
+import be.he2b.scoutpocket.model.Section
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.LocalTime
 
 @Database(
     entities = [Event::class, Member::class, Presence::class],
@@ -37,10 +45,73 @@ abstract class ScoutPocketDatabase : RoomDatabase() {
                     ScoutPocketDatabase::class.java,
                     DATABASE_NAME
                 )
-                sInstance = dbBuilder.build()
+                sInstance = dbBuilder.addCallback(PrepopulateCallback(context)).build()
             }
             return sInstance!!
         }
     }
+
+    private class PrepopulateCallback(
+        private val context: Context
+    ) : RoomDatabase.Callback() {
+
+        override fun onCreate(db: SupportSQLiteDatabase) {
+            super.onCreate(db)
+            CoroutineScope(Dispatchers.IO).launch {
+                val database = ScoutPocketDatabase.getInstance(context)
+                populateDatabase(database.eventDao())
+            }
+        }
+
+        private suspend fun populateDatabase(eventDao: EventDao) {
+            val sampleEvents = listOf(
+                Event(
+                    name = "Réunion Classique",
+                    section = Section.LOUVETEAUX,
+                    date = LocalDate.now().plusDays(10),
+                    startTime = LocalTime.of(14, 0),
+                    endTime = LocalTime.of(17, 30),
+                    location = "Au local de l'unité"
+                ),
+                Event(
+                    name = "Hike d'orientation",
+                    section = Section.ECLAIREURS,
+                    date = LocalDate.now().plusDays(18),
+                    startTime = LocalTime.of(10, 0),
+                    endTime = LocalTime.of(16, 0),
+                    location = "Forêt de Soignes"
+                ),
+                Event(
+                    name = "Découverte du cirque",
+                    section = Section.BALADINS,
+                    date = LocalDate.now().plusDays(37),
+                    startTime = LocalTime.of(14, 0),
+                    endTime = LocalTime.of(17, 30),
+                    location = "Grand place de Ath"
+                ),
+                Event(
+                    name = "Service au souper des anciens",
+                    section = Section.PIONNIERS,
+                    date = LocalDate.now().plusDays(41),
+                    startTime = LocalTime.of(10, 0),
+                    endTime = LocalTime.of(16, 0),
+                    location = "La providence"
+                ),
+                Event(
+                    name = "Soirée film",
+                    section = Section.UNITE,
+                    date = LocalDate.now().plusDays(59),
+                    startTime = LocalTime.of(18, 0),
+                    endTime = LocalTime.of(21, 0),
+                    location = "Théâtre Jean-Claude Drouot"
+                ),
+            )
+
+            sampleEvents.forEach { event ->
+                eventDao.insert(event)
+            }
+        }
+    }
+
 
 }

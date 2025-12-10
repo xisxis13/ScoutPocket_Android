@@ -34,8 +34,10 @@ class AgendaViewModel(
 
         viewModelScope.launch {
             try {
-                val result = eventRepository.getAllEvents()
-                events.value = result
+                eventRepository.getAllEvents().collect { list ->
+                    events.value = list
+                    isLoading.value = false
+                }
             } catch (e: Exception) {
                 errorMessage.value = R.string.events_loading_error.toString()
             } finally {
