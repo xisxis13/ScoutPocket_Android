@@ -67,9 +67,15 @@ fun AddEventScreen(
     val eventLocation by viewModel.newEventLocation
     val eventIsCreated by viewModel.newEventIsCreated
 
+    val eventNameError by viewModel.newEventNameError
+    val eventLocationError by viewModel.newEventLocationError
+
+    val isFormValid = eventName.isNotBlank() && eventLocation.isNotBlank()
+
     LaunchedEffect(eventIsCreated) {
         if (eventIsCreated) {
-            navController.popBackStack()
+            navController.navigateUp()
+            viewModel.resetEventCreationState()
         }
     }
 
@@ -88,11 +94,25 @@ fun AddEventScreen(
         ) {
             OutlinedTextField(
                 value = eventName,
-                onValueChange = { viewModel.newEventName.value = it },
+                onValueChange = {
+                    viewModel.newEventName.value = it
+                    if (viewModel.newEventNameError.value != null) {
+                        viewModel.newEventNameError.value = null
+                    }
+                },
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text("Nom de l'événement") },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+                isError = eventNameError != null,
+                supportingText = {
+                    if (eventNameError != null) {
+                        Text(
+                            text = eventNameError!!,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                },
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -140,25 +160,26 @@ fun AddEventScreen(
 
             OutlinedTextField(
                 value = eventLocation,
-                onValueChange = { viewModel.newEventLocation.value = it },
+                onValueChange = {
+                    viewModel.newEventLocation.value = it
+                    if (viewModel.newEventLocationError.value != null) {
+                        viewModel.newEventLocationError.value = null
+                    }
+                },
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text("Lieu") },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Button(
-                onClick = {
-                    viewModel.addEvent()
+                isError = eventLocationError != null,
+                supportingText = {
+                    if (eventLocationError != null) {
+                        Text(
+                            text = eventLocationError!!,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp)
-            ) {
-                Text("Ajouter l'évènement")
-            }
+            )
         }
     }
 

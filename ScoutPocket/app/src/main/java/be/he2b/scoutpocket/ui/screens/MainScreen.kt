@@ -20,9 +20,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -33,10 +35,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.shadow.Shadow
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.NavHost
@@ -45,9 +49,14 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import be.he2b.scoutpocket.navigation.AppScreen
 import be.he2b.scoutpocket.navigation.BottomNavItem
+import be.he2b.scoutpocket.viewmodel.AgendaViewModel
+import be.he2b.scoutpocket.viewmodel.AgendaViewModelFactory
+import com.composables.icons.lucide.Check
+import com.composables.icons.lucide.ChevronLeft
 import com.composables.icons.lucide.CircleSlash
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.Plus
+import com.composables.icons.lucide.X
 
 private val bottomNavItems = listOf(
     BottomNavItem.Agenda,
@@ -61,37 +70,76 @@ fun MainScreen(
     modifier: Modifier = Modifier,
 ) {
     val navBarController = rememberNavController()
+    val agendaViewModel: AgendaViewModel = viewModel(
+        factory = AgendaViewModelFactory(LocalContext.current.applicationContext)
+    )
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = Color.Transparent,
         // contentWindowInsets = WindowInsets(0,0,0,0),
         topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    val navBackStackEntry by navBarController.currentBackStackEntryAsState()
-                    val currentRoute = navBackStackEntry?.destination?.route
+            val navBackStackEntry by navBarController.currentBackStackEntryAsState()
+            val currentRoute = navBackStackEntry?.destination?.route
 
-                    val title = when (currentRoute) {
-                        BottomNavItem.Agenda.route -> "Agenda"
-                        BottomNavItem.Members.route -> "Membres"
-                        BottomNavItem.About.route -> "About"
-                        AppScreen.AddEvent.name -> "Nouvel évènement"
-                        else -> "ScoutPocket"
-                    }
-                    Text(
-                        text = title,
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        textAlign = TextAlign.Center,
+            val title = when (currentRoute) {
+                BottomNavItem.Agenda.route -> "Agenda"
+                BottomNavItem.Members.route -> "Membres"
+                BottomNavItem.About.route -> "About"
+                AppScreen.AddEvent.name -> "Nouvel évènement"
+                else -> "ScoutPocket"
+            }
+
+            if (currentRoute == AppScreen.AddEvent.name) {
+                TopAppBar(
+                    title = {
+                        Text(
+                            text = title,
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            textAlign = TextAlign.Center,
+                        )
+                    },
+                    navigationIcon = {
+                        IconButton(
+                            onClick = { navBarController.navigateUp() },
+                            modifier = modifier
+                                .padding(start = 12.dp)
+                                .background(
+                                    color = MaterialTheme.colorScheme.secondaryContainer,
+                                    shape = CircleShape,
+                                ),
+                        ) {
+                            Icon(
+                                imageVector = Lucide.X,
+                                contentDescription = "Retour",
+                                tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Transparent,
+                        titleContentColor = MaterialTheme.colorScheme.onBackground,
                     )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent,
-                    titleContentColor = MaterialTheme.colorScheme.onBackground,
                 )
-            )
+            } else {
+                CenterAlignedTopAppBar(
+                    title = {
+                        Text(
+                            text = title,
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            textAlign = TextAlign.Center,
+                        )
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Transparent,
+                        titleContentColor = MaterialTheme.colorScheme.onBackground,
+                    )
+                )
+            }
         },
     ) { paddingValues ->
 
@@ -105,7 +153,10 @@ fun MainScreen(
                 modifier = Modifier.padding(paddingValues)
             ) {
                 composable(BottomNavItem.Agenda.route) {
-                    AgendaScreen(modifier = Modifier.fillMaxSize())
+                    AgendaScreen(
+                        modifier = Modifier.fillMaxSize(),
+                        viewModel = agendaViewModel,
+                    )
                 }
                 composable(BottomNavItem.Members.route) {
                     MembersScreen(modifier = Modifier.fillMaxSize())
@@ -114,7 +165,10 @@ fun MainScreen(
                     AboutScreen(modifier = Modifier.fillMaxSize())
                 }
                 composable(AppScreen.AddEvent.name) {
-                    AddEventScreen(navController = navBarController)
+                    AddEventScreen(
+                        navController = navBarController,
+                        viewModel = agendaViewModel,
+                    )
                 }
             }
 
@@ -123,6 +177,7 @@ fun MainScreen(
                 items = bottomNavItems,
                 modifier = Modifier
                     .align(Alignment.BottomCenter),
+                onAddEventClick = { agendaViewModel.addEvent() }
             )
         }
     }
@@ -133,6 +188,7 @@ fun BottomBar(
     navController: NavController,
     items: List<BottomNavItem>,
     modifier: Modifier = Modifier,
+    onAddEventClick: () -> Unit,
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -154,6 +210,8 @@ fun BottomBar(
             onClick = {
                 if (currentRoute == BottomNavItem.Agenda.route) {
                     navController.navigate(AppScreen.AddEvent.name)
+                } else if (currentRoute == AppScreen.AddEvent.name) {
+                    onAddEventClick()
                 }
             },
             modifier = Modifier
@@ -172,7 +230,16 @@ fun BottomBar(
                     modifier = modifier.height(28.dp),
                     tint = MaterialTheme.colorScheme.secondaryContainer,
                 )
-            } else {
+            } else if (currentRoute == AppScreen.AddEvent.name) {
+                Icon(
+                    imageVector = Lucide.Check,
+                    contentDescription = null,
+                    modifier = modifier.height(28.dp),
+                    tint = MaterialTheme.colorScheme.secondaryContainer,
+                )
+            }
+
+            else {
                 Icon(
                     imageVector = Lucide.CircleSlash,
                     contentDescription = null,
@@ -284,5 +351,6 @@ fun BottomBarPreview() {
         navController = rememberNavController(),
         items = bottomNavItems,
         modifier = Modifier,
+        onAddEventClick = {}
     )
 }

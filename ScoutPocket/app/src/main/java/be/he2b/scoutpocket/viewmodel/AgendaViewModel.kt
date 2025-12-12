@@ -32,18 +32,35 @@ class AgendaViewModel(
         private set
     var pastEvents = mutableStateOf<List<Event>>(emptyList())
         private set
-
     var allEvents = mutableStateOf<List<Event>>(emptyList())
         private set
 
     var isLoading = mutableStateOf(true)
         private set
-
     var errorMessage = mutableStateOf<String?>(null)
         private set
+    var newEventNameError = mutableStateOf<String?>(null)
+    var newEventLocationError = mutableStateOf<String?>(null)
 
     init {
         loadEvents()
+    }
+
+    private fun validateForm(): Boolean {
+        newEventNameError.value = null
+        newEventLocationError.value = null
+
+        var isValid = true
+
+        if (newEventName.value.isBlank()) {
+            newEventNameError.value = "Le nom ne peut pas être vide"
+            isValid = false
+        } else if (newEventLocation.value.isBlank()) {
+            newEventLocationError.value = "Le lieu ne peut pas être vide"
+            isValid = false
+        }
+
+        return isValid
     }
 
     fun loadEvents() {
@@ -73,6 +90,10 @@ class AgendaViewModel(
     }
 
     fun addEvent() {
+        if (!validateForm()) {
+            return
+        }
+
         errorMessage.value = null
         newEventIsCreated.value = false
 
@@ -82,12 +103,12 @@ class AgendaViewModel(
 
             try {
                 val newEvent = Event(
-                    name = newEventName.value,
+                    name = newEventName.value.trim(),
                     section = newEventSection.value,
                     date = newEventDate.value,
                     startTime = newEventStartTime.value,
                     endTime = newEventEndTime.value,
-                    location = newEventLocation.value
+                    location = newEventLocation.value.trim()
                 )
                 eventRepository.addEvent(newEvent)
                 newEventIsCreated.value = true
@@ -97,6 +118,10 @@ class AgendaViewModel(
                 isLoading.value = false
             }
         }
+    }
+
+    fun resetEventCreationState() {
+        newEventIsCreated.value = false
     }
 
     fun switchEventsView() {
