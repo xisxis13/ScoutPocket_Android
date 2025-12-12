@@ -9,7 +9,10 @@ import be.he2b.scoutpocket.R
 import be.he2b.scoutpocket.database.ScoutPocketDatabase
 import be.he2b.scoutpocket.database.entity.Event
 import be.he2b.scoutpocket.database.repository.EventRepository
+import be.he2b.scoutpocket.model.Section
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.LocalTime
 
 class AgendaViewModel(
     private val eventRepository: EventRepository,
@@ -40,6 +43,36 @@ class AgendaViewModel(
                 }
             } catch (e: Exception) {
                 errorMessage.value = R.string.events_loading_error.toString()
+            } finally {
+                isLoading.value = false
+            }
+        }
+    }
+
+    fun addEvent(
+        name: String,
+        section: Section,
+        date: LocalDate,
+        startTime: LocalTime,
+        endTime: LocalTime,
+        location: String,
+    ) {
+        viewModelScope.launch {
+            isLoading.value = true
+            errorMessage.value = null
+
+            try {
+                val newEvent = Event(
+                    name = name,
+                    section = section,
+                    date = date,
+                    startTime = startTime,
+                    endTime = endTime,
+                    location = location
+                )
+                eventRepository.addEvent(newEvent)
+            } catch (e: Exception) {
+                errorMessage.value = R.string.new_event_creation_error.toString()
             } finally {
                 isLoading.value = false
             }
