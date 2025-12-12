@@ -14,16 +14,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -35,35 +33,21 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.shadow.Shadow
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import be.he2b.scoutpocket.database.entity.Event
-import be.he2b.scoutpocket.model.Section
-import be.he2b.scoutpocket.model.backgroundColor
-import be.he2b.scoutpocket.model.formattedDateShort
-import be.he2b.scoutpocket.model.formattedTimeRange
-import be.he2b.scoutpocket.model.textColor
+import be.he2b.scoutpocket.navigation.AppScreen
 import be.he2b.scoutpocket.navigation.BottomNavItem
-import be.he2b.scoutpocket.ui.theme.ScoutPocketTheme
-import be.he2b.scoutpocket.viewmodel.AgendaViewModel
-import be.he2b.scoutpocket.viewmodel.AgendaViewModelFactory
-import com.composables.icons.lucide.Clock
+import com.composables.icons.lucide.CircleSlash
 import com.composables.icons.lucide.Lucide
-import com.composables.icons.lucide.MapPin
-import java.time.LocalDate
-import java.time.LocalTime
+import com.composables.icons.lucide.Plus
 
 private val bottomNavItems = listOf(
     BottomNavItem.Agenda,
@@ -87,9 +71,16 @@ fun MainScreen(
                 title = {
                     val navBackStackEntry by navBarController.currentBackStackEntryAsState()
                     val currentRoute = navBackStackEntry?.destination?.route
-                    val currentItem = bottomNavItems.find { it.route == currentRoute }
+
+                    val title = when (currentRoute) {
+                        BottomNavItem.Agenda.route -> "Agenda"
+                        BottomNavItem.Members.route -> "Membres"
+                        BottomNavItem.About.route -> "About"
+                        AppScreen.AddEvent.name -> "Nouvel évènement"
+                        else -> "ScoutPocket"
+                    }
                     Text(
-                        text = currentItem?.label ?: "Titre",
+                        text = title,
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier
                             .fillMaxWidth(),
@@ -122,6 +113,9 @@ fun MainScreen(
                 composable(BottomNavItem.About.route) {
                     AboutScreen(modifier = Modifier.fillMaxSize())
                 }
+                composable(AppScreen.AddEvent.name) {
+                    AddEventScreen(navController = navBarController)
+                }
             }
 
             BottomBar(
@@ -140,18 +134,53 @@ fun BottomBar(
     items: List<BottomNavItem>,
     modifier: Modifier = Modifier,
 ) {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
     Row(
         modifier = modifier
             .fillMaxWidth()
             .padding(16.dp, 24.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center,
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         NavigationBar(
             navController = navController,
             items = items,
             modifier = Modifier.weight(1f),
         )
+
+        Button(
+            onClick = {
+                if (currentRoute == BottomNavItem.Agenda.route) {
+                    navController.navigate(AppScreen.AddEvent.name)
+                }
+            },
+            modifier = Modifier
+                .size(56.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    shape = CircleShape,
+                ),
+            shape = CircleShape,
+            contentPadding = PaddingValues(0.dp)
+        ) {
+            if (currentRoute == BottomNavItem.Agenda.route) {
+                Icon(
+                    imageVector = Lucide.Plus,
+                    contentDescription = null,
+                    modifier = modifier.height(28.dp),
+                    tint = MaterialTheme.colorScheme.secondaryContainer,
+                )
+            } else {
+                Icon(
+                    imageVector = Lucide.CircleSlash,
+                    contentDescription = null,
+                    modifier = modifier.height(28.dp),
+                    tint = MaterialTheme.colorScheme.secondaryContainer,
+                )
+            }
+        }
     }
 }
 
@@ -248,7 +277,7 @@ fun RowScope.NavigationBarItem(
     }
 }
 
-// @Preview(showBackground = true)
+@Preview(showBackground = true)
 @Composable
 fun BottomBarPreview() {
     BottomBar(

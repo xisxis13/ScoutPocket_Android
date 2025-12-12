@@ -9,6 +9,7 @@ import com.composables.icons.lucide.Users
 enum class AppScreen(val route: String) {
     Login("login"),
     Main("main"),
+    AddEvent("add_event")
 }
 
 enum class BottomNavItem(

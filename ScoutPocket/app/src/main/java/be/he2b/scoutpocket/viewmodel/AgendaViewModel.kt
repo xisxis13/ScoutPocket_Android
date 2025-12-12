@@ -18,6 +18,15 @@ class AgendaViewModel(
     private val eventRepository: EventRepository,
 ) : ViewModel() {
 
+    // New event
+    var newEventName = mutableStateOf("")
+    var newEventSection = mutableStateOf(Section.UNITE)
+    var newEventDate = mutableStateOf(LocalDate.now())
+    var newEventStartTime = mutableStateOf(LocalTime.of(14, 0))
+    var newEventEndTime = mutableStateOf(LocalTime.of(17, 30))
+    var newEventLocation = mutableStateOf("")
+    var newEventIsCreated = mutableStateOf(false)
+
     var events = mutableStateOf<List<Event>>(emptyList())
         private set
 
@@ -49,28 +58,25 @@ class AgendaViewModel(
         }
     }
 
-    fun addEvent(
-        name: String,
-        section: Section,
-        date: LocalDate,
-        startTime: LocalTime,
-        endTime: LocalTime,
-        location: String,
-    ) {
+    fun addEvent() {
+        errorMessage.value = null
+        newEventIsCreated.value = false
+
         viewModelScope.launch {
             isLoading.value = true
             errorMessage.value = null
 
             try {
                 val newEvent = Event(
-                    name = name,
-                    section = section,
-                    date = date,
-                    startTime = startTime,
-                    endTime = endTime,
-                    location = location
+                    name = newEventName.value,
+                    section = newEventSection.value,
+                    date = newEventDate.value,
+                    startTime = newEventStartTime.value,
+                    endTime = newEventEndTime.value,
+                    location = newEventLocation.value
                 )
                 eventRepository.addEvent(newEvent)
+                newEventIsCreated.value = true
             } catch (e: Exception) {
                 errorMessage.value = R.string.new_event_creation_error.toString()
             } finally {
