@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import be.he2b.scoutpocket.R
 import be.he2b.scoutpocket.database.entity.Member
 import be.he2b.scoutpocket.database.repository.MemberRepository
+import be.he2b.scoutpocket.model.Section
 import kotlinx.coroutines.launch
 
 class MemberViewModel(
@@ -34,6 +35,21 @@ class MemberViewModel(
         viewModelScope.launch {
             try {
                 members.value = memberRepository.getAllMembers()
+            } catch (e: Exception) {
+                errorMessage.value = R.string.members_loading_error.toString()
+            } finally {
+                isLoading.value = false
+            }
+        }
+    }
+
+    fun loadSectionMembers(section: Section) {
+        isLoading.value = true
+        errorMessage.value = null
+
+        viewModelScope.launch {
+            try {
+                members.value = memberRepository.getMembersBySection(section)
             } catch (e: Exception) {
                 errorMessage.value = R.string.members_loading_error.toString()
             } finally {

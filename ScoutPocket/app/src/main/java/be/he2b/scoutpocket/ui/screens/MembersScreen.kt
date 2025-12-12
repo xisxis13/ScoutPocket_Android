@@ -60,8 +60,21 @@ fun MembersScreen(
                 contentPadding = PaddingValues(bottom = 100.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                items(members) { member ->
-                    MemberCard(member)
+                val membersBySection = members.groupBy { it.section }
+
+                membersBySection.forEach { (section, sectionMembers) ->
+                    if (sectionMembers.isNotEmpty()) {
+                        item {
+                            Text(
+                                text = section.label,
+                                style = MaterialTheme.typography.headlineMedium
+                            )
+                        }
+
+                        items(sectionMembers) { member ->
+                            MemberCard(member)
+                        }
+                    }
                 }
             }
         } else {
