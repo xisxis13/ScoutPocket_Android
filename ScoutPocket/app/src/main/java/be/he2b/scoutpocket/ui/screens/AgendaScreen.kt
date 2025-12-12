@@ -2,32 +2,46 @@ package be.he2b.scoutpocket.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.dropShadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.compose.currentBackStackEntryAsState
 import be.he2b.scoutpocket.database.entity.Event
 import be.he2b.scoutpocket.model.Section
 import be.he2b.scoutpocket.model.backgroundColor
@@ -50,9 +64,12 @@ fun AgendaScreen(
         factory = AgendaViewModelFactory(LocalContext.current.applicationContext)
     ),
 ) {
-    val events = viewModel.events.value
+    val upcomingEvents = viewModel.upcomingEvents.value
+    val pastEvents = viewModel.pastEvents.value
+
     val isLoading = viewModel.isLoading.value
     val errorMessage = viewModel.errorMessage.value
+    val showUpcomingEvents = viewModel.showUpcomingEvents.value
 
     Box(
         modifier = modifier
@@ -66,7 +83,7 @@ fun AgendaScreen(
                 text = errorMessage,
                 color = MaterialTheme.colorScheme.error
             )
-        } else if (events.isNotEmpty()) {
+        } else if (upcomingEvents.isNotEmpty() || pastEvents.isNotEmpty()) {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -74,8 +91,76 @@ fun AgendaScreen(
                 contentPadding = PaddingValues(bottom = 100.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                items(events) { event ->
-                    EventCard(event = event)
+                if (upcomingEvents.isNotEmpty()) {
+                    item {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = "Prochain évènement",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.onBackground,
+                        )
+                    }
+
+                    item {
+                        EventCard(event = upcomingEvents.first())
+                    }
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    SwitchButton(
+                        buttons = listOf("À venir" to showUpcomingEvents, "Passés" to !showUpcomingEvents),
+                        onClick = { viewModel.switchEventsView() },
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
+
+                if (showUpcomingEvents) {
+                    item {
+                        Text(
+                            text = "À venir",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.onBackground,
+                        )
+                    }
+
+                    val upcomingEventsList = if (upcomingEvents.size > 1) upcomingEvents.drop(1) else emptyList()
+
+                    if (upcomingEventsList.isNotEmpty()) {
+                        items(upcomingEventsList) { event ->
+                            EventCard(event = event)
+                        }
+                    } else {
+                        item {
+                            Text(
+                                text = "Aucun évènement à venir",
+                                style = MaterialTheme.typography.headlineSmall,
+                                color = MaterialTheme.colorScheme.onBackground,
+                            )
+                        }
+                    }
+                } else {
+                    item {
+                        Text(
+                            text = "Passés",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.onBackground,
+                        )
+                    }
+
+                    if (pastEvents.isNotEmpty()) {
+                        items(pastEvents) { event ->
+                            EventCard(event = event)
+                        }
+                    } else {
+                        item {
+                            Text(
+                                text = "Aucun évènement passé",
+                                style = MaterialTheme.typography.headlineSmall,
+                                color = MaterialTheme.colorScheme.onBackground,
+                            )
+                        }
+                    }
                 }
             }
         } else {
@@ -274,5 +359,64 @@ fun EventCardPreview() {
         Box(modifier = Modifier.padding(16.dp)) {
             EventCard(event = sampleEvent)
         }
+    }
+}
+
+@Composable
+fun SwitchButton(
+    modifier: Modifier = Modifier,
+    buttons: List<Pair<String, Boolean>>,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(
+                color = MaterialTheme.colorScheme.surface,
+                shape = CircleShape,
+            )
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.secondaryContainer,
+                shape = CircleShape,
+            )
+            .padding(4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceAround,
+    ) {
+        buttons.forEach { (label, isSelected) ->
+            val backgroundColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent
+            val contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondaryContainer
+
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .clip(CircleShape)
+                    .background(backgroundColor)
+                    .clickable(onClick = onClick)
+                    .padding(12.dp, 8.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = contentColor
+                )
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun SwitchButtonPreview() {
+    val buttons = listOf("Button 1" to true, "Button 2" to false)
+
+    ScoutPocketTheme {
+        SwitchButton(
+            buttons = buttons,
+            onClick = { },
+        )
     }
 }

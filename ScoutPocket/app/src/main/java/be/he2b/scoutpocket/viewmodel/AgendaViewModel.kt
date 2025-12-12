@@ -27,7 +27,13 @@ class AgendaViewModel(
     var newEventLocation = mutableStateOf("")
     var newEventIsCreated = mutableStateOf(false)
 
-    var events = mutableStateOf<List<Event>>(emptyList())
+    var showUpcomingEvents = mutableStateOf(true)
+    var upcomingEvents = mutableStateOf<List<Event>>(emptyList())
+        private set
+    var pastEvents = mutableStateOf<List<Event>>(emptyList())
+        private set
+
+    var allEvents = mutableStateOf<List<Event>>(emptyList())
         private set
 
     var isLoading = mutableStateOf(true)
@@ -47,7 +53,15 @@ class AgendaViewModel(
         viewModelScope.launch {
             try {
                 eventRepository.getAllEvents().collect { list ->
-                    events.value = list
+                    val today = LocalDate.now()
+                    val (future, past) = list.partition {
+                        it.date.isAfter(today) || it.date.isEqual(today)
+                    }
+
+                    upcomingEvents.value = future
+                    pastEvents.value = past.reversed()
+
+                    allEvents.value = list
                     isLoading.value = false
                 }
             } catch (e: Exception) {
@@ -83,6 +97,10 @@ class AgendaViewModel(
                 isLoading.value = false
             }
         }
+    }
+
+    fun switchEventsView() {
+        showUpcomingEvents.value = !showUpcomingEvents.value
     }
 
 }
