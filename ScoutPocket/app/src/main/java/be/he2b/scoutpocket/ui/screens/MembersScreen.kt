@@ -4,14 +4,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -19,12 +20,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import be.he2b.scoutpocket.database.entity.Member
 import be.he2b.scoutpocket.model.Section
+import be.he2b.scoutpocket.model.backgroundColor
+import be.he2b.scoutpocket.model.textColor
 import be.he2b.scoutpocket.ui.theme.ScoutPocketTheme
 import be.he2b.scoutpocket.viewmodel.MemberViewModel
 import be.he2b.scoutpocket.viewmodel.MemberViewModelFactory
@@ -67,7 +69,8 @@ fun MembersScreen(
                         item {
                             Text(
                                 text = section.label,
-                                style = MaterialTheme.typography.headlineMedium
+                                style = MaterialTheme.typography.titleLarge,
+                                color = MaterialTheme.colorScheme.onBackground,
                             )
                         }
 
@@ -86,7 +89,6 @@ fun MembersScreen(
                 Text(
                     text = "Aucun membre trouvé",
                     style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
                 )
             }
         }
@@ -103,22 +105,43 @@ fun MemberCard(
             .fillMaxWidth()
             .background(
                 color = MaterialTheme.colorScheme.surface,
-                shape = RoundedCornerShape(24.dp),
+                shape = CircleShape,
             )
             .border(
                 width = 1.dp,
                 color = MaterialTheme.colorScheme.secondaryContainer,
-                shape = RoundedCornerShape(25.dp),
+                shape = CircleShape,
             ),
-        shape = RoundedCornerShape(25.dp),
+        shape = CircleShape,
     ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
+            Box(
+                modifier = modifier
+                    .size(44.dp)
+                    .background(
+                        color = member.section.backgroundColor(),
+                        shape = CircleShape
+                    ),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = "${member.firstName.first()}${member.lastName.first()}",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = member.section.textColor()
+                )
+            }
+
             Text(
-                text = "${member.firstName} ${member.lastName}",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface
+                modifier = modifier.fillMaxWidth(),
+                text = "${member.firstName} ${member.lastName.uppercase()}",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onBackground,
             )
         }
     }
