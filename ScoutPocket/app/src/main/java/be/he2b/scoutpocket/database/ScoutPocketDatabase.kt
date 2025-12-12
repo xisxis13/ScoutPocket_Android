@@ -1,7 +1,6 @@
 package be.he2b.scoutpocket.database
 
 import android.content.Context
-import androidx.activity.result.launch
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -58,12 +57,13 @@ abstract class ScoutPocketDatabase : RoomDatabase() {
         override fun onCreate(db: SupportSQLiteDatabase) {
             super.onCreate(db)
             CoroutineScope(Dispatchers.IO).launch {
-                val database = ScoutPocketDatabase.getInstance(context)
-                populateDatabase(database.eventDao())
+                val database = getInstance(context)
+                populateDatabaseWithEvents(database.eventDao())
+                populateDatabaseWithMembers(database.memberDao())
             }
         }
 
-        private suspend fun populateDatabase(eventDao: EventDao) {
+        private suspend fun populateDatabaseWithEvents(eventDao: EventDao) {
             val sampleEvents = listOf(
                 Event(
                     name = "Réunion Classique",
@@ -109,6 +109,55 @@ abstract class ScoutPocketDatabase : RoomDatabase() {
 
             sampleEvents.forEach { event ->
                 eventDao.insert(event)
+            }
+        }
+
+        private suspend fun populateDatabaseWithMembers(memberDao: MemberDao) {
+            val sampleMembers = listOf(
+                Member(
+                    lastName = "Martin",
+                    firstName = "Emma",
+                    section = Section.BALADINS
+                ),
+                Member(
+                    lastName = "Dupont",
+                    firstName = "Lucas",
+                    section = Section.BALADINS
+                ),
+                Member(
+                    lastName = "Moreau",
+                    firstName = "Lina",
+                    section = Section.LOUVETEAUX
+                ),
+                Member(
+                    lastName = "Laurent",
+                    firstName = "Noah",
+                    section = Section.LOUVETEAUX
+                ),
+                Member(
+                    lastName = "Bernard",
+                    firstName = "Alice",
+                    section = Section.ECLAIREURS
+                ),
+                Member(
+                    lastName = "Robert",
+                    firstName = "Gabriel",
+                    section = Section.ECLAIREURS
+                ),
+                Member(
+                    lastName = "Lefèvre",
+                    firstName = "Jade",
+                    section = Section.PIONNIERS
+                ),
+                Member(
+                    lastName = "Mercier",
+                    firstName = "Louis",
+                    section = Section.PIONNIERS
+                ),
+            )
+
+            sampleMembers.forEach { member ->
+                memberDao.insert(member)
             }
         }
     }

@@ -10,5 +10,6 @@
     <string name="events_loading_error">Erreur lors du chargement des événements</string>
     <string name="wrong_login_or_password_error">Mauvais login ou mot de passe</string>
     <string name="auth_connection_error">Erreur de connexion : impossible de joindre le serveur.</string>
-    <string name="new_event_creation_error">Erreur lors de la création d'un nouvel événement</string>
+    <string name="new_event_creation_error">Erreur lors de la création d\'un nouvel événement</string>
+    <string name="members_loading_error">Erreur lors du chargement des membres</string>
 </resources>
