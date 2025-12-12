@@ -36,10 +36,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import be.he2b.scoutpocket.R
 import be.he2b.scoutpocket.model.Section
 import be.he2b.scoutpocket.viewmodel.AgendaViewModel
 import be.he2b.scoutpocket.viewmodel.AgendaViewModelFactory
@@ -83,14 +85,14 @@ fun AddEventScreen(
         modifier = modifier
             .fillMaxSize()
             .padding(24.dp),
-        contentAlignment = Alignment.Center,
+        contentAlignment = Alignment.TopCenter,
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             OutlinedTextField(
                 value = eventName,
@@ -102,6 +104,12 @@ fun AddEventScreen(
                 },
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text("Nom de l'événement") },
+                placeholder = {
+                    Text(
+                        text = "ex: Réunion classique",
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
                 isError = eventNameError != null,
@@ -115,7 +123,7 @@ fun AddEventScreen(
                 },
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            // Spacer(modifier = Modifier.height(8.dp))
 
             LabeledSelect(
                 label = "Section",
@@ -126,7 +134,7 @@ fun AddEventScreen(
                 }
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            // Spacer(modifier = Modifier.height(8.dp))
 
             DatePickerField(
                 label = "Date de l'événement",
@@ -136,7 +144,7 @@ fun AddEventScreen(
                 }
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            // Spacer(modifier = Modifier.height(8.dp))
 
             TimePickerField(
                 label = "Heure de début",
@@ -146,7 +154,7 @@ fun AddEventScreen(
                 }
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            // Spacer(modifier = Modifier.height(8.dp))
 
             TimePickerField(
                 label = "Heure de fin",
@@ -156,7 +164,7 @@ fun AddEventScreen(
                 }
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            // Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(
                 value = eventLocation,
@@ -168,6 +176,12 @@ fun AddEventScreen(
                 },
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text("Lieu") },
+                placeholder = {
+                    Text(
+                        text = "ex: Local de l\'unité",
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
                 isError = eventLocationError != null,

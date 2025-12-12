@@ -116,6 +116,8 @@ class AgendaViewModel(
                 errorMessage.value = R.string.new_event_creation_error.toString()
             } finally {
                 isLoading.value = false
+                newEventName.value = ""
+                newEventLocation.value = ""
             }
         }
     }
