@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -52,7 +53,6 @@ import be.he2b.scoutpocket.navigation.BottomNavItem
 import be.he2b.scoutpocket.viewmodel.AgendaViewModel
 import be.he2b.scoutpocket.viewmodel.AgendaViewModelFactory
 import com.composables.icons.lucide.Check
-import com.composables.icons.lucide.ChevronLeft
 import com.composables.icons.lucide.CircleSlash
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.Plus
@@ -77,7 +77,7 @@ fun MainScreen(
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = Color.Transparent,
-        // contentWindowInsets = WindowInsets(0,0,0,0),
+        contentWindowInsets = WindowInsets(0,0,0,0),
         topBar = {
             val navBackStackEntry by navBarController.currentBackStackEntryAsState()
             val currentRoute = navBackStackEntry?.destination?.route

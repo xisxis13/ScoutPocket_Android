@@ -59,7 +59,7 @@ fun MembersScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp, 0.dp),
-                contentPadding = PaddingValues(bottom = 100.dp),
+                contentPadding = PaddingValues(bottom = 120.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 val membersBySection = members.groupBy { it.section }
