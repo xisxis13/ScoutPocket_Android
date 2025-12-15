@@ -22,6 +22,11 @@ val Typography = Typography(
         fontWeight = FontWeight.Bold,
         fontSize = 32.sp,
     ),
+    headlineMedium = TextStyle(
+        fontFamily = PoppinsFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 24.sp,
+    ),
     titleLarge = TextStyle(
         fontFamily = PoppinsFamily,
         fontWeight = FontWeight.Bold,
