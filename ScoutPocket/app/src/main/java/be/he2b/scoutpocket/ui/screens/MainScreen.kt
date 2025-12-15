@@ -44,16 +44,19 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import be.he2b.scoutpocket.navigation.AppScreen
 import be.he2b.scoutpocket.navigation.BottomNavItem
 import be.he2b.scoutpocket.viewmodel.AgendaViewModel
 import be.he2b.scoutpocket.viewmodel.AgendaViewModelFactory
+import be.he2b.scoutpocket.viewmodel.EventViewModel
+import be.he2b.scoutpocket.viewmodel.EventViewModelFactory
 import com.composables.icons.lucide.Check
-import com.composables.icons.lucide.CircleSlash
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.Plus
 import com.composables.icons.lucide.X
@@ -82,15 +85,16 @@ fun MainScreen(
             val navBackStackEntry by navBarController.currentBackStackEntryAsState()
             val currentRoute = navBackStackEntry?.destination?.route
 
-            val title = when (currentRoute) {
-                BottomNavItem.Agenda.route -> "Agenda"
-                BottomNavItem.Members.route -> "Membres"
-                BottomNavItem.About.route -> "About"
-                AppScreen.AddEvent.name -> "Nouvel évènement"
+            val title = when {
+                currentRoute == BottomNavItem.Agenda.route -> "Agenda"
+                currentRoute == BottomNavItem.Members.route -> "Membres"
+                currentRoute == BottomNavItem.About.route -> "About"
+                currentRoute == AppScreen.AddEvent.name -> "Nouvel évènement"
+                currentRoute?.startsWith("eventDetails/") == true -> "Détails"
                 else -> "ScoutPocket"
             }
 
-            if (currentRoute == AppScreen.AddEvent.name) {
+            if (currentRoute == AppScreen.AddEvent.name || currentRoute?.startsWith("eventDetails/") == true) {
                 TopAppBar(
                     title = {
                         Text(
@@ -156,6 +160,7 @@ fun MainScreen(
                     AgendaScreen(
                         modifier = Modifier.fillMaxSize(),
                         viewModel = agendaViewModel,
+                        navController = navBarController,
                     )
                 }
                 composable(BottomNavItem.Members.route) {
@@ -169,6 +174,39 @@ fun MainScreen(
                         navController = navBarController,
                         viewModel = agendaViewModel,
                     )
+                }
+                composable(
+                    route = AppScreen.EventDetails.route,
+                    arguments = listOf(
+                        navArgument("eventId") {
+                            type = NavType.IntType
+                        }
+                    )
+                ) { backStackEntry ->
+                    val eventId = backStackEntry.arguments?.getInt("eventId")
+
+                    val eventViewModel: EventViewModel = viewModel(
+                        factory = EventViewModelFactory(LocalContext.current.applicationContext)
+                    )
+
+                    if (eventId != null) {
+                        EventDetailsScreen(
+                            modifier = Modifier.fillMaxSize(),
+                            eventId = eventId,
+                            viewModel = eventViewModel,
+                        )
+                    } else {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = "Erreur : ID de l\'évènement manquant.",
+                                style = MaterialTheme.typography.titleLarge,
+                                color = MaterialTheme.colorScheme.error,
+                            )
+                        }
+                    }
                 }
             }
 
@@ -192,6 +230,8 @@ fun BottomBar(
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    val isActionButtonVisible =
+        currentRoute == BottomNavItem.Agenda.route || currentRoute == AppScreen.AddEvent.name
 
     Row(
         modifier = modifier
@@ -203,49 +243,43 @@ fun BottomBar(
         NavigationBar(
             navController = navController,
             items = items,
-            modifier = Modifier.weight(1f),
+            modifier = if (isActionButtonVisible)
+                Modifier.weight(1f) else Modifier.fillMaxWidth(),
         )
 
-        Button(
-            onClick = {
+        if (isActionButtonVisible) {
+            Button(
+                onClick = {
+                    if (currentRoute == BottomNavItem.Agenda.route) {
+                        navController.navigate(AppScreen.AddEvent.name)
+                    } else if (currentRoute == AppScreen.AddEvent.name) {
+                        onAddEventClick()
+                    }
+                },
+                modifier = Modifier
+                    .size(56.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        shape = CircleShape,
+                    ),
+                shape = CircleShape,
+                contentPadding = PaddingValues(0.dp)
+            ) {
                 if (currentRoute == BottomNavItem.Agenda.route) {
-                    navController.navigate(AppScreen.AddEvent.name)
+                    Icon(
+                        imageVector = Lucide.Plus,
+                        contentDescription = null,
+                        modifier = modifier.height(28.dp),
+                        tint = MaterialTheme.colorScheme.secondaryContainer,
+                    )
                 } else if (currentRoute == AppScreen.AddEvent.name) {
-                    onAddEventClick()
+                    Icon(
+                        imageVector = Lucide.Check,
+                        contentDescription = null,
+                        modifier = modifier.height(28.dp),
+                        tint = MaterialTheme.colorScheme.secondaryContainer,
+                    )
                 }
-            },
-            modifier = Modifier
-                .size(56.dp)
-                .background(
-                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                    shape = CircleShape,
-                ),
-            shape = CircleShape,
-            contentPadding = PaddingValues(0.dp)
-        ) {
-            if (currentRoute == BottomNavItem.Agenda.route) {
-                Icon(
-                    imageVector = Lucide.Plus,
-                    contentDescription = null,
-                    modifier = modifier.height(28.dp),
-                    tint = MaterialTheme.colorScheme.secondaryContainer,
-                )
-            } else if (currentRoute == AppScreen.AddEvent.name) {
-                Icon(
-                    imageVector = Lucide.Check,
-                    contentDescription = null,
-                    modifier = modifier.height(28.dp),
-                    tint = MaterialTheme.colorScheme.secondaryContainer,
-                )
-            }
-
-            else {
-                Icon(
-                    imageVector = Lucide.CircleSlash,
-                    contentDescription = null,
-                    modifier = modifier.height(28.dp),
-                    tint = MaterialTheme.colorScheme.secondaryContainer,
-                )
             }
         }
     }

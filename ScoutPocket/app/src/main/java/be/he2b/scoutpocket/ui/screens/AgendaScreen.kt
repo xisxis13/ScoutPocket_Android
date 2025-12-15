@@ -34,6 +34,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import be.he2b.scoutpocket.database.entity.Event
 import be.he2b.scoutpocket.model.Section
 import be.he2b.scoutpocket.model.backgroundColor
@@ -55,6 +57,7 @@ fun AgendaScreen(
     viewModel: AgendaViewModel = viewModel(
         factory = AgendaViewModelFactory(LocalContext.current.applicationContext)
     ),
+    navController: NavHostController,
 ) {
     val upcomingEvents = viewModel.upcomingEvents.value
     val pastEvents = viewModel.pastEvents.value
@@ -94,7 +97,10 @@ fun AgendaScreen(
                     }
 
                     item {
-                        EventCard(event = upcomingEvents.first())
+                        EventCard(
+                            event = upcomingEvents.first(),
+                            navController = navController,
+                        )
                     }
                 }
 
@@ -120,7 +126,10 @@ fun AgendaScreen(
 
                     if (upcomingEventsList.isNotEmpty()) {
                         items(upcomingEventsList) { event ->
-                            EventCard(event = event)
+                            EventCard(
+                                event = event,
+                                navController = navController,
+                            )
                         }
                     } else {
                         item {
@@ -142,7 +151,10 @@ fun AgendaScreen(
 
                     if (pastEvents.isNotEmpty()) {
                         items(pastEvents) { event ->
-                            EventCard(event = event)
+                            EventCard(
+                                event = event,
+                                navController = navController,
+                            )
                         }
                     } else {
                         item {
@@ -174,6 +186,7 @@ fun AgendaScreen(
 @Composable
 fun EventCard(
     event: Event,
+    navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
     Surface(
@@ -189,6 +202,7 @@ fun EventCard(
                 shape = RoundedCornerShape(25.dp),
             ),
         shape = RoundedCornerShape(25.dp),
+        onClick = { navController.navigate("eventDetails/${event.id}") }
     ) {
         Column(
             modifier = modifier
@@ -346,10 +360,14 @@ fun EventCardPreview() {
         location = "Au local de l'unité"
     )
 
+    val navController = rememberNavController()
 
     ScoutPocketTheme {
         Box(modifier = Modifier.padding(16.dp)) {
-            EventCard(event = sampleEvent)
+            EventCard(
+                event = sampleEvent,
+                navController = navController,
+            )
         }
     }
 }
