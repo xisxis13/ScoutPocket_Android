@@ -33,7 +33,6 @@ import be.he2b.scoutpocket.model.textColor
 import be.he2b.scoutpocket.ui.theme.ScoutPocketTheme
 import com.composables.icons.lucide.CheckCheck
 import com.composables.icons.lucide.Lucide
-import com.composables.icons.lucide.MapPin
 import com.composables.icons.lucide.Minus
 import com.composables.icons.lucide.X
 

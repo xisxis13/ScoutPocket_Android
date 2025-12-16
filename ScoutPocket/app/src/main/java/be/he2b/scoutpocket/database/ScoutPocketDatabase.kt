@@ -77,7 +77,7 @@ abstract class ScoutPocketDatabase : RoomDatabase() {
                 Event(
                     name = "Réunion Classique",
                     section = Section.LOUVETEAUX,
-                    date = LocalDate.now().plusDays(10),
+                    date = LocalDate.now().minusDays(2),
                     startTime = LocalTime.of(14, 0),
                     endTime = LocalTime.of(17, 30),
                     location = "Au local de l'unité"
@@ -160,6 +160,11 @@ abstract class ScoutPocketDatabase : RoomDatabase() {
                     section = Section.LOUVETEAUX
                 ),
                 Member(
+                    lastName = "Delacroix",
+                    firstName = "Kilian",
+                    section = Section.LOUVETEAUX
+                ),
+                Member(
                     lastName = "Bernard",
                     firstName = "Alice",
                     section = Section.ECLAIREURS
@@ -167,6 +172,11 @@ abstract class ScoutPocketDatabase : RoomDatabase() {
                 Member(
                     lastName = "Robert",
                     firstName = "Gabriel",
+                    section = Section.ECLAIREURS
+                ),
+                Member(
+                    lastName = "Leblond",
+                    firstName = "Lilas",
                     section = Section.ECLAIREURS
                 ),
                 Member(

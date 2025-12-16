@@ -10,10 +10,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -37,7 +37,6 @@ import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
@@ -100,13 +99,15 @@ fun MainScreen(
             if (currentRoute == AppScreen.AddEvent.name || currentRoute?.startsWith("eventDetails/") == true) {
                 TopAppBar(
                     title = {
-                        Text(
-                            text = title,
-                            style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            textAlign = TextAlign.Center,
-                        )
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = title,
+                                style = MaterialTheme.typography.titleLarge,
+                            )
+                        }
                     },
                     navigationIcon = {
                         IconButton(
@@ -121,9 +122,12 @@ fun MainScreen(
                             Icon(
                                 imageVector = Lucide.X,
                                 contentDescription = "Retour",
-                                tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                tint = MaterialTheme.colorScheme.onSurface,
                             )
                         }
+                    },
+                    actions = {
+                        Spacer(modifier = Modifier.size(56.dp))
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = Color.Transparent,
@@ -136,9 +140,6 @@ fun MainScreen(
                         Text(
                             text = title,
                             style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            textAlign = TextAlign.Center,
                         )
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
@@ -260,26 +261,22 @@ fun BottomBar(
                     }
                 },
                 modifier = Modifier
-                    .size(56.dp)
-                    .background(
-                        color = MaterialTheme.colorScheme.onSecondaryContainer,
-                        shape = CircleShape,
-                    ),
+                    .size(56.dp),
                 shape = CircleShape,
-                contentPadding = PaddingValues(0.dp)
+                contentPadding = PaddingValues(0.dp),
             ) {
                 if (currentRoute == BottomNavItem.Agenda.route) {
                     Icon(
                         imageVector = Lucide.Plus,
                         contentDescription = null,
-                        modifier = modifier.height(28.dp),
+                        modifier = Modifier.size(32.dp),
                         tint = MaterialTheme.colorScheme.secondaryContainer,
                     )
                 } else if (currentRoute == AppScreen.AddEvent.name) {
                     Icon(
                         imageVector = Lucide.Check,
                         contentDescription = null,
-                        modifier = modifier.height(28.dp),
+                        modifier = Modifier.size(28.dp),
                         tint = MaterialTheme.colorScheme.secondaryContainer,
                     )
                 }
@@ -309,7 +306,7 @@ fun NavigationBar(
             )
             .clip(CircleShape)
             .background(MaterialTheme.colorScheme.surface)
-            .border(1.dp, MaterialTheme.colorScheme.surface, CircleShape)
+            .border(1.dp, MaterialTheme.colorScheme.secondaryContainer, CircleShape)
             .padding(4.dp),
         contentAlignment = Alignment.Center,
     ) {

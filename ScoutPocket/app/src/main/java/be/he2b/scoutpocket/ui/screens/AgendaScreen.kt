@@ -230,7 +230,7 @@ fun EventCard(
                     Text(
                         text = event.formattedDateShort(),
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        color = MaterialTheme.colorScheme.onBackground,
                     )
                 }
             }
