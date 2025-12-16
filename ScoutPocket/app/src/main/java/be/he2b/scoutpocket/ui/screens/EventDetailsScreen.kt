@@ -34,6 +34,7 @@ import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.MapPin
 import com.composables.icons.lucide.TriangleAlert
 import com.composables.icons.lucide.Users
+import java.time.LocalDate
 
 @Composable
 fun EventDetailsScreen(
@@ -48,9 +49,16 @@ fun EventDetailsScreen(
     val event = viewModel.event.value
     val presences = viewModel.presences.value
     val membersConcerned = viewModel.membersConcerned.value
+    val totalMembersPresent = viewModel.totalMembersPresent.value
     val isLoading = viewModel.isLoading.value
     val errorMessage = viewModel.errorMessage.value
     val showEventInformations = viewModel.showEventInformations.value
+
+    LaunchedEffect(event) {
+        if (event != null) {
+            viewModel.loadMembersConcerned()
+        }
+    }
 
     LaunchedEffect(showEventInformations, event) {
         if (!showEventInformations && event != null) {
@@ -186,7 +194,7 @@ fun EventDetailsScreen(
 
                         PresenceWidget(
                             totalMembers = membersConcerned.size,
-                            presence = presences.size, // faire en sorte que cela affiche le nombre de 'présent'
+                            presence = totalMembersPresent,
                         )
                     }
                 } else {
@@ -214,7 +222,7 @@ fun EventDetailsScreen(
                                         MemberCard(
                                             member = member,
                                             presence = memberPresence,
-                                            onPresenceClick = if (memberPresence != null) {
+                                            onPresenceClick = if (memberPresence != null && event.date > LocalDate.now()) {
                                                 { viewModel.updatePresenceStatus(memberPresence.eventId, memberPresence.memberId) }
                                             } else null,
                                         )

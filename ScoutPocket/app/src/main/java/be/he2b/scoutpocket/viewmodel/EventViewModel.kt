@@ -31,6 +31,8 @@ class EventViewModel (
         private set
     var presences = mutableStateOf<List<Presence>>(emptyList())
         private set
+    var totalMembersPresent = mutableStateOf(0)
+        private set
     var isLoading = mutableStateOf(true)
         private set
     var errorMessage = mutableStateOf<String?>(null)
@@ -98,7 +100,10 @@ class EventViewModel (
             errorMessage.value = null
 
             try {
-                presences.value = presenceRepository.getPresencesByEvent(currentEvent.id)
+                val loadedPresences = presenceRepository.getPresencesByEvent(currentEvent.id)
+                presences.value = loadedPresences
+
+                totalMembersPresent.value = loadedPresences.count { it.status == PresenceStatus.PRESENT }
             } catch (e: Exception) {
                 errorMessage.value = "Erreur lors de récupération des présences pour l\'évènement"
             } finally {
@@ -191,6 +196,11 @@ class EventViewModel (
                     val updatedPresence = currentPresence.copy(
                         status = currentPresence.status.next()
                     )
+                    if (updatedPresence.status == PresenceStatus.PRESENT) {
+                        totalMembersPresent.value++
+                    } else if (updatedPresence.status == PresenceStatus.ABSENT) {
+                        totalMembersPresent.value--
+                    }
                     presenceRepository.updatePresence(updatedPresence)
                     loadPresences()
                 }
