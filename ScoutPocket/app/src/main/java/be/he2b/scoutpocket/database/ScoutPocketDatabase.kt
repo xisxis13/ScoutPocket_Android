@@ -14,6 +14,7 @@ import be.he2b.scoutpocket.database.dao.PresenceDao
 import be.he2b.scoutpocket.database.entity.Event
 import be.he2b.scoutpocket.database.entity.Member
 import be.he2b.scoutpocket.database.entity.Presence
+import be.he2b.scoutpocket.model.PresenceStatus
 import be.he2b.scoutpocket.model.Section
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -58,12 +59,20 @@ abstract class ScoutPocketDatabase : RoomDatabase() {
             super.onCreate(db)
             CoroutineScope(Dispatchers.IO).launch {
                 val database = getInstance(context)
-                populateDatabaseWithEvents(database.eventDao())
                 populateDatabaseWithMembers(database.memberDao())
+                populateDatabaseWithEvents(
+                    eventDao = database.eventDao(),
+                    memberDao = database.memberDao(),
+                    presenceDao = database.presenceDao(),
+                )
             }
         }
 
-        private suspend fun populateDatabaseWithEvents(eventDao: EventDao) {
+        private suspend fun populateDatabaseWithEvents(
+            eventDao: EventDao,
+            memberDao: MemberDao,
+            presenceDao: PresenceDao,
+        ) {
             val sampleEvents = listOf(
                 Event(
                     name = "Réunion Classique",
@@ -108,7 +117,23 @@ abstract class ScoutPocketDatabase : RoomDatabase() {
             )
 
             sampleEvents.forEach { event ->
-                eventDao.insert(event)
+                val eventId = eventDao.insert(event)
+
+                val membersForEvent = if (event.section != Section.UNITE) {
+                    memberDao.getMembersBySection(event.section)
+                } else {
+                    memberDao.getAllMembers()
+                }
+
+                val presencesToInsert = membersForEvent.map { member ->
+                    Presence(
+                        eventId = eventId.toInt(),
+                        memberId = member.id,
+                        status = PresenceStatus.DEFAULT,
+                    )
+                }
+
+                presenceDao.insertAll(presencesToInsert)
             }
         }
 
