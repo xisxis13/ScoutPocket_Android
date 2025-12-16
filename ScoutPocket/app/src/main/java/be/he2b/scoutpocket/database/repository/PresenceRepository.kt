@@ -10,6 +10,8 @@ class PresenceRepository(context: Context) {
     private val presenceDao = db.presenceDao()
 
     suspend fun addPresence(presence: Presence) = presenceDao.insert(presence)
+    suspend fun updatePresence(presence: Presence) = presenceDao.update(presence)
+    suspend fun addPresences(presences: List<Presence>) = presenceDao.insertAll(presences)
     suspend fun getAllPresences(): List<Presence> = presenceDao.getAllPresences()
     suspend fun getPresencesByEvent(eventId: Int): List<Presence> = presenceDao.getPresencesByEvent(eventId)
 

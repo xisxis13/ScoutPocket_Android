@@ -12,6 +12,9 @@ interface PresenceDao {
     @Insert
     suspend fun insert(presence: Presence)
 
+    @Insert
+    suspend fun insertAll(presences: List<Presence>)
+
     @Update
     suspend fun update(presence: Presence)
 

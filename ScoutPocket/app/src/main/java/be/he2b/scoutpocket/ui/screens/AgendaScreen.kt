@@ -50,17 +50,17 @@ import java.time.LocalTime
 @Composable
 fun AgendaScreen(
     modifier: Modifier = Modifier,
-    viewModel: AgendaViewModel = viewModel(
+    agendaViewModel: AgendaViewModel = viewModel(
         factory = AgendaViewModelFactory(LocalContext.current.applicationContext)
     ),
     navController: NavHostController,
 ) {
-    val upcomingEvents = viewModel.upcomingEvents.value
-    val pastEvents = viewModel.pastEvents.value
+    val upcomingEvents = agendaViewModel.upcomingEvents.value
+    val pastEvents = agendaViewModel.pastEvents.value
 
-    val isLoading = viewModel.isLoading.value
-    val errorMessage = viewModel.errorMessage.value
-    val showUpcomingEvents = viewModel.showUpcomingEvents.value
+    val isLoading = agendaViewModel.isLoading.value
+    val errorMessage = agendaViewModel.errorMessage.value
+    val showUpcomingEvents = agendaViewModel.showUpcomingEvents.value
 
     Box(
         modifier = modifier
@@ -104,7 +104,7 @@ fun AgendaScreen(
                     Spacer(modifier = Modifier.height(12.dp))
                     SwitchButton(
                         buttons = listOf("À venir" to showUpcomingEvents, "Passés" to !showUpcomingEvents),
-                        onClick = { viewModel.switchEventsView() },
+                        onClick = { agendaViewModel.switchEventsView() },
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                 }

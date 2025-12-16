@@ -76,6 +76,9 @@ fun MainScreen(
     val agendaViewModel: AgendaViewModel = viewModel(
         factory = AgendaViewModelFactory(LocalContext.current.applicationContext)
     )
+    val eventViewModel: EventViewModel = viewModel(
+        factory = EventViewModelFactory(LocalContext.current.applicationContext)
+    )
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -159,7 +162,7 @@ fun MainScreen(
                 composable(BottomNavItem.Agenda.route) {
                     AgendaScreen(
                         modifier = Modifier.fillMaxSize(),
-                        viewModel = agendaViewModel,
+                        agendaViewModel = agendaViewModel,
                         navController = navBarController,
                     )
                 }
@@ -172,7 +175,7 @@ fun MainScreen(
                 composable(AppScreen.AddEvent.name) {
                     AddEventScreen(
                         navController = navBarController,
-                        viewModel = agendaViewModel,
+                        viewModel = eventViewModel,
                     )
                 }
                 composable(
@@ -215,7 +218,7 @@ fun MainScreen(
                 items = bottomNavItems,
                 modifier = Modifier
                     .align(Alignment.BottomCenter),
-                onAddEventClick = { agendaViewModel.addEvent() }
+                onAddEventClick = { eventViewModel.createEvent() }
             )
         }
     }

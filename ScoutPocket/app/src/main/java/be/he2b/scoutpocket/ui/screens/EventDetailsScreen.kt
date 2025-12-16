@@ -4,11 +4,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -21,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import be.he2b.scoutpocket.model.formattedDateLong
 import be.he2b.scoutpocket.model.formattedTimeRange
+import be.he2b.scoutpocket.ui.component.MemberCard
 import be.he2b.scoutpocket.ui.component.SectionPill
 import be.he2b.scoutpocket.ui.component.SwitchButton
 import be.he2b.scoutpocket.viewmodel.EventViewModel
@@ -42,8 +46,18 @@ fun EventDetailsScreen(
     }
 
     val event = viewModel.event.value
+    val presences = viewModel.presences.value
+    val membersConcerned = viewModel.membersConcerned.value
     val isLoading = viewModel.isLoading.value
     val errorMessage = viewModel.errorMessage.value
+    val showEventInformations = viewModel.showEventInformations.value
+
+    LaunchedEffect(showEventInformations, event) {
+        if (!showEventInformations && event != null) {
+            viewModel.loadMembersConcerned()
+            viewModel.loadPresences()
+        }
+    }
 
     Box(
         modifier = modifier
@@ -87,87 +101,134 @@ fun EventDetailsScreen(
                 modifier = modifier
                     .fillMaxSize()
                     .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.Top)
+                verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.Top)
             ) {
                 SwitchButton(
-                    buttons = listOf("Informations" to true, "Présences" to false),
-                    onClick = {  }, // add action
+                    buttons = listOf("Informations" to showEventInformations, "Présences" to !showEventInformations),
+                    onClick = { viewModel.switchEventDetailsView() },
                 )
 
-                SectionPill(section = event.section)
-
-                Text(
-                    text = event.name,
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.onBackground,
-                )
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(48.dp)
-                            .background(
-                                color = MaterialTheme.colorScheme.secondaryContainer,
-                                shape = RoundedCornerShape(15.dp)
-                            ),
-                        contentAlignment = Alignment.Center
+                if (showEventInformations) {
+                    Column(
+                        modifier = modifier
+                            .fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.Top)
                     ) {
-                        Icon(
+                        SectionPill(section = event.section)
+
+                        Text(
+                            text = event.name,
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = MaterialTheme.colorScheme.onBackground,
+                        )
+
+                        Row(
                             modifier = Modifier
-                                .size(22.dp),
-                            imageVector = Lucide.Calendar,
-                            contentDescription = "Calendrier",
-                            tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(48.dp)
+                                    .background(
+                                        color = MaterialTheme.colorScheme.secondaryContainer,
+                                        shape = RoundedCornerShape(15.dp)
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    modifier = Modifier
+                                        .size(22.dp),
+                                    imageVector = Lucide.Calendar,
+                                    contentDescription = "Calendrier",
+                                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                )
+                            }
+
+                            Text(
+                                text = event.formattedDateLong() + " • " + event.formattedTimeRange(),
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onBackground,
+                            )
+                        }
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(48.dp)
+                                    .background(
+                                        color = MaterialTheme.colorScheme.secondaryContainer,
+                                        shape = RoundedCornerShape(15.dp)
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    modifier = Modifier
+                                        .size(22.dp),
+                                    imageVector = Lucide.MapPin,
+                                    contentDescription = "Épingle",
+                                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                )
+                            }
+
+                            Text(
+                                text = event.location,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onBackground,
+                            )
+                        }
+
+                        PresenceWidget(
+                            totalMembers = membersConcerned.size,
+                            presence = presences.size, // faire en sorte que cela affiche le nombre de 'présent'
                         )
                     }
-
-                    Text(
-                        text = event.formattedDateLong() + " • " + event.formattedTimeRange(),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onBackground,
-                    )
-                }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(48.dp)
-                            .background(
-                                color = MaterialTheme.colorScheme.secondaryContainer,
-                                shape = RoundedCornerShape(15.dp)
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
+                } else {
+                    if (membersConcerned != null && presences != null) {
+                        LazyColumn(
                             modifier = Modifier
-                                .size(22.dp),
-                            imageVector = Lucide.MapPin,
-                            contentDescription = "Épingle",
-                            tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                        )
+                                .fillMaxSize(),
+                            contentPadding = PaddingValues(bottom = 120.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                        ) {
+                            val membersBySection = membersConcerned.groupBy { it.section }
+
+                            membersBySection.forEach { (section, sectionMembers) ->
+                                if (sectionMembers.isNotEmpty()) {
+                                    item {
+                                        Text(
+                                            text = section.label,
+                                            style = MaterialTheme.typography.titleLarge,
+                                            color = MaterialTheme.colorScheme.onBackground,
+                                        )
+                                    }
+
+                                    items(sectionMembers) { member ->
+                                        val memberPresence = presences.find { it.memberId == member.id }
+                                        MemberCard(
+                                            member = member,
+                                            presence = memberPresence,
+                                            onPresenceClick = if (memberPresence != null) {
+                                                { viewModel.updatePresenceStatus(memberPresence.eventId, memberPresence.memberId) }
+                                            } else null,
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator()
+                            Text("Chargement des présences...")
+                        }
                     }
-
-                    Text(
-                        text = event.location,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onBackground,
-                    )
                 }
-
-                PresenceWidget(
-                    totalMembers = 18, // value to change to be dynamic
-                    presence = 12, // value to change to be dynamic
-                )
             }
         } else {
             Column(

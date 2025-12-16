@@ -41,8 +41,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import be.he2b.scoutpocket.model.Section
-import be.he2b.scoutpocket.viewmodel.AgendaViewModel
-import be.he2b.scoutpocket.viewmodel.AgendaViewModelFactory
+import be.he2b.scoutpocket.viewmodel.EventViewModel
+import be.he2b.scoutpocket.viewmodel.EventViewModelFactory
 import com.composables.icons.lucide.Calendar
 import com.composables.icons.lucide.Clock
 import com.composables.icons.lucide.Lucide
@@ -54,8 +54,8 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun AddEventScreen(
     modifier: Modifier = Modifier,
-    viewModel: AgendaViewModel = viewModel(
-        factory = AgendaViewModelFactory(LocalContext.current.applicationContext)
+    viewModel: EventViewModel = viewModel(
+        factory = EventViewModelFactory(LocalContext.current.applicationContext)
     ),
     navController: NavController,
 ) {

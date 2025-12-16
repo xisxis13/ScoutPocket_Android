@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface EventDao {
     @Insert
-    suspend fun insert(event: Event)
+    suspend fun insert(event: Event): Long
 
     @Update
     suspend fun update(event: Event)
