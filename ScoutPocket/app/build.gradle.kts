@@ -52,7 +52,7 @@ dependencies {
     implementation("com.composables:icons-lucide-android:1.0.0")
 
     // room
-    implementation("androidx.room:room-runtime:2.8.4}")
+    implementation("androidx.room:room-runtime:2.8.4")
     ksp("androidx.room:room-compiler:2.8.4")
     implementation ("androidx.room:room-ktx:2.8.4")
 

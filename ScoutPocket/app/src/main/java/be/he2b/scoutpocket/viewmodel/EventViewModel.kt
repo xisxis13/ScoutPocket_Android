@@ -78,7 +78,13 @@ class EventViewModel (
             errorMessage.value = null
 
             try {
-                membersConcerned.value = getMembersForSection(currentEvent.section)
+                val eventPresences = presenceRepository.getPresencesByEvent(currentEvent.id)
+
+                val allMembers = memberRepository.getAllMembers()
+
+                membersConcerned.value = allMembers.filter { member ->
+                    eventPresences.any { presence -> presence.memberId == member.id }
+                }
             } catch (e: Exception) {
                 errorMessage.value = "Erreur lors de récupération des membres concernés par l\'évènement"
             } finally {

@@ -56,6 +56,9 @@ import be.he2b.scoutpocket.viewmodel.AgendaViewModel
 import be.he2b.scoutpocket.viewmodel.AgendaViewModelFactory
 import be.he2b.scoutpocket.viewmodel.EventViewModel
 import be.he2b.scoutpocket.viewmodel.EventViewModelFactory
+import be.he2b.scoutpocket.viewmodel.MemberViewModel
+import be.he2b.scoutpocket.viewmodel.MemberViewModelFactory
+import com.composables.icons.lucide.Check
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.X
 
@@ -77,6 +80,9 @@ fun MainScreen(
     val eventViewModel: EventViewModel = viewModel(
         factory = EventViewModelFactory(LocalContext.current.applicationContext)
     )
+    val memberViewModel: MemberViewModel = viewModel(
+        factory = MemberViewModelFactory(LocalContext.current.applicationContext)
+    )
 
     var isFABMenuExpanded by remember { mutableStateOf(false) }
 
@@ -92,12 +98,17 @@ fun MainScreen(
                 currentRoute == BottomNavItem.Agenda.route -> "Agenda"
                 currentRoute == BottomNavItem.Members.route -> "Membres"
                 currentRoute == BottomNavItem.About.route -> "About"
-                currentRoute == AppScreen.AddEvent.name -> "Nouvel évènement"
+                currentRoute == AppScreen.AddEvent.route -> "Nouvel évènement"
+                currentRoute == AppScreen.AddMember.route -> "Nouveau membre"
                 currentRoute?.startsWith("eventDetails/") == true -> "Détails"
                 else -> "ScoutPocket"
             }
 
-            if (currentRoute == AppScreen.AddEvent.name || currentRoute?.startsWith("eventDetails/") == true) {
+            if (currentRoute == AppScreen.AddEvent.route
+                || currentRoute == AppScreen.AddMember.route
+                || currentRoute?.startsWith("eventDetails/") == true
+
+            ) {
                 TopAppBar(
                     title = {
                         Box(
@@ -128,7 +139,33 @@ fun MainScreen(
                         }
                     },
                     actions = {
-                        Spacer(modifier = Modifier.size(56.dp))
+                        if (currentRoute == AppScreen.AddEvent.route
+                            || currentRoute == AppScreen.AddMember.route
+                        ) {
+                            IconButton(
+                                onClick = {
+                                    if (currentRoute == AppScreen.AddEvent.route) {
+                                        eventViewModel.createEvent()
+                                    } else if (currentRoute == AppScreen.AddMember.route) {
+                                        memberViewModel.createMember()
+                                    }
+                                },
+                                modifier = modifier
+                                    .padding(end = 12.dp)
+                                    .background(
+                                        color = MaterialTheme.colorScheme.secondaryContainer,
+                                        shape = CircleShape,
+                                    ),
+                            ) {
+                                Icon(
+                                    imageVector = Lucide.Check,
+                                    contentDescription = "Valider",
+                                    tint = MaterialTheme.colorScheme.onSurface,
+                                )
+                            }
+                        } else {
+                            Spacer(modifier = Modifier.size(56.dp))
+                        }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = Color.Transparent,
@@ -155,10 +192,10 @@ fun MainScreen(
                 expanded = isFABMenuExpanded,
                 onToggle = { isFABMenuExpanded = !isFABMenuExpanded },
                 onCreateEvent = {
-                    navBarController.navigate(AppScreen.AddEvent.name)
+                    navBarController.navigate(AppScreen.AddEvent.route)
                 },
                 onCreateMember = {
-                    // TODO: Navigate to create member screen
+                    navBarController.navigate(AppScreen.AddMember.route)
                 },
                 onImportCSV = {
                     // TODO: Open CSV picker
@@ -192,10 +229,16 @@ fun MainScreen(
                 composable(BottomNavItem.About.route) {
                     AboutScreen(modifier = Modifier.fillMaxSize())
                 }
-                composable(AppScreen.AddEvent.name) {
+                composable(AppScreen.AddEvent.route) {
                     AddEventScreen(
                         navController = navBarController,
                         viewModel = eventViewModel,
+                    )
+                }
+                composable(AppScreen.AddMember.route) {
+                    AddMemberScreen(
+                        navController = navBarController,
+                        viewModel = memberViewModel,
                     )
                 }
                 composable(

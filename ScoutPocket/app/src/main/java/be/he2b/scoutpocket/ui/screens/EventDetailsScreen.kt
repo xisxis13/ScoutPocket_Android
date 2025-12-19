@@ -57,12 +57,6 @@ fun EventDetailsScreen(
     LaunchedEffect(event) {
         if (event != null) {
             viewModel.loadMembersConcerned()
-        }
-    }
-
-    LaunchedEffect(showEventInformations, event) {
-        if (!showEventInformations && event != null) {
-            viewModel.loadMembersConcerned()
             viewModel.loadPresences()
         }
     }
@@ -222,8 +216,10 @@ fun EventDetailsScreen(
                                         MemberCard(
                                             member = member,
                                             presence = memberPresence,
-                                            onPresenceClick = if (memberPresence != null && event.date > LocalDate.now()) {
+                                            onPresenceClick = if (memberPresence != null && event.date >= LocalDate.now()) {
                                                 { viewModel.updatePresenceStatus(memberPresence.eventId, memberPresence.memberId) }
+                                            } else if (memberPresence != null) {
+                                                { }
                                             } else null,
                                         )
                                     }

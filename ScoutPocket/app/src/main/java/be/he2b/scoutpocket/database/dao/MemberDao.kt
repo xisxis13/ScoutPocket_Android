@@ -11,7 +11,7 @@ import be.he2b.scoutpocket.model.Section
 @Dao
 interface MemberDao {
     @Insert
-    suspend fun insert(member: Member)
+    suspend fun insert(member: Member): Long
 
     @Update
     suspend fun update(member: Member)

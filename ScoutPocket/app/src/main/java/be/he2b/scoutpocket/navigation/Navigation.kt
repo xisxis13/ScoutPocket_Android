@@ -10,6 +10,7 @@ enum class AppScreen(val route: String) {
     Login("login"),
     Main("main"),
     AddEvent("add_event"),
+    AddMember("add_member"),
     EventDetails("eventDetails/{eventId}"),
 }
 
