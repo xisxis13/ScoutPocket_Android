@@ -1,6 +1,9 @@
 package be.he2b.scoutpocket.viewmodel
 
 import android.content.Context
+import android.net.Uri
+import android.provider.OpenableColumns
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -15,12 +18,17 @@ import be.he2b.scoutpocket.model.PresenceStatus
 import be.he2b.scoutpocket.model.Section
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.io.BufferedReader
+import java.io.InputStreamReader
 
 class MemberViewModel(
     private val memberRepository: MemberRepository,
     private val eventRepository: EventRepository,
     private val presenceRepository: PresenceRepository,
 ) : ViewModel() {
+
+    var csvFileContent = mutableStateOf<String?>(null)
+        private set
 
     // New member
     var newMemberLastName = mutableStateOf("")
@@ -36,6 +44,8 @@ class MemberViewModel(
     var isLoading = mutableStateOf(true)
         private set
     var errorMessage = mutableStateOf<String?>(null)
+        private set
+    var importSuccessMessage = mutableStateOf<String?>(null)
         private set
 
     init {
@@ -137,6 +147,212 @@ class MemberViewModel(
                     newMemberLastName.value = ""
                     newMemberFirstName.value = ""
                 }
+            }
+        }
+    }
+
+    fun importMembers(context: Context, fileUri: Uri) {
+        viewModelScope.launch {
+            isLoading.value = true
+            errorMessage.value = null
+            csvFileContent.value = null
+
+            try {
+                val fileName = getFileName(context, fileUri)
+                if (!fileName.endsWith(".csv", ignoreCase = true)) {
+                    errorMessage.value = "Le fichier doit avoir l\'extension .csv"
+                    return@launch
+                }
+
+                val mimeType = context.contentResolver.getType(fileUri)
+                val validMimeTypes = listOf(
+                    "text/csv",
+                    "text/comma-separated-values",
+                    "text/plain"
+                )
+                if (mimeType !in validMimeTypes) {
+                    errorMessage.value = "Type de fichier non supporté: $mimeType"
+                    return@launch
+                }
+
+                val contentResolver = context.contentResolver
+                contentResolver.openInputStream(fileUri)?.use { inputStream ->
+                    val reader = BufferedReader(InputStreamReader(inputStream))
+                    val content = reader.readText()
+
+                    if (!isValidCSV(content)) {
+                        errorMessage.value = "Le fichier n\'est pas un CSV valide"
+                        return@launch
+                    }
+
+                    val importedMembers = parseCSV(content)
+                    if (importedMembers.isEmpty()) {
+                        errorMessage.value = "Aucun membre valide trouvé dans le fichier"
+                        return@launch
+                    }
+
+                    val existingMembers = memberRepository.getAllMembers()
+
+                    val (duplicates, newMembers) = importedMembers.partition { newMember ->
+                        existingMembers.any { existing ->
+                            existing.lastName.lowercase() == newMember.lastName.lowercase() &&
+                                    existing.firstName.lowercase() == newMember.firstName.lowercase()
+                        }
+                    }
+
+                    if (duplicates.isNotEmpty()) {
+                        duplicates.forEach { duplicates ->
+                            Log.w("CSV", "Membre déjà existant ignoré: ${duplicates.firstName} ${duplicates.lastName}")
+                        }
+                    }
+
+                    if (newMembers.isEmpty()) {
+                        errorMessage.value = "Tous les membres du fichier existent déjà dans la base"
+                        return@launch
+                    }
+
+                    newMembers.forEach { member ->
+                        val memberId = memberRepository.addMember(member)
+
+                        val allEvents = eventRepository.getAllEvents().first()
+                        val relevantEvents = allEvents.filter { event ->
+                            event.section == member.section || event.section == Section.UNITE
+                        }
+
+                        val presencesToInsert = relevantEvents.map { event ->
+                            Presence(
+                                eventId = event.id,
+                                memberId = memberId.toInt(),
+                                status = PresenceStatus.DEFAULT,
+                            )
+                        }
+
+                        if (presencesToInsert.isNotEmpty()) {
+                            presenceRepository.addPresences(presencesToInsert)
+                        }
+                    }
+
+                    csvFileContent.value = content
+                    loadMembers()
+
+                    val message = buildString {
+                        append("✓ ${newMembers.size} membre(s) importé(s)")
+                        if (duplicates.isNotEmpty()) {
+                            append("\n⚠ ${duplicates.size} doublon(s) ignoré(s)")
+                        }
+                    }
+                    Log.i("CSV", message)
+                    importSuccessMessage.value = message
+                }
+            } catch (e: Exception) {
+                Log.e("CSV", "Erreur lors de la lecture", e)
+                errorMessage.value = "Erreur lors de la lecture du fichier."
+            } finally {
+                isLoading.value = false
+            }
+        }
+    }
+
+    private fun getFileName(context: Context, uri: Uri): String {
+        var fileName = ""
+        context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+            val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            if (nameIndex != -1 && cursor.moveToFirst()) {
+                fileName = cursor.getString(nameIndex)
+            }
+        }
+
+        return fileName
+    }
+
+    private fun isValidCSV(content: String): Boolean {
+        if (content.isBlank()) return false
+
+        val lines = content.lines().filter { it.isNotBlank() }
+        if (lines.isEmpty()) return false
+
+        val firstLine = lines[0]
+        val delimiter = when {
+            firstLine.count { it == ',' } > 0 -> ','
+            firstLine.count { it == ';' } > 0 -> ';'
+            else -> return false
+        }
+
+        return lines.all { line ->
+            val columns = line.split(delimiter).map { it.trim() }
+
+            if (columns.size != 3) {
+                Log.w("CSV", "Ligne avec ${columns.size} colonnes: $line")
+                return@all false
+            }
+
+            if (columns.any { it.isBlank() }) {
+                Log.w("CSV", "Colonne vide dans la ligne: $line")
+                return@all false
+            }
+
+            if (normalizeSectionName(columns[2]) == null) {
+                Log.w("CSV", "Section invalide '${columns[2]}' dans la ligne: $line")
+                return@all false
+            }
+
+            true
+        }
+    }
+
+    private fun parseCSV(content: String): List<Member> {
+        val lines = content.lines().filter { it.isNotBlank() }
+        val delimiter = if (lines[0].contains(',')) ',' else ';'
+
+        return lines.mapNotNull { line ->
+            val columns = line.split(delimiter).map { it.trim() }
+
+            if (columns.size == 3) {
+                val lastName = normalizePersonName(columns[0])
+                val firstName = normalizePersonName(columns[1])
+                val section = normalizeSectionName(columns[2])
+
+                if (section != null) {
+                    Member(
+                        lastName = lastName,
+                        firstName = firstName,
+                        section = section
+                    )
+                } else null
+            } else null
+        }
+    }
+
+    private fun normalizePersonName(name: String): String {
+        return name.trim()
+            .lowercase()
+            .split(" ", "-")
+            .joinToString(" ") { word ->
+                word.replaceFirstChar { it.uppercase() }
+            }
+    }
+
+    private fun normalizeSectionName(sectionName: String): Section? {
+        val normalized = sectionName.trim().lowercase()
+            .replace("é", "e")
+            .replace("è", "e")
+            .replace("ê", "e")
+            .replace("ë", "e")
+
+        return when (normalized) {
+            "baladin", "baladins", "balandin", "balandins" -> Section.BALADINS
+
+            "louveteau", "louveteaux", "louvteau", "louvteaux" -> Section.LOUVETEAUX
+
+            "eclaireur", "eclaireurs", "éclaireur", "éclaireurs",
+            "eclaireu", "eclaireus", "eclaireuse", "eclaireuses" -> Section.ECLAIREURS
+
+            "pionnier", "pionniers", "pionier", "pioniers",
+            "pionniere", "pionnieres" -> Section.PIONNIERS
+
+            else -> {
+                Log.w("CSV", "Section inconnue: $sectionName")
+                null
             }
         }
     }

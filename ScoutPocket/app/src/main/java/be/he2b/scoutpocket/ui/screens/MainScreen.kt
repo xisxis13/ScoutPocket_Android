@@ -1,5 +1,8 @@
 package be.he2b.scoutpocket.ui.screens
 
+import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -73,6 +76,8 @@ private val bottomNavItems = listOf(
 fun MainScreen(
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
+
     val navBarController = rememberNavController()
     val agendaViewModel: AgendaViewModel = viewModel(
         factory = AgendaViewModelFactory(LocalContext.current.applicationContext)
@@ -83,6 +88,16 @@ fun MainScreen(
     val memberViewModel: MemberViewModel = viewModel(
         factory = MemberViewModelFactory(LocalContext.current.applicationContext)
     )
+
+    val filePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == android.app.Activity.RESULT_OK) {
+            result.data?.data?.let { uri ->
+                memberViewModel.importMembers(context, uri)
+            }
+        }
+    }
 
     var isFABMenuExpanded by remember { mutableStateOf(false) }
 
@@ -99,7 +114,7 @@ fun MainScreen(
                 currentRoute == BottomNavItem.Members.route -> "Membres"
                 currentRoute == BottomNavItem.About.route -> "About"
                 currentRoute == AppScreen.AddEvent.route -> "Nouvel évènement"
-                currentRoute == AppScreen.AddMember.route -> "Nouveau membre"
+                currentRoute == AppScreen.AddMember.route -> "Nouveau(x) membre(s)"
                 currentRoute?.startsWith("eventDetails/") == true -> "Détails"
                 else -> "ScoutPocket"
             }
@@ -195,10 +210,10 @@ fun MainScreen(
                     navBarController.navigate(AppScreen.AddEvent.route)
                 },
                 onCreateMember = {
-                    navBarController.navigate(AppScreen.AddMember.route)
+                    navBarController.navigate(AppScreen.addMemberRoute("manual"))
                 },
                 onImportCSV = {
-                    // TODO: Open CSV picker
+                    navBarController.navigate(AppScreen.addMemberRoute("import"))
                 },
                 modifier = Modifier
                     .padding(bottom = 20.dp),
@@ -224,7 +239,10 @@ fun MainScreen(
                     )
                 }
                 composable(BottomNavItem.Members.route) {
-                    MembersScreen(modifier = Modifier.fillMaxSize())
+                    MembersScreen(
+                        modifier = Modifier.fillMaxSize(),
+                        viewModel = memberViewModel,
+                    )
                 }
                 composable(BottomNavItem.About.route) {
                     AboutScreen(modifier = Modifier.fillMaxSize())
@@ -235,10 +253,34 @@ fun MainScreen(
                         viewModel = eventViewModel,
                     )
                 }
-                composable(AppScreen.AddMember.route) {
+                composable(
+                    AppScreen.AddMember.route,
+                    arguments = listOf(
+                        navArgument("mode") {
+                            type = NavType.StringType
+                            defaultValue = "manual"
+                        }
+                    )
+                ) { backStackEntry ->
+                    val mode = backStackEntry.arguments?.getString("mode") ?: "manual"
+
                     AddMemberScreen(
                         navController = navBarController,
                         viewModel = memberViewModel,
+                        initialMode = mode,
+                        onImportCSV = {
+                            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                                addCategory(Intent.CATEGORY_OPENABLE)
+                                type = "*/*"
+                                putExtra(Intent.EXTRA_MIME_TYPES, arrayOf(
+                                    "text/csv",
+                                    "text/comma-separated-values",
+                                    "text/plain"
+                                ))
+                            }
+                            filePickerLauncher.launch(intent)
+                            navBarController.navigate(BottomNavItem.Members.route)
+                        }
                     )
                 }
                 composable(

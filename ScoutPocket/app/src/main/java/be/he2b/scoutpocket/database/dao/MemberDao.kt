@@ -27,4 +27,8 @@ interface MemberDao {
 
     @Query("SELECT * FROM members WHERE id = :memberId")
     suspend fun getMemberById(memberId: Int): Member?
+
+    @Query("SELECT * FROM members WHERE LOWER(lastName) = LOWER(:lastName) AND LOWER(firstName) = LOWER(:firstName)")
+    suspend fun findMemberByName(lastName: String, firstName: String): Member?
+
 }

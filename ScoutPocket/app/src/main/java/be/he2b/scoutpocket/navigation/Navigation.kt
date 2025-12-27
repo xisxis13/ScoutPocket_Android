@@ -10,8 +10,13 @@ enum class AppScreen(val route: String) {
     Login("login"),
     Main("main"),
     AddEvent("add_event"),
-    AddMember("add_member"),
-    EventDetails("eventDetails/{eventId}"),
+    AddMember("add_member?mode={mode}"),
+    EventDetails("eventDetails/{eventId}");
+
+    companion object {
+        fun addMemberRoute(mode: String = "manual") = "add_member?mode=$mode"
+        fun eventDetailsRoute(eventId: Int) = "eventDetails/$eventId"
+    }
 }
 
 enum class BottomNavItem(
