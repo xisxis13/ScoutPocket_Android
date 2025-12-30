@@ -59,6 +59,8 @@ import be.he2b.scoutpocket.viewmodel.AgendaViewModel
 import be.he2b.scoutpocket.viewmodel.AgendaViewModelFactory
 import be.he2b.scoutpocket.viewmodel.EventViewModel
 import be.he2b.scoutpocket.viewmodel.EventViewModelFactory
+import be.he2b.scoutpocket.viewmodel.LoginViewModel
+import be.he2b.scoutpocket.viewmodel.LoginViewModelFactory
 import be.he2b.scoutpocket.viewmodel.MemberViewModel
 import be.he2b.scoutpocket.viewmodel.MemberViewModelFactory
 import com.composables.icons.lucide.Check
@@ -68,13 +70,14 @@ import com.composables.icons.lucide.X
 private val bottomNavItems = listOf(
     BottomNavItem.Agenda,
     BottomNavItem.Members,
-    BottomNavItem.About,
+    BottomNavItem.Profile,
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
+    onLogout: () -> Unit = {},
 ) {
     val context = LocalContext.current
 
@@ -87,6 +90,9 @@ fun MainScreen(
     )
     val memberViewModel: MemberViewModel = viewModel(
         factory = MemberViewModelFactory(LocalContext.current.applicationContext)
+    )
+    val loginViewModel: LoginViewModel = viewModel(
+        factory = LoginViewModelFactory(LocalContext.current.applicationContext)
     )
 
     val filePickerLauncher = rememberLauncherForActivityResult(
@@ -112,6 +118,7 @@ fun MainScreen(
             val title = when {
                 currentRoute == BottomNavItem.Agenda.route -> "Agenda"
                 currentRoute == BottomNavItem.Members.route -> "Membres"
+                currentRoute == BottomNavItem.Profile.route -> "Profile"
                 currentRoute == BottomNavItem.About.route -> "About"
                 currentRoute == AppScreen.AddEvent.route -> "Nouvel évènement"
                 currentRoute == AppScreen.AddMember.route -> "Nouveau(x) membre(s)"
@@ -242,6 +249,14 @@ fun MainScreen(
                     MembersScreen(
                         modifier = Modifier.fillMaxSize(),
                         viewModel = memberViewModel,
+                    )
+                }
+                composable(BottomNavItem.Profile.route) {
+                    ProfileScreen(
+                        modifier = Modifier.fillMaxSize(),
+                        viewModel = loginViewModel,
+                        navController = navBarController,
+                        onLogout = onLogout,
                     )
                 }
                 composable(BottomNavItem.About.route) {

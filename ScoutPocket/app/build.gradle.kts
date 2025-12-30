@@ -60,6 +60,8 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation(libs.androidx.material3)
 
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
+
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.0")
     implementation("androidx.navigation:navigation-compose:2.6.0")
     implementation(libs.androidx.core.ktx)

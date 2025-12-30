@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.composables.icons.lucide.CalendarFold
 import com.composables.icons.lucide.Info
 import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.User
 import com.composables.icons.lucide.Users
 
 enum class AppScreen(val route: String) {
@@ -33,6 +34,11 @@ enum class BottomNavItem(
         route = "members",
         label = "Membres",
         icon = Lucide.Users,
+    ),
+    Profile(
+        route = "profile",
+        label = "Profil",
+        icon = Lucide.User,
     ),
     About(
         route = "about",

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -17,6 +18,8 @@ import be.he2b.scoutpocket.ui.screens.LoginScreen
 import be.he2b.scoutpocket.ui.screens.MainScreen
 import be.he2b.scoutpocket.ui.theme.ScoutPocketTheme
 import be.he2b.scoutpocket.viewmodel.LoginViewModel
+import be.he2b.scoutpocket.viewmodel.LoginViewModelFactory
+import androidx.compose.runtime.getValue
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,20 +31,36 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
                 ) {
-                    val loginViewModel: LoginViewModel = viewModel()
+                    val loginViewModel: LoginViewModel = viewModel(
+                        factory = LoginViewModelFactory(LocalContext.current.applicationContext)
+                    )
+
+                    val isAuthenticated by loginViewModel.isAuthenticated
                     val navController = rememberNavController()
+
                     NavHost(
                         navController,
-                        startDestination = AppScreen.Login.name
+                        startDestination = if (isAuthenticated) {
+                            AppScreen.Main.route
+                        } else {
+                            AppScreen.Login.route
+                        }
                     ) {
-                        composable(AppScreen.Login.name) {
+                        composable(AppScreen.Login.route) {
                             LoginScreen(
                                 viewModel = loginViewModel,
                                 navController = navController,
                             )
                         }
-                        composable(AppScreen.Main.name) {
-                            MainScreen()
+                        composable(AppScreen.Main.route) {
+                            MainScreen(
+                                onLogout = {
+                                    loginViewModel.logout()
+                                    navController.navigate(AppScreen.Login.route) {
+                                        popUpTo(0) { inclusive = true }
+                                    }
+                                }
+                            )
                         }
                     }
                 }
