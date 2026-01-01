@@ -3,11 +3,16 @@ package be.he2b.scoutpocket.ui.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -17,8 +22,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import be.he2b.scoutpocket.navigation.AppScreen
@@ -64,10 +71,10 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Hero card
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.extraLarge,
@@ -83,12 +90,14 @@ fun HomeScreen(
                         tint = MaterialTheme.colorScheme.onPrimaryContainer,
                         modifier = Modifier.size(32.dp)
                     )
+
                     Text(
-                        text = "Gérez votre troupe",
+                        text = "Gérez votre unité",
                         style = MaterialTheme.typography.headlineSmall,
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
                         fontWeight = FontWeight.Bold
                     )
+
                     Text(
                         text = "Organisez vos événements, suivez vos membres et gérez les présences facilement.",
                         style = MaterialTheme.typography.bodyLarge,
@@ -97,6 +106,8 @@ fun HomeScreen(
                 }
             }
 
+            Spacer(modifier = Modifier.height(4.dp))
+
             Text(
                 text = "Accès rapide",
                 style = MaterialTheme.typography.titleMedium,
@@ -104,44 +115,50 @@ fun HomeScreen(
                 fontWeight = FontWeight.SemiBold
             )
 
-            // Quick actions
-            Row(
+            FlowRow(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                maxItemsInEachRow = 4,
             ) {
                 QuickActionCard(
                     icon = Lucide.CalendarPlus,
                     label = "Nouvel événement",
                     onClick = { navController.navigate(AppScreen.AddEvent.route) },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                        .weight(1f)
+                        .widthIn(min = 150.dp)
                 )
 
                 QuickActionCard(
                     icon = Lucide.UserPlus,
                     label = "Nouveau membre",
                     onClick = { navController.navigate(AppScreen.AddMember.route) },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                        .weight(1f)
+                        .widthIn(min = 150.dp)
                 )
-            }
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
                 QuickActionCard(
                     icon = Lucide.Calendar,
                     label = "Voir l'agenda",
                     onClick = { navController.navigate(AppScreen.Agenda.route) },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                        .weight(1f)
+                        .widthIn(min = 150.dp)
                 )
 
                 QuickActionCard(
                     icon = Lucide.Users,
                     label = "Voir les membres",
                     onClick = { navController.navigate(AppScreen.Members.route) },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                        .weight(1f)
+                        .widthIn(min = 150.dp)
                 )
             }
+
+            Spacer(modifier = Modifier.height(120.dp))
         }
     }
 }
@@ -162,14 +179,14 @@ private fun QuickActionCard(
         Column(
             modifier = Modifier.padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
-            horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Surface(
                 modifier = Modifier.size(56.dp),
                 shape = MaterialTheme.shapes.medium,
                 color = MaterialTheme.colorScheme.secondaryContainer
             ) {
-                Box(contentAlignment = androidx.compose.ui.Alignment.Center) {
+                Box(contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = icon,
                         contentDescription = null,
@@ -184,7 +201,7 @@ private fun QuickActionCard(
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Medium,
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                textAlign = TextAlign.Center
             )
         }
     }
