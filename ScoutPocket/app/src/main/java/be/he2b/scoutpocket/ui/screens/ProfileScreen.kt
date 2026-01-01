@@ -35,7 +35,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import be.he2b.scoutpocket.navigation.BottomNavItem
+import be.he2b.scoutpocket.navigation.AppScreen
 import be.he2b.scoutpocket.viewmodel.LoginViewModel
 import be.he2b.scoutpocket.viewmodel.LoginViewModelFactory
 import com.composables.icons.lucide.ChevronRight
@@ -73,7 +73,7 @@ fun ProfileScreen(
             title = "À propos",
             subtitle = "Informations sur l\'application",
             onClick = {
-                navController.navigate(BottomNavItem.About.route)
+                navController.navigate(AppScreen.About.route)
             }
         )
 

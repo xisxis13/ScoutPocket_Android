@@ -76,10 +76,12 @@ class LoginViewModel(
                         isAuthenticated.value = true
                     }
                 } else {
-                    errorMessage.value = R.string.wrong_login_or_password_error.toString()
+                    // errorMessage.value = R.string.wrong_login_or_password_error.toString()
+                    errorMessage.value = "Mauvais login ou mot de passe"
                 }
             } catch (e: Exception) {
-                errorMessage.value = R.string.auth_connection_error.toString()
+                // errorMessage.value = R.string.auth_connection_error.toString()
+                errorMessage.value = "Erreur de connexion : impossible de joindre le serveur."
             } finally {
                 isLoading.value = false
             }
@@ -91,6 +93,7 @@ class LoginViewModel(
         isAuthenticated.value = false
         email.value = ""
         password.value = ""
+        errorMessage.value = null
     }
 
 }

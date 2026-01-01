@@ -68,6 +68,7 @@ import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.X
 
 private val bottomNavItems = listOf(
+    BottomNavItem.Home,
     BottomNavItem.Agenda,
     BottomNavItem.Members,
     BottomNavItem.Profile,
@@ -116,10 +117,10 @@ fun MainScreen(
             val currentRoute = navBackStackEntry?.destination?.route
 
             val title = when {
-                currentRoute == BottomNavItem.Agenda.route -> "Agenda"
-                currentRoute == BottomNavItem.Members.route -> "Membres"
-                currentRoute == BottomNavItem.Profile.route -> "Profile"
-                currentRoute == BottomNavItem.About.route -> "About"
+                currentRoute == AppScreen.Agenda.route -> "Agenda"
+                currentRoute == AppScreen.Members.route -> "Membres"
+                currentRoute == AppScreen.Profile.route -> "Profile"
+                currentRoute == AppScreen.About.route -> "About"
                 currentRoute == AppScreen.AddEvent.route -> "Nouvel évènement"
                 currentRoute == AppScreen.AddMember.route -> "Nouveau(x) membre(s)"
                 currentRoute?.startsWith("eventDetails/") == true -> "Détails"
@@ -235,23 +236,29 @@ fun MainScreen(
         ) {
             NavHost(
                 navController = navBarController,
-                startDestination = BottomNavItem.Agenda.route,
+                startDestination = AppScreen.Home.route,
                 modifier = Modifier.padding(paddingValues)
             ) {
-                composable(BottomNavItem.Agenda.route) {
+                composable(AppScreen.Home.route) {
+                    HomeScreen(
+                        modifier = Modifier.fillMaxSize(),
+                        navController = navBarController,
+                    )
+                }
+                composable(AppScreen.Agenda.route) {
                     AgendaScreen(
                         modifier = Modifier.fillMaxSize(),
                         agendaViewModel = agendaViewModel,
                         navController = navBarController,
                     )
                 }
-                composable(BottomNavItem.Members.route) {
+                composable(AppScreen.Members.route) {
                     MembersScreen(
                         modifier = Modifier.fillMaxSize(),
                         viewModel = memberViewModel,
                     )
                 }
-                composable(BottomNavItem.Profile.route) {
+                composable(AppScreen.Profile.route) {
                     ProfileScreen(
                         modifier = Modifier.fillMaxSize(),
                         viewModel = loginViewModel,
@@ -259,7 +266,7 @@ fun MainScreen(
                         onLogout = onLogout,
                     )
                 }
-                composable(BottomNavItem.About.route) {
+                composable(AppScreen.About.route) {
                     AboutScreen(modifier = Modifier.fillMaxSize())
                 }
                 composable(AppScreen.AddEvent.route) {
@@ -362,7 +369,7 @@ fun BottomBar(
             modifier = Modifier.weight(1f),
         )
 
-        Spacer(modifier = Modifier.size(56.dp))
+        // Spacer(modifier = Modifier.size(56.dp))
     }
 }
 

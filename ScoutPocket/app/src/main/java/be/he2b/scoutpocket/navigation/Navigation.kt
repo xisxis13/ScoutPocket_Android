@@ -2,7 +2,7 @@ package be.he2b.scoutpocket.navigation
 
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.composables.icons.lucide.CalendarFold
-import com.composables.icons.lucide.Info
+import com.composables.icons.lucide.House
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.User
 import com.composables.icons.lucide.Users
@@ -10,9 +10,14 @@ import com.composables.icons.lucide.Users
 enum class AppScreen(val route: String) {
     Login("login"),
     Main("main"),
+    Home("home"),
+    Agenda("agenda"),
+    Members("members"),
     AddEvent("add_event"),
     AddMember("add_member?mode={mode}"),
-    EventDetails("eventDetails/{eventId}");
+    EventDetails("eventDetails/{eventId}"),
+    Profile("profile"),
+    About("about");
 
     companion object {
         fun addMemberRoute(mode: String = "manual") = "add_member?mode=$mode"
@@ -25,24 +30,24 @@ enum class BottomNavItem(
     val label: String,
     val icon: ImageVector,
 ) {
+    Home(
+        route = AppScreen.Home.route,
+        label = "Accueil",
+        icon = Lucide.House,
+    ),
     Agenda(
-        route = "agenda",
+        route = AppScreen.Agenda.route,
         label = "Agenda",
         icon = Lucide.CalendarFold,
     ),
     Members(
-        route = "members",
+        route = AppScreen.Members.route,
         label = "Membres",
         icon = Lucide.Users,
     ),
     Profile(
-        route = "profile",
+        route = AppScreen.Profile.route,
         label = "Profil",
         icon = Lucide.User,
-    ),
-    About(
-        route = "about",
-        label = "About",
-        icon = Lucide.Info,
     ),
 }
