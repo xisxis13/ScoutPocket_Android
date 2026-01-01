@@ -12,23 +12,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,6 +34,7 @@ import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -54,7 +48,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import be.he2b.scoutpocket.navigation.AppScreen
 import be.he2b.scoutpocket.navigation.BottomNavItem
-import be.he2b.scoutpocket.ui.component.FABMenu
+import be.he2b.scoutpocket.ui.component.ExpressiveFABMenu
+import be.he2b.scoutpocket.ui.component.FABMenuItem
 import be.he2b.scoutpocket.viewmodel.AgendaViewModel
 import be.he2b.scoutpocket.viewmodel.AgendaViewModelFactory
 import be.he2b.scoutpocket.viewmodel.EventViewModel
@@ -63,16 +58,10 @@ import be.he2b.scoutpocket.viewmodel.LoginViewModel
 import be.he2b.scoutpocket.viewmodel.LoginViewModelFactory
 import be.he2b.scoutpocket.viewmodel.MemberViewModel
 import be.he2b.scoutpocket.viewmodel.MemberViewModelFactory
-import com.composables.icons.lucide.Check
+import com.composables.icons.lucide.CalendarPlus
+import com.composables.icons.lucide.FileUp
 import com.composables.icons.lucide.Lucide
-import com.composables.icons.lucide.X
-
-private val bottomNavItems = listOf(
-    BottomNavItem.Home,
-    BottomNavItem.Agenda,
-    BottomNavItem.Members,
-    BottomNavItem.Profile,
-)
+import com.composables.icons.lucide.UserPlus
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -82,7 +71,10 @@ fun MainScreen(
 ) {
     val context = LocalContext.current
 
-    val navBarController = rememberNavController()
+    val navController = rememberNavController()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
     val agendaViewModel: AgendaViewModel = viewModel(
         factory = AgendaViewModelFactory(LocalContext.current.applicationContext)
     )
@@ -106,150 +98,137 @@ fun MainScreen(
         }
     }
 
+    val showBottomBar = when {
+        currentRoute == null -> false
+        currentRoute.startsWith(AppScreen.EventDetails.route) -> false
+        currentRoute == AppScreen.AddEvent.route -> false
+        currentRoute == AppScreen.AddMember.route -> false
+        currentRoute == AppScreen.About.route -> false
+        else -> true
+    }
+
+//    val pageTitle = when {
+//        currentRoute == AppScreen.Agenda.route -> "Agenda"
+//        currentRoute == AppScreen.Members.route -> "Membres"
+//        currentRoute == AppScreen.Profile.route -> "Profile"
+//        currentRoute == AppScreen.About.route -> "À propos"
+//        currentRoute == AppScreen.AddEvent.route -> "Nouvel évènement"
+//        currentRoute == AppScreen.AddMember.route -> "Nouveau(x) membre(s)"
+//        currentRoute?.startsWith("eventDetails/") == true -> "Détails"
+//        else -> "ScoutPocket"
+//    }
+
     var isFABMenuExpanded by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = Color.Transparent,
         contentWindowInsets = WindowInsets(0,0,0,0),
-        topBar = {
-            val navBackStackEntry by navBarController.currentBackStackEntryAsState()
-            val currentRoute = navBackStackEntry?.destination?.route
-
-            val title = when {
-                currentRoute == AppScreen.Agenda.route -> "Agenda"
-                currentRoute == AppScreen.Members.route -> "Membres"
-                currentRoute == AppScreen.Profile.route -> "Profile"
-                currentRoute == AppScreen.About.route -> "About"
-                currentRoute == AppScreen.AddEvent.route -> "Nouvel évènement"
-                currentRoute == AppScreen.AddMember.route -> "Nouveau(x) membre(s)"
-                currentRoute?.startsWith("eventDetails/") == true -> "Détails"
-                else -> "ScoutPocket"
-            }
-
-            if (currentRoute == AppScreen.AddEvent.route
-                || currentRoute == AppScreen.AddMember.route
-                || currentRoute?.startsWith("eventDetails/") == true
-
-            ) {
-                TopAppBar(
-                    title = {
-                        Box(
-                            modifier = Modifier.fillMaxWidth(),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Text(
-                                text = title,
-                                style = MaterialTheme.typography.titleLarge,
-                            )
-                        }
-                    },
-                    navigationIcon = {
-                        IconButton(
-                            onClick = { navBarController.navigateUp() },
-                            modifier = modifier
-                                .padding(start = 12.dp)
-                                .background(
-                                    color = MaterialTheme.colorScheme.secondaryContainer,
-                                    shape = CircleShape,
-                                ),
-                        ) {
-                            Icon(
-                                imageVector = Lucide.X,
-                                contentDescription = "Retour",
-                                tint = MaterialTheme.colorScheme.onSurface,
-                            )
-                        }
-                    },
-                    actions = {
-                        if (currentRoute == AppScreen.AddEvent.route
-                            || currentRoute == AppScreen.AddMember.route
-                        ) {
-                            IconButton(
-                                onClick = {
-                                    if (currentRoute == AppScreen.AddEvent.route) {
-                                        eventViewModel.createEvent()
-                                    } else if (currentRoute == AppScreen.AddMember.route) {
-                                        memberViewModel.createMember()
-                                    }
-                                },
-                                modifier = modifier
-                                    .padding(end = 12.dp)
-                                    .background(
-                                        color = MaterialTheme.colorScheme.secondaryContainer,
-                                        shape = CircleShape,
-                                    ),
-                            ) {
-                                Icon(
-                                    imageVector = Lucide.Check,
-                                    contentDescription = "Valider",
-                                    tint = MaterialTheme.colorScheme.onSurface,
-                                )
-                            }
-                        } else {
-                            Spacer(modifier = Modifier.size(56.dp))
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color.Transparent,
-                        titleContentColor = MaterialTheme.colorScheme.onBackground,
-                    )
-                )
-            } else {
-                CenterAlignedTopAppBar(
-                    title = {
-                        Text(
-                            text = title,
-                            style = MaterialTheme.typography.titleLarge,
-                        )
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color.Transparent,
-                        titleContentColor = MaterialTheme.colorScheme.onBackground,
-                    )
-                )
-            }
-        },
-        floatingActionButton = {
-            FABMenu(
-                expanded = isFABMenuExpanded,
-                onToggle = { isFABMenuExpanded = !isFABMenuExpanded },
-                onCreateEvent = {
-                    navBarController.navigate(AppScreen.AddEvent.route)
-                },
-                onCreateMember = {
-                    navBarController.navigate(AppScreen.addMemberRoute("manual"))
-                },
-                onImportCSV = {
-                    navBarController.navigate(AppScreen.addMemberRoute("import"))
-                },
-                modifier = Modifier
-                    .padding(bottom = 20.dp),
-            )
-        },
-        floatingActionButtonPosition = FabPosition.End,
+//        topBar = {
+//            if (currentRoute == AppScreen.AddEvent.route
+//                || currentRoute == AppScreen.AddMember.route
+//                || currentRoute?.startsWith("eventDetails/") == true
+//
+//            ) {
+//                TopAppBar(
+//                    title = {
+//                        Box(
+//                            modifier = Modifier.fillMaxWidth(),
+//                            contentAlignment = Alignment.Center,
+//                        ) {
+//                            Text(
+//                                text = pageTitle,
+//                                style = MaterialTheme.typography.titleLarge,
+//                            )
+//                        }
+//                    },
+//                    navigationIcon = {
+//                        IconButton(
+//                            onClick = { navController.navigateUp() },
+//                            modifier = modifier
+//                                .padding(start = 12.dp)
+//                                .background(
+//                                    color = MaterialTheme.colorScheme.secondaryContainer,
+//                                    shape = CircleShape,
+//                                ),
+//                        ) {
+//                            Icon(
+//                                imageVector = Lucide.X,
+//                                contentDescription = "Retour",
+//                                tint = MaterialTheme.colorScheme.onSurface,
+//                            )
+//                        }
+//                    },
+//                    actions = {
+//                        if (currentRoute == AppScreen.AddEvent.route
+//                            || currentRoute == AppScreen.AddMember.route
+//                        ) {
+//                            IconButton(
+//                                onClick = {
+//                                    if (currentRoute == AppScreen.AddEvent.route) {
+//                                        eventViewModel.createEvent()
+//                                    } else if (currentRoute == AppScreen.AddMember.route) {
+//                                        memberViewModel.createMember()
+//                                    }
+//                                },
+//                                modifier = modifier
+//                                    .padding(end = 12.dp)
+//                                    .background(
+//                                        color = MaterialTheme.colorScheme.secondaryContainer,
+//                                        shape = CircleShape,
+//                                    ),
+//                            ) {
+//                                Icon(
+//                                    imageVector = Lucide.Check,
+//                                    contentDescription = "Valider",
+//                                    tint = MaterialTheme.colorScheme.onSurface,
+//                                )
+//                            }
+//                        } else {
+//                            Spacer(modifier = Modifier.size(56.dp))
+//                        }
+//                    },
+//                    colors = TopAppBarDefaults.topAppBarColors(
+//                        containerColor = Color.Transparent,
+//                        titleContentColor = MaterialTheme.colorScheme.onBackground,
+//                    )
+//                )
+//            } else {
+//                CenterAlignedTopAppBar(
+//                    title = {
+//                        Text(
+//                            text = pageTitle,
+//                            style = MaterialTheme.typography.titleLarge,
+//                        )
+//                    },
+//                    colors = TopAppBarDefaults.topAppBarColors(
+//                        containerColor = Color.Transparent,
+//                        titleContentColor = MaterialTheme.colorScheme.onBackground,
+//                    )
+//                )
+//            }
+//        },
     ) { paddingValues ->
-
         Box(
             modifier = Modifier
                 .fillMaxSize(),
         ) {
             NavHost(
-                navController = navBarController,
+                navController = navController,
                 startDestination = AppScreen.Home.route,
                 modifier = Modifier.padding(paddingValues)
             ) {
                 composable(AppScreen.Home.route) {
                     HomeScreen(
                         modifier = Modifier.fillMaxSize(),
-                        navController = navBarController,
+                        navController = navController,
                     )
                 }
                 composable(AppScreen.Agenda.route) {
                     AgendaScreen(
                         modifier = Modifier.fillMaxSize(),
                         agendaViewModel = agendaViewModel,
-                        navController = navBarController,
+                        navController = navController,
                     )
                 }
                 composable(AppScreen.Members.route) {
@@ -262,7 +241,7 @@ fun MainScreen(
                     ProfileScreen(
                         modifier = Modifier.fillMaxSize(),
                         viewModel = loginViewModel,
-                        navController = navBarController,
+                        navController = navController,
                         onLogout = onLogout,
                     )
                 }
@@ -271,7 +250,7 @@ fun MainScreen(
                 }
                 composable(AppScreen.AddEvent.route) {
                     AddEventScreen(
-                        navController = navBarController,
+                        navController = navController,
                         viewModel = eventViewModel,
                     )
                 }
@@ -287,7 +266,7 @@ fun MainScreen(
                     val mode = backStackEntry.arguments?.getString("mode") ?: "manual"
 
                     AddMemberScreen(
-                        navController = navBarController,
+                        navController = navController,
                         viewModel = memberViewModel,
                         initialMode = mode,
                         onImportCSV = {
@@ -301,7 +280,7 @@ fun MainScreen(
                                 ))
                             }
                             filePickerLauncher.launch(intent)
-                            navBarController.navigate(BottomNavItem.Members.route)
+                            navController.navigate(BottomNavItem.Members.route)
                         }
                     )
                 }
@@ -340,12 +319,67 @@ fun MainScreen(
                 }
             }
 
-            BottomBar(
-                navController = navBarController,
-                items = bottomNavItems,
-                modifier = Modifier.align(Alignment.BottomCenter),
-            )
+            if (isFABMenuExpanded) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.3f))
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                        ) {
+                            isFABMenuExpanded = false
+                        }
+                )
+            }
 
+            if (showBottomBar) {
+                BottomBar(
+                    navController = navController,
+                    items = listOf(
+                        BottomNavItem.Home,
+                        BottomNavItem.Agenda,
+                        BottomNavItem.Members,
+                        BottomNavItem.Profile,
+                    ),
+                    fabMenuItems = listOf(
+                        FABMenuItem(
+                            icon = Lucide.CalendarPlus,
+                            label = "Nouvel événement",
+                            onClick = {
+                                navController.navigate(AppScreen.AddEvent.route)
+                            }
+                        ),
+                        FABMenuItem(
+                            icon = Lucide.UserPlus,
+                            label = "Nouveau membre",
+                            onClick = {
+                                navController.navigate(AppScreen.addMemberRoute("manual"))
+                            }
+                        ),
+                        FABMenuItem(
+                            icon = Lucide.FileUp,
+                            label = "Importer CSV",
+                            onClick = {
+                                val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                                    addCategory(Intent.CATEGORY_OPENABLE)
+                                    type = "*/*"
+                                    putExtra(Intent.EXTRA_MIME_TYPES, arrayOf(
+                                        "text/csv",
+                                        "text/comma-separated-values",
+                                        "text/plain"
+                                    ))
+                                }
+                                filePickerLauncher.launch(intent)
+                            }
+                        )
+                    ),
+                    isFABMenuExpanded = isFABMenuExpanded,
+                    onFABMenuExpandedChange = { isFABMenuExpanded = it },
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter),
+                )
+            }
         }
     }
 }
@@ -354,25 +388,31 @@ fun MainScreen(
 fun BottomBar(
     navController: NavController,
     items: List<BottomNavItem>,
+    fabMenuItems: List<FABMenuItem>,
+    isFABMenuExpanded: Boolean,
+    onFABMenuExpandedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Row(
+    Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(16.dp, 24.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
+            .padding(horizontal = 16.dp, vertical = 24.dp),
+        horizontalAlignment = Alignment.End,
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
+        ExpressiveFABMenu(
+            items = fabMenuItems,
+            isExpanded = isFABMenuExpanded,
+            onExpandedChange = onFABMenuExpandedChange,
+        )
+
         NavigationBar(
             navController = navController,
             items = items,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.fillMaxWidth(),
         )
-
-        // Spacer(modifier = Modifier.size(56.dp))
     }
 }
-
 
 
 @Composable
@@ -395,8 +435,12 @@ fun NavigationBar(
                 )
             )
             .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.surface)
-            .border(1.dp, MaterialTheme.colorScheme.secondaryContainer, CircleShape)
+            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.primaryContainer,
+                shape = CircleShape
+            )
             .padding(4.dp),
         contentAlignment = Alignment.Center,
     ) {
@@ -435,17 +479,17 @@ fun RowScope.NavigationBarItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val backgroundColor = if (selected) {
-        MaterialTheme.colorScheme.secondaryContainer
-    } else {
-        Color.Transparent
-    }
-
     Column(
         modifier = modifier
             .weight(1f)
             .clip(CircleShape)
-            .background(backgroundColor)
+            .background(
+                color = if (selected) {
+                    MaterialTheme.colorScheme.primaryContainer
+                } else {
+                    Color.Transparent
+                }
+            )
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
@@ -458,23 +502,21 @@ fun RowScope.NavigationBarItem(
         Icon(
             imageVector = item.icon,
             contentDescription = item.label,
-            tint = MaterialTheme.colorScheme.onBackground,
+            tint = if (selected) {
+                MaterialTheme.colorScheme.onPrimaryContainer
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            },
         )
         Text(
             text = item.label,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onBackground,
+            style = MaterialTheme.typography.labelMedium,
+            color = if (selected) {
+                MaterialTheme.colorScheme.onPrimaryContainer
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            },
+            fontWeight = FontWeight.SemiBold,
         )
     }
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//fun BottomBarPreview() {
-//    BottomBar(
-//        navController = rememberNavController(),
-//        items = bottomNavItems,
-//        modifier = Modifier,
-//        onAddEventClick = {}
-//    )
-//}

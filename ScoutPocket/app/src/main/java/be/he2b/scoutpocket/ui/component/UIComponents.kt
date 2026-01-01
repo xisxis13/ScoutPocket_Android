@@ -1,6 +1,8 @@
 package be.he2b.scoutpocket.ui.component
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -20,16 +22,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import be.he2b.scoutpocket.database.entity.Member
@@ -268,6 +274,125 @@ fun PresenceButtonPreview() {
     }
 }
 
+data class FABMenuItem(
+    val icon: ImageVector,
+    val label: String,
+    val onClick: () -> Unit,
+)
+
+@Composable
+fun ExpressiveFABMenu(
+    items: List<FABMenuItem>,
+    isExpanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        horizontalAlignment = Alignment.End,
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        AnimatedVisibility(
+            visible = isExpanded,
+            enter = expandVertically(
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessMedium,
+                ),
+                expandFrom = Alignment.Bottom,
+            ) + fadeIn(),
+            exit = shrinkVertically(
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessMedium,
+                ),
+                shrinkTowards = Alignment.Bottom,
+            ) + fadeOut(),
+        ) {
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                items.forEach { item ->
+                    FABMenuItemRow(
+                        icon = item.icon,
+                        label = item.label,
+                        onClick = {
+                            item.onClick()
+                            onExpandedChange(false)
+                        }
+                    )
+                }
+            }
+        }
+
+        FloatingActionButton(
+            onClick = { onExpandedChange(!isExpanded) },
+            shape = MaterialTheme.shapes.large,
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            elevation = FloatingActionButtonDefaults.elevation(
+                defaultElevation = 6.dp,
+                pressedElevation = 12.dp,
+            ),
+        ) {
+            Icon(
+                imageVector = if (isExpanded) Lucide.X else Lucide.Plus,
+                contentDescription = if (isExpanded) "Fermer le menu" else "Ouvrir le menu",
+                modifier = Modifier
+                    .size(24.dp)
+                    .rotate(0f),
+            )
+        }
+    }
+}
+
+@Composable
+fun FABMenuItemRow(
+    icon: ImageVector,
+    label: String,
+    onClick: () -> Unit,
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Surface(
+            shape = MaterialTheme.shapes.medium,
+            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+            shadowElevation = 2.dp,
+            tonalElevation = 1.dp,
+        ) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 10.dp),
+            )
+        }
+
+        SmallFloatingActionButton(
+            onClick = onClick,
+            shape = MaterialTheme.shapes.medium,
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            elevation = FloatingActionButtonDefaults.elevation(
+                defaultElevation = 4.dp,
+                pressedElevation = 8.dp,
+            ),
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = label,
+                modifier = Modifier
+                    .size(20.dp),
+            )
+        }
+    }
+}
+
+// TODO: delete
 @Composable
 fun FABMenu(
     expanded: Boolean,
