@@ -97,7 +97,7 @@ fun ProfileScreen(
                 ) {
                     Surface(
                         modifier = Modifier.size(80.dp),
-                        shape = MaterialTheme.shapes.extraLarge,
+                        shape = MaterialTheme.shapes.large,
                         color = MaterialTheme.colorScheme.primary
                     ) {
                         Box(contentAlignment = Alignment.Center) {
@@ -112,7 +112,7 @@ fun ProfileScreen(
 
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = userEmail,
+                            text = if (userEmail.isNotBlank()) userEmail else "Utilisateur non connecté",
                             style = MaterialTheme.typography.titleLarge,
                             color = MaterialTheme.colorScheme.onPrimaryContainer,
                             fontWeight = FontWeight.Bold
