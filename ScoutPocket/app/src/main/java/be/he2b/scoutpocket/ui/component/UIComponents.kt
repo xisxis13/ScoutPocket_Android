@@ -14,18 +14,19 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,23 +37,29 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import be.he2b.scoutpocket.database.entity.Event
 import be.he2b.scoutpocket.database.entity.Member
 import be.he2b.scoutpocket.database.entity.Presence
 import be.he2b.scoutpocket.model.PresenceStatus
 import be.he2b.scoutpocket.model.Section
 import be.he2b.scoutpocket.model.backgroundColor
 import be.he2b.scoutpocket.model.contentColor
+import be.he2b.scoutpocket.model.formattedDateShort
+import be.he2b.scoutpocket.model.formattedTimeRange
 import be.he2b.scoutpocket.model.textColor
 import be.he2b.scoutpocket.ui.theme.ScoutPocketTheme
-import com.composables.icons.lucide.CalendarPlus
+import com.composables.icons.lucide.Calendar
 import com.composables.icons.lucide.CheckCheck
-import com.composables.icons.lucide.FileUp
+import com.composables.icons.lucide.Clock
 import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.MapPin
 import com.composables.icons.lucide.Minus
 import com.composables.icons.lucide.Plus
-import com.composables.icons.lucide.UserPlus
 import com.composables.icons.lucide.X
 
 @Composable
@@ -60,22 +67,70 @@ fun SectionPill(
     modifier: Modifier = Modifier,
     section: Section,
 ) {
-    Box(
-        modifier = modifier
-            .background(
-                color = section.backgroundColor(),
-                shape = CircleShape,
-            )
-            .padding(12.dp, 4.dp),
+    Surface(
+        modifier = modifier,
+        shape = MaterialTheme.shapes.medium,
+        color = section.backgroundColor(),
     ) {
         Text(
             text = section.label,
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.labelMedium,
             color = section.textColor(),
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
         )
     }
 }
 
+@Composable
+fun ConnectedButtonGroup(
+    options: List<String>,
+    selectedIndex: Int,
+    onIndexSelected: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        options.forEachIndexed { index, label ->
+            val isSelected = selectedIndex == index
+
+            FilterChip(
+                selected = isSelected,
+                onClick = { onIndexSelected(index) },
+                label = {
+                    Text(
+                        text = label,
+                        style = MaterialTheme.typography.labelLarge,
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                    )
+                },
+                leadingIcon = null,
+                colors = FilterChipDefaults.filterChipColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                    selectedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    selectedLabelColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    selectedLeadingIconColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                ),
+                border = null,
+                shape = if (isSelected) {
+                    RoundedCornerShape(50)
+                } else {
+                    RoundedCornerShape(8.dp)
+                },
+                modifier = Modifier
+                    .weight(1f)
+                    .height(40.dp),
+            )
+        }
+    }
+}
+
+// TODO: to delete -> replaced by ConnectedButtonGroup
 @Composable
 fun SwitchButton(
     modifier: Modifier = Modifier,
@@ -357,149 +412,223 @@ fun FABMenuItemRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Surface(
-            shape = MaterialTheme.shapes.medium,
-            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+            color = MaterialTheme.colorScheme.secondaryContainer,
+            shape = CircleShape,
             shadowElevation = 2.dp,
-            tonalElevation = 1.dp,
-        ) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 10.dp),
-            )
-        }
-
-        SmallFloatingActionButton(
             onClick = onClick,
-            shape = MaterialTheme.shapes.medium,
-            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-            elevation = FloatingActionButtonDefaults.elevation(
-                defaultElevation = 4.dp,
-                pressedElevation = 8.dp,
-            ),
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = label,
+            Row(
                 modifier = Modifier
-                    .size(20.dp),
-            )
+                    .padding(start = 20.dp, top = 8.dp, 8.dp, 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(2.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = label,
+                    modifier = Modifier
+                        .size(20.dp),
+                )
+
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.labelLarge,
+                    modifier = Modifier
+                        .padding(12.dp, 8.dp),
+                )
+            }
         }
     }
 }
 
-// TODO: delete
 @Composable
-fun FABMenu(
-    expanded: Boolean,
-    onToggle: () -> Unit,
-    onCreateEvent: () -> Unit,
-    onCreateMember: () -> Unit,
-    onImportCSV: () -> Unit,
-    modifier: Modifier = Modifier,
+fun EmptyState(
+    icon: ImageVector,
+    title: String,
+    subtitle: String,
+    modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.End,
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(48.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        AnimatedVisibility(
-            visible = expanded,
-            enter = fadeIn() + expandVertically(),
-            exit = fadeOut() + shrinkVertically(),
+        Surface(
+            modifier = Modifier.size(80.dp),
+            shape = MaterialTheme.shapes.large,
+            color = MaterialTheme.colorScheme.surfaceVariant
         ) {
-            Column(
-                horizontalAlignment = Alignment.End,
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                // Import CSV
-                FABMenuItem(
-                    icon = Lucide.FileUp,
-                    label = "Importer CSV",
-                    onClick = {
-                        onImportCSV()
-                        onToggle()
-                    }
-                )
-
-                // Create member
-                FABMenuItem(
-                    icon = Lucide.UserPlus,
-                    label = "Nouveau membre",
-                    onClick = {
-                        onCreateMember()
-                        onToggle()
-                    }
-                )
-
-                // Create event
-                FABMenuItem(
-                    icon = Lucide.CalendarPlus,
-                    label = "Nouvel évènement",
-                    onClick = {
-                        onCreateEvent()
-                        onToggle()
-                    }
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(40.dp)
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(0.dp))
-
-        FloatingActionButton(
-            onClick = onToggle,
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary,
+        Text(
+            text = title,
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.SemiBold,
             modifier = Modifier
-                .size(56.dp),
-            shape = CircleShape,
-        ) {
-            Icon(
-                imageVector = if (expanded) Lucide.X else Lucide.Plus,
-                contentDescription = if (expanded) "Fermer" else "Ouvrir menu",
-                modifier = Modifier
-                    .size(28.dp),
-            )
-        }
+                    .fillMaxWidth(),
+        )
+
+        Text(
+            text = subtitle,
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier
+                .fillMaxWidth(),
+        )
     }
 }
 
 @Composable
-fun FABMenuItem(
-    icon: ImageVector,
-    label: String,
+fun EventCard(
+    event: Event,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Surface(
-        color = MaterialTheme.colorScheme.secondaryContainer,
-        shape = CircleShape,
-        shadowElevation = 2.dp,
+        modifier = modifier.fillMaxWidth(),
         onClick = onClick,
+        shape = MaterialTheme.shapes.extraLarge,
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
-        Row(
-            modifier = modifier
-                .padding(start = 20.dp, top = 8.dp, 8.dp, 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(2.dp),
-            verticalAlignment = Alignment.CenterVertically,
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = label,
-                modifier = Modifier
-                    .size(20.dp),
+            // Header Row: Section + Date
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                // Section
+                SectionPill(section = event.section)
+
+                // Date
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        imageVector = Lucide.Calendar,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                    Text(
+                        text = event.formattedDateShort(),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
+            }
+
+            // Title
+            Text(
+                text = event.name,
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Bold,
+                lineHeight = 32.sp,
             )
 
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelLarge,
-                modifier = Modifier
-                    .padding(12.dp, 8.dp),
-            )
+            // Metadata Row: Time + Location
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                // Time
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Surface(
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.secondaryContainer,
+                        modifier = Modifier.size(40.dp),
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = Lucide.Clock,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                                tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                            )
+                        }
+                    }
+
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(2.dp),
+                    ) {
+                        Text(
+                            text = "Heures",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontWeight = FontWeight.Medium,
+                        )
+                        Text(
+                            text = event.formattedTimeRange(),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                    }
+                }
+
+                // Location
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Surface(
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.secondaryContainer,
+                        modifier = Modifier.size(40.dp),
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = Lucide.MapPin,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                                tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                            )
+                        }
+                    }
+
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(2.dp),
+                    ) {
+                        Text(
+                            text = "Lieu",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontWeight = FontWeight.Medium,
+                        )
+                        Text(
+                            text = event.location,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                }
+            }
         }
     }
 }

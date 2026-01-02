@@ -85,7 +85,7 @@ abstract class ScoutPocketDatabase : RoomDatabase() {
                 Event(
                     name = "Hike d'orientation",
                     section = Section.ECLAIREURS,
-                    date = LocalDate.now().plusDays(18),
+                    date = LocalDate.now().minusDays(18),
                     startTime = LocalTime.of(10, 0),
                     endTime = LocalTime.of(16, 0),
                     location = "Forêt de Soignes"

@@ -16,7 +16,6 @@ class AgendaViewModel(
     private val eventRepository: EventRepository,
 ) : ViewModel() {
 
-    var showUpcomingEvents = mutableStateOf(true)
     var upcomingEvents = mutableStateOf<List<Event>>(emptyList())
         private set
     var pastEvents = mutableStateOf<List<Event>>(emptyList())
@@ -57,10 +56,6 @@ class AgendaViewModel(
                 isLoading.value = false
             }
         }
-    }
-
-    fun switchEventsView() {
-        showUpcomingEvents.value = !showUpcomingEvents.value
     }
 
 }
