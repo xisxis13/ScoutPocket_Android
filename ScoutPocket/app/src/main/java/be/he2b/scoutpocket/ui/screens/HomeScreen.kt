@@ -124,7 +124,9 @@ fun HomeScreen(
                 QuickActionCard(
                     icon = Lucide.CalendarPlus,
                     label = "Nouvel événement",
-                    onClick = { navController.navigate(AppScreen.AddEvent.route) },
+                    onClick = {
+                        navController.navigate(AppScreen.AddEvent.route)
+                    },
                     modifier = Modifier
                         .weight(1f)
                         .widthIn(min = 150.dp)
@@ -133,7 +135,9 @@ fun HomeScreen(
                 QuickActionCard(
                     icon = Lucide.UserPlus,
                     label = "Nouveau membre",
-                    onClick = { navController.navigate(AppScreen.AddMember.route) },
+                    onClick = {
+                        navController.navigate(AppScreen.addMemberRoute("manual"))
+                    },
                     modifier = Modifier
                         .weight(1f)
                         .widthIn(min = 150.dp)
@@ -142,7 +146,9 @@ fun HomeScreen(
                 QuickActionCard(
                     icon = Lucide.Calendar,
                     label = "Voir l'agenda",
-                    onClick = { navController.navigate(AppScreen.Agenda.route) },
+                    onClick = {
+                        navController.navigate(AppScreen.Agenda.route)
+                    },
                     modifier = Modifier
                         .weight(1f)
                         .widthIn(min = 150.dp)
@@ -151,7 +157,9 @@ fun HomeScreen(
                 QuickActionCard(
                     icon = Lucide.Users,
                     label = "Voir les membres",
-                    onClick = { navController.navigate(AppScreen.Members.route) },
+                    onClick = {
+                        navController.navigate(AppScreen.Members.route)
+                    },
                     modifier = Modifier
                         .weight(1f)
                         .widthIn(min = 150.dp)

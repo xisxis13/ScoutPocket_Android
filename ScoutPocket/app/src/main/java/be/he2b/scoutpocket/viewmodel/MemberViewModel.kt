@@ -359,6 +359,15 @@ class MemberViewModel(
 
     fun resetMemberCreationState() {
         newMemberIsCreated.value = false
+        resetForm()
+    }
+
+    private fun resetForm() {
+        newMemberLastName.value = ""
+        newMemberFirstName.value = ""
+        newMemberSection.value = Section.BALADINS
+        newMemberLastNameError.value = null
+        newMemberFirstNameError.value = null
     }
 
 }

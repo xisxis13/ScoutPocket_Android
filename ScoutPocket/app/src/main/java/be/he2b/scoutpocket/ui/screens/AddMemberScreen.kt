@@ -1,44 +1,51 @@
 package be.he2b.scoutpocket.ui.screens
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import be.he2b.scoutpocket.model.Section
 import be.he2b.scoutpocket.navigation.BottomNavItem
-import be.he2b.scoutpocket.ui.component.LabeledSelect
-import be.he2b.scoutpocket.ui.component.SwitchButton
+import be.he2b.scoutpocket.ui.component.ConnectedButtonGroup
+import be.he2b.scoutpocket.ui.component.ExpressiveTextField
+import be.he2b.scoutpocket.ui.component.SectionDropdown
 import be.he2b.scoutpocket.viewmodel.MemberViewModel
+import com.composables.icons.lucide.ArrowLeft
+import com.composables.icons.lucide.Check
 import com.composables.icons.lucide.FileUp
 import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.User
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddMemberScreen(
     modifier: Modifier = Modifier,
@@ -47,8 +54,7 @@ fun AddMemberScreen(
     initialMode: String = "manual",
     onImportCSV: () -> Unit,
 ) {
-    var importMode by remember { mutableStateOf((initialMode == "import")) }
-
+    var selectedIndex by remember { mutableIntStateOf(if(initialMode.lowercase() == "manual") 0 else 1) }
     val memberIsCreated by viewModel.newMemberIsCreated
 
     LaunchedEffect(memberIsCreated) {
@@ -58,38 +64,65 @@ fun AddMemberScreen(
         }
     }
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(top = 24.dp, start = 24.dp, end = 24.dp, bottom = 120.dp),
-        contentAlignment = Alignment.TopCenter,
-    ) {
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        "Nouveau membre",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(
+                            Lucide.ArrowLeft,
+                            contentDescription = "Retour",
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface
+                )
+            )
+        }
+    ) { paddingValues ->
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally,
+                .fillMaxSize()
+                .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            SwitchButton(
-                buttons = listOf(
-                    "Manuel" to !importMode,
-                    "Importer un CSV" to importMode,
-                ),
-                onClick = { importMode = !importMode }
+            ConnectedButtonGroup(
+                options = listOf("Manuel", "Importer un CSV"),
+                selectedIndex = selectedIndex,
+                onIndexSelected = { selectedIndex = it },
+                modifier = Modifier.fillMaxWidth(),
             )
 
-            if (!importMode) {
-                ManualMemberForm(viewModel = viewModel)
+            if (selectedIndex == 0) {
+                ManualMemberForm(
+                    navController = navController,
+                    viewModel = viewModel
+                )
             } else {
                 CSVImportSection(onImportCSV = onImportCSV)
             }
+
+            Spacer(modifier = Modifier.height(120.dp))
         }
     }
 }
 
 @Composable
 private fun ManualMemberForm(
+    navController: NavController,
     viewModel: MemberViewModel,
 ) {
     val memberLastName by viewModel.newMemberLastName
@@ -98,60 +131,91 @@ private fun ManualMemberForm(
     val memberLastNameError by viewModel.newMemberLastNameError
     val memberFirstNameError by viewModel.newMemberFirstNameError
 
-    OutlinedTextField(
-        value = memberLastName,
-        onValueChange = {
-            viewModel.newMemberLastName.value = it
-            if (viewModel.newMemberLastNameError.value != null) {
-                viewModel.newMemberLastNameError.value = null
-            }
-        },
-        modifier = Modifier.fillMaxWidth(),
-        label = { Text("Nom de famille") },
-        singleLine = true,
-        keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
-        isError = memberLastNameError != null,
-        supportingText = {
-            if (memberLastNameError != null) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Spacer(modifier = Modifier.height(4.dp))
+
+        Text(
+            text = "Informations Personnelles",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.SemiBold
+        )
+
+        ExpressiveTextField(
+            value = memberFirstName,
+            onValueChange = { viewModel.newMemberFirstName.value = it },
+            label = "Prénom",
+            leadingIcon = Lucide.User,
+            isError = memberFirstNameError != null,
+            errorMessage = memberFirstNameError,
+        )
+
+        ExpressiveTextField(
+            value = memberLastName,
+            onValueChange = { viewModel.newMemberLastName.value = it },
+            label = "Nom de famille",
+            leadingIcon = Lucide.User,
+            isError = memberLastNameError != null,
+            errorMessage = memberLastNameError,
+        )
+
+        // TODO: add option to block 'Unité' section when member creation
+        SectionDropdown(
+            selectedSection = memberSection,
+            onSectionChange = { viewModel.newMemberSection.value = it },
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            OutlinedButton(
+                onClick = {
+                    viewModel.resetMemberCreationState()
+                    navController.navigateUp()
+                },
+                modifier = Modifier
+                    .weight(1f)
+                    .height(56.dp),
+                shape = MaterialTheme.shapes.large,
+            ) {
                 Text(
-                    text = memberLastNameError!!,
-                    color = MaterialTheme.colorScheme.error
+                    text = "Annuler",
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold,
                 )
             }
-        },
-    )
 
-    OutlinedTextField(
-        value = memberFirstName,
-        onValueChange = {
-            viewModel.newMemberFirstName.value = it
-            if (viewModel.newMemberFirstNameError.value != null) {
-                viewModel.newMemberFirstNameError.value = null
-            }
-        },
-        modifier = Modifier.fillMaxWidth(),
-        label = { Text("Prénom") },
-        singleLine = true,
-        keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
-        isError = memberFirstNameError != null,
-        supportingText = {
-            if (memberFirstNameError != null) {
+            Button(
+                onClick = { viewModel.createMember() },
+                modifier = Modifier
+                    .weight(1f)
+                    .height(56.dp),
+                shape = MaterialTheme.shapes.large,
+            ) {
+                Icon(
+                    Lucide.Check,
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp)
+                )
+
+                Spacer(Modifier.width(8.dp))
+
                 Text(
-                    text = memberFirstNameError!!,
-                    color = MaterialTheme.colorScheme.error
+                    "Créer",
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
-        },
-    )
-
-    LabeledSelect(
-        label = "Section",
-        options = Section.entries.filter { it != Section.UNITE }.map { it.label },
-        selected = memberSection.label,
-        onSelectedChange = { selectedLabel ->
-            viewModel.newMemberSection.value = Section.entries.first { it.label == selectedLabel }
         }
-    )
+    }
 }
 
 @Composable
@@ -163,68 +227,87 @@ private fun CSVImportSection(
             .fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
+        Spacer(modifier = Modifier.height(4.dp))
+
         Text(
             text = "Format du fichier CSV",
-            style = MaterialTheme.typography.labelLarge,
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.SemiBold
         )
 
-        Column(
+        Surface(
             modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    color = MaterialTheme.colorScheme.surface,
-                    shape = RoundedCornerShape(24.dp),
-                )
-                .border(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.secondaryContainer,
-                    shape = RoundedCornerShape(24.dp)
-                )
-                .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+                .fillMaxWidth(),
+            shape = MaterialTheme.shapes.extraLarge,
+            color = MaterialTheme.colorScheme.surfaceContainerHigh,
         ) {
-            Text("• 3 colonnes : Nom, Prénom, Section")
-            Text("• Délimiteur : virgule (,) ou point-virgule (;)")
-            Text("• Sections valides : baladins, louveteaux, éclaireurs, pionniers")
-            Text("• Les variantes sont acceptées (baladin, eclaireur, etc.)")
-            Text("• Les doublons sont automatiquement ignorés")
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text("• 3 colonnes : Nom, Prénom, Section")
+                Text("• Délimiteur : virgule (,) ou point-virgule (;)")
+                Text("• Sections valides : baladins, louveteaux, éclaireurs, pionniers")
+                Text("• Les variantes sont acceptées (baladin, eclaireur, etc.)")
+                Text("• Les doublons sont automatiquement ignorés")
+            }
         }
+
+        Spacer(modifier = Modifier.height(4.dp))
 
         Text(
             text = "Exemple de fichier",
-            style = MaterialTheme.typography.labelLarge,
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.SemiBold
         )
 
-        Column(
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth(),
+            shape = MaterialTheme.shapes.extraLarge,
+            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text(
+                    text = "DUPONT,Jean,baladins\nMARTIN,Sophie,louveteaux\nBERNARD,Lucas,eclaireurs",
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.bodySmall,
+                    fontFamily = FontFamily.Monospace,
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Button(
+            onClick = onImportCSV,
             modifier = Modifier
                 .fillMaxWidth()
-                .background(
-                    color = MaterialTheme.colorScheme.surface,
-                    shape = RoundedCornerShape(24.dp),
-                )
-                .border(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.secondaryContainer,
-                    shape = RoundedCornerShape(24.dp)
-                )
-                .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+                .height(56.dp),
+            shape = MaterialTheme.shapes.large,
         ) {
-            Text(
-                text = "DUPONT,Jean,baladins\nMARTIN,Sophie,louveteaux\nBERNARD,Lucas,eclaireurs",
-                modifier = Modifier.padding(16.dp),
-                style = MaterialTheme.typography.bodySmall,
-                fontFamily = FontFamily.Monospace,
+            Icon(
+                Lucide.FileUp,
+                contentDescription = null,
+                modifier = Modifier.size(20.dp)
             )
 
-            Button(
-                onClick = onImportCSV,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Icon(Lucide.FileUp, contentDescription = null)
-                Spacer(Modifier.width(8.dp))
-                Text("Sélectionner un fichier CSV")
-            }
+            Spacer(Modifier.width(8.dp))
+
+            Text(
+                "Sélectionner un fichier CSV",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.SemiBold
+            )
         }
     }
 }

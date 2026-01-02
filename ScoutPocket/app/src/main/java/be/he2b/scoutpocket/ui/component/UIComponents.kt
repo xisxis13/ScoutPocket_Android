@@ -8,14 +8,12 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -37,7 +35,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -132,67 +129,6 @@ fun ConnectedButtonGroup(
                     .height(40.dp),
             )
         }
-    }
-}
-
-// TODO: to delete -> replaced by ConnectedButtonGroup
-@Composable
-fun SwitchButton(
-    modifier: Modifier = Modifier,
-    buttons: List<Pair<String, Boolean>>,
-    onClick: () -> Unit,
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(48.dp)
-            .background(
-                color = MaterialTheme.colorScheme.surface,
-                shape = CircleShape,
-            )
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.secondaryContainer,
-                shape = CircleShape,
-            )
-            .padding(4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceAround,
-    ) {
-        buttons.forEach { (label, isSelected) ->
-            val backgroundColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent
-            val contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondaryContainer
-
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight()
-                    .clip(CircleShape)
-                    .background(backgroundColor)
-                    .clickable(onClick = onClick)
-                    .padding(12.dp, 8.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = label,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = contentColor
-                )
-            }
-        }
-    }
-}
-
-@Preview
-@Composable
-fun SwitchButtonPreview() {
-    val buttons = listOf("Button 1" to true, "Button 2" to false)
-
-    ScoutPocketTheme {
-        SwitchButton(
-            buttons = buttons,
-            onClick = { },
-        )
     }
 }
 

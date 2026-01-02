@@ -366,16 +366,7 @@ fun MainScreen(
                             icon = Lucide.FileUp,
                             label = "Importer CSV",
                             onClick = {
-                                val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-                                    addCategory(Intent.CATEGORY_OPENABLE)
-                                    type = "*/*"
-                                    putExtra(Intent.EXTRA_MIME_TYPES, arrayOf(
-                                        "text/csv",
-                                        "text/comma-separated-values",
-                                        "text/plain"
-                                    ))
-                                }
-                                filePickerLauncher.launch(intent)
+                                navController.navigate(AppScreen.addMemberRoute("import"))
                             }
                         )
                     ),
