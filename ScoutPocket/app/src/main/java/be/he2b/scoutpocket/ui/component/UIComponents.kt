@@ -14,13 +14,16 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
@@ -200,46 +203,37 @@ fun MemberCard(
 ) {
     Surface(
         modifier = modifier
-            .fillMaxWidth()
-            .background(
-                color = MaterialTheme.colorScheme.surface,
-                shape = CircleShape,
-            )
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.secondaryContainer,
-                shape = CircleShape,
-            ),
-        shape = CircleShape,
+            .fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        shape = MaterialTheme.shapes.large,
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
                 modifier = Modifier
-                    .size(44.dp)
-                    .background(
-                        color = member.section.backgroundColor(),
-                        shape = CircleShape
-                    ),
-                contentAlignment = Alignment.Center,
+                    .size(56.dp)
+                    .clip(CircleShape)
+                    .background(member.section.backgroundColor()),
+                contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "${member.firstName.first()}${member.lastName.first()}",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = member.section.textColor()
+                    text = "${member.firstName.firstOrNull()?.uppercase() ?: ""}${member.lastName.firstOrNull()?.uppercase() ?: ""}",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = member.section.textColor(),
+                    fontWeight = FontWeight.Bold
                 )
             }
 
             Text(
-                modifier = Modifier.weight(1f),
                 text = "${member.firstName} ${member.lastName.uppercase()}",
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onBackground,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.SemiBold
             )
 
             if (presence != null && onPresenceClick != null) {
@@ -450,10 +444,10 @@ fun EmptyState(
 ) {
     Column(
         modifier = modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .padding(48.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
     ) {
         Surface(
             modifier = Modifier.size(80.dp),
@@ -488,6 +482,51 @@ fun EmptyState(
             modifier = Modifier
                 .fillMaxWidth(),
         )
+
+        Spacer(modifier = Modifier.height(120.dp))
+    }
+}
+
+@Composable
+fun LoadingState(
+    title: String,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(48.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier
+                .size(40.dp),
+            color = MaterialTheme.colorScheme.primary,
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = title,
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier
+                .fillMaxWidth(),
+        )
+
+        Text(
+            text = "Votre contenu apparaîtra dans quelques instants.",
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier
+                .fillMaxWidth(),
+        )
+
+        Spacer(modifier = Modifier.height(120.dp))
     }
 }
 

@@ -234,6 +234,7 @@ fun MainScreen(
                 composable(AppScreen.Members.route) {
                     MembersScreen(
                         modifier = Modifier.fillMaxSize(),
+                        navController = navController,
                         viewModel = memberViewModel,
                     )
                 }
