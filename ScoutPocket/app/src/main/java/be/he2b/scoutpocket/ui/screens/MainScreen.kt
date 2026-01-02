@@ -247,7 +247,10 @@ fun MainScreen(
                     )
                 }
                 composable(AppScreen.About.route) {
-                    AboutScreen(modifier = Modifier.fillMaxSize())
+                    AboutScreen(
+                        modifier = Modifier.fillMaxSize(),
+                        navController = navController,
+                    )
                 }
                 composable(AppScreen.AddEvent.route) {
                     AddEventScreen(
