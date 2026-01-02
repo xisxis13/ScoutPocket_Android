@@ -78,7 +78,7 @@ fun HomeScreen(
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.extraLarge,
-                color = MaterialTheme.colorScheme.primaryContainer
+                color = MaterialTheme.colorScheme.primary
             ) {
                 Column(
                     modifier = Modifier.padding(24.dp),
@@ -87,21 +87,21 @@ fun HomeScreen(
                     Icon(
                         Lucide.Sparkles,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.size(32.dp)
                     )
 
                     Text(
                         text = "Gérez votre unité",
                         style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        color = MaterialTheme.colorScheme.onPrimary,
                         fontWeight = FontWeight.Bold
                     )
 
                     Text(
                         text = "Organisez vos événements, suivez vos membres et gérez les présences facilement.",
                         style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.9f)
                     )
                 }
             }
@@ -119,14 +119,12 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
-                maxItemsInEachRow = 4,
+                maxItemsInEachRow = 4
             ) {
                 QuickActionCard(
                     icon = Lucide.CalendarPlus,
                     label = "Nouvel événement",
-                    onClick = {
-                        navController.navigate(AppScreen.AddEvent.route)
-                    },
+                    onClick = { navController.navigate(AppScreen.AddEvent.route) },
                     modifier = Modifier
                         .weight(1f)
                         .widthIn(min = 150.dp)
@@ -135,9 +133,7 @@ fun HomeScreen(
                 QuickActionCard(
                     icon = Lucide.UserPlus,
                     label = "Nouveau membre",
-                    onClick = {
-                        navController.navigate(AppScreen.addMemberRoute("manual"))
-                    },
+                    onClick = { navController.navigate(AppScreen.addMemberRoute("manual")) },
                     modifier = Modifier
                         .weight(1f)
                         .widthIn(min = 150.dp)
@@ -146,9 +142,7 @@ fun HomeScreen(
                 QuickActionCard(
                     icon = Lucide.Calendar,
                     label = "Voir l'agenda",
-                    onClick = {
-                        navController.navigate(AppScreen.Agenda.route)
-                    },
+                    onClick = { navController.navigate(AppScreen.Agenda.route) },
                     modifier = Modifier
                         .weight(1f)
                         .widthIn(min = 150.dp)
@@ -157,9 +151,7 @@ fun HomeScreen(
                 QuickActionCard(
                     icon = Lucide.Users,
                     label = "Voir les membres",
-                    onClick = {
-                        navController.navigate(AppScreen.Members.route)
-                    },
+                    onClick = { navController.navigate(AppScreen.Members.route) },
                     modifier = Modifier
                         .weight(1f)
                         .widthIn(min = 150.dp)
@@ -182,7 +174,7 @@ private fun QuickActionCard(
         modifier = modifier,
         onClick = onClick,
         shape = MaterialTheme.shapes.large,
-        color = MaterialTheme.colorScheme.surfaceContainerHigh
+        color = MaterialTheme.colorScheme.surfaceContainer
     ) {
         Column(
             modifier = Modifier.padding(20.dp),
@@ -192,13 +184,13 @@ private fun QuickActionCard(
             Surface(
                 modifier = Modifier.size(56.dp),
                 shape = MaterialTheme.shapes.medium,
-                color = MaterialTheme.colorScheme.secondaryContainer
+                color = MaterialTheme.colorScheme.primaryContainer
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = icon,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
                         modifier = Modifier.size(28.dp)
                     )
                 }

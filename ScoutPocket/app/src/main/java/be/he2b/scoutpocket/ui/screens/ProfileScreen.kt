@@ -85,10 +85,11 @@ fun ProfileScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // Profile Card
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.extraLarge,
-                color = MaterialTheme.colorScheme.primaryContainer
+                color = MaterialTheme.colorScheme.primary
             ) {
                 Column(
                     modifier = Modifier.padding(24.dp),
@@ -98,7 +99,7 @@ fun ProfileScreen(
                     Surface(
                         modifier = Modifier.size(80.dp),
                         shape = MaterialTheme.shapes.large,
-                        color = MaterialTheme.colorScheme.primary
+                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f)
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
@@ -114,18 +115,19 @@ fun ProfileScreen(
                         Text(
                             text = if (userEmail.isNotBlank()) userEmail else "Utilisateur non connecté",
                             style = MaterialTheme.typography.titleLarge,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            color = MaterialTheme.colorScheme.onPrimary,
                             fontWeight = FontWeight.Bold
                         )
+
                         Surface(
                             shape = MaterialTheme.shapes.small,
-                            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.15f),
                             modifier = Modifier.padding(top = 8.dp)
                         ) {
                             Text(
-                                text = "Chef d\'unité",
+                                text = "Chef d'unité",
                                 style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.primary,
+                                color = MaterialTheme.colorScheme.onPrimary,
                                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                                 fontWeight = FontWeight.Medium
                             )
@@ -161,8 +163,8 @@ fun ProfileScreen(
                     .height(56.dp),
                 shape = MaterialTheme.shapes.large,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.errorContainer,
-                    contentColor = MaterialTheme.colorScheme.onErrorContainer
+                    containerColor = MaterialTheme.colorScheme.error,
+                    contentColor = MaterialTheme.colorScheme.onError
                 )
             ) {
                 Icon(
@@ -223,7 +225,7 @@ fun ProfileScreen(
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error,
-                        contentColor = MaterialTheme.colorScheme.onError,
+                        contentColor = MaterialTheme.colorScheme.onError
                     ),
                     shape = MaterialTheme.shapes.large
                 ) {

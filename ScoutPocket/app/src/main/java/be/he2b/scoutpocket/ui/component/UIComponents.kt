@@ -113,10 +113,10 @@ fun ConnectedButtonGroup(
                 },
                 leadingIcon = null,
                 colors = FilterChipDefaults.filterChipColors(
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    selectedContainerColor = MaterialTheme.colorScheme.secondary,
-                    selectedLabelColor = MaterialTheme.colorScheme.onSecondary,
-                    selectedLeadingIconColor = MaterialTheme.colorScheme.onSecondary,
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    selectedContainerColor = MaterialTheme.colorScheme.primary,
+                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                    selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimary,
                 ),
                 border = null,
                 shape = if (isSelected) {
@@ -142,7 +142,7 @@ fun MemberCard(
     Surface(
         modifier = modifier
             .fillMaxWidth(),
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        color = MaterialTheme.colorScheme.surfaceContainer,
         shape = MaterialTheme.shapes.large,
     ) {
         Row(
@@ -315,8 +315,8 @@ fun ExpressiveFABMenu(
         FloatingActionButton(
             onClick = { onExpandedChange(!isExpanded) },
             shape = MaterialTheme.shapes.large,
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
             elevation = FloatingActionButtonDefaults.elevation(
                 defaultElevation = 6.dp,
                 pressedElevation = 12.dp,
@@ -410,7 +410,7 @@ fun EmptyState(
             color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier
-                    .fillMaxWidth(),
+                .fillMaxWidth(),
         )
 
         Text(
@@ -479,7 +479,7 @@ fun EventCard(
         modifier = modifier.fillMaxWidth(),
         onClick = onClick,
         shape = MaterialTheme.shapes.extraLarge,
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        color = MaterialTheme.colorScheme.surfaceContainer,
     ) {
         Column(
             modifier = Modifier
@@ -487,7 +487,6 @@ fun EventCard(
                 .padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
-            // Header Row: Section + Date
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -525,7 +524,6 @@ fun EventCard(
                 lineHeight = 32.sp,
             )
 
-            // Metadata Row: Time + Location
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
@@ -537,7 +535,8 @@ fun EventCard(
                     Surface(
                         shape = CircleShape,
                         color = MaterialTheme.colorScheme.secondaryContainer,
-                        modifier = Modifier.size(40.dp),
+                        modifier = Modifier
+                            .size(40.dp),
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
@@ -622,7 +621,7 @@ fun ProfileMenuItem(
         modifier = Modifier.fillMaxWidth(),
         onClick = onClick,
         shape = MaterialTheme.shapes.large,
-        color = MaterialTheme.colorScheme.surfaceContainerHigh
+        color = MaterialTheme.colorScheme.surfaceContainer,
     ) {
         Row(
             modifier = Modifier.padding(16.dp),

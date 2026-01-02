@@ -107,107 +107,12 @@ fun MainScreen(
         else -> true
     }
 
-//    val pageTitle = when {
-//        currentRoute == AppScreen.Agenda.route -> "Agenda"
-//        currentRoute == AppScreen.Members.route -> "Membres"
-//        currentRoute == AppScreen.Profile.route -> "Profile"
-//        currentRoute == AppScreen.About.route -> "À propos"
-//        currentRoute == AppScreen.AddEvent.route -> "Nouvel évènement"
-//        currentRoute == AppScreen.AddMember.route -> "Nouveau(x) membre(s)"
-//        currentRoute?.startsWith("eventDetails/") == true -> "Détails"
-//        else -> "ScoutPocket"
-//    }
-
     var isFABMenuExpanded by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = Color.Transparent,
         contentWindowInsets = WindowInsets(0,0,0,0),
-//        topBar = {
-//            if (currentRoute == AppScreen.AddEvent.route
-//                || currentRoute == AppScreen.AddMember.route
-//                || currentRoute?.startsWith("eventDetails/") == true
-//
-//            ) {
-//                TopAppBar(
-//                    title = {
-//                        Box(
-//                            modifier = Modifier.fillMaxWidth(),
-//                            contentAlignment = Alignment.Center,
-//                        ) {
-//                            Text(
-//                                text = pageTitle,
-//                                style = MaterialTheme.typography.titleLarge,
-//                            )
-//                        }
-//                    },
-//                    navigationIcon = {
-//                        IconButton(
-//                            onClick = { navController.navigateUp() },
-//                            modifier = modifier
-//                                .padding(start = 12.dp)
-//                                .background(
-//                                    color = MaterialTheme.colorScheme.secondaryContainer,
-//                                    shape = CircleShape,
-//                                ),
-//                        ) {
-//                            Icon(
-//                                imageVector = Lucide.X,
-//                                contentDescription = "Retour",
-//                                tint = MaterialTheme.colorScheme.onSurface,
-//                            )
-//                        }
-//                    },
-//                    actions = {
-//                        if (currentRoute == AppScreen.AddEvent.route
-//                            || currentRoute == AppScreen.AddMember.route
-//                        ) {
-//                            IconButton(
-//                                onClick = {
-//                                    if (currentRoute == AppScreen.AddEvent.route) {
-//                                        eventViewModel.createEvent()
-//                                    } else if (currentRoute == AppScreen.AddMember.route) {
-//                                        memberViewModel.createMember()
-//                                    }
-//                                },
-//                                modifier = modifier
-//                                    .padding(end = 12.dp)
-//                                    .background(
-//                                        color = MaterialTheme.colorScheme.secondaryContainer,
-//                                        shape = CircleShape,
-//                                    ),
-//                            ) {
-//                                Icon(
-//                                    imageVector = Lucide.Check,
-//                                    contentDescription = "Valider",
-//                                    tint = MaterialTheme.colorScheme.onSurface,
-//                                )
-//                            }
-//                        } else {
-//                            Spacer(modifier = Modifier.size(56.dp))
-//                        }
-//                    },
-//                    colors = TopAppBarDefaults.topAppBarColors(
-//                        containerColor = Color.Transparent,
-//                        titleContentColor = MaterialTheme.colorScheme.onBackground,
-//                    )
-//                )
-//            } else {
-//                CenterAlignedTopAppBar(
-//                    title = {
-//                        Text(
-//                            text = pageTitle,
-//                            style = MaterialTheme.typography.titleLarge,
-//                        )
-//                    },
-//                    colors = TopAppBarDefaults.topAppBarColors(
-//                        containerColor = Color.Transparent,
-//                        titleContentColor = MaterialTheme.colorScheme.onBackground,
-//                    )
-//                )
-//            }
-//        },
     ) { paddingValues ->
         Box(
             modifier = Modifier

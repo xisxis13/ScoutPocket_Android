@@ -514,7 +514,6 @@ fun TimePickerField(
                 showTimePicker = false
             }
         ) {
-            // Vous pouvez choisir entre TimePicker (horloge) ou TimeInput (clavier)
             TimeInput(state = timePickerState)
         }
     }
