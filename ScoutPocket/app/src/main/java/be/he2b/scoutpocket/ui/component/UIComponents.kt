@@ -111,10 +111,10 @@ fun ConnectedButtonGroup(
                 },
                 leadingIcon = null,
                 colors = FilterChipDefaults.filterChipColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-                    selectedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    selectedLabelColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                    selectedLeadingIconColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    selectedContainerColor = MaterialTheme.colorScheme.secondary,
+                    selectedLabelColor = MaterialTheme.colorScheme.onSecondary,
+                    selectedLeadingIconColor = MaterialTheme.colorScheme.onSecondary,
                 ),
                 border = null,
                 shape = if (isSelected) {
