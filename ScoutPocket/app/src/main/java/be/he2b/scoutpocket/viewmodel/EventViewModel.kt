@@ -218,6 +218,18 @@ class EventViewModel (
 
     fun resetEventCreationState() {
         newEventIsCreated.value = false
+        resetForm()
+    }
+
+    private fun resetForm() {
+        newEventName.value = ""
+        newEventSection.value = Section.UNITE
+        newEventDate.value = LocalDate.now()
+        newEventStartTime.value = LocalTime.of(14, 0)
+        newEventEndTime.value = LocalTime.of(17, 30)
+        newEventLocation.value = ""
+        newEventNameError.value = null
+        newEventLocationError.value = null
     }
 
     fun switchEventDetailsView() {

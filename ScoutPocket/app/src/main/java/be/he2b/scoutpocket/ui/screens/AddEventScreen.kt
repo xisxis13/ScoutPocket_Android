@@ -1,41 +1,56 @@
 package be.he2b.scoutpocket.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import be.he2b.scoutpocket.model.Section
-import be.he2b.scoutpocket.ui.component.DatePickerField
-import be.he2b.scoutpocket.ui.component.LabeledSelect
-import be.he2b.scoutpocket.ui.component.TimePickerField
+import be.he2b.scoutpocket.ui.component.ExpressiveDatePicker
+import be.he2b.scoutpocket.ui.component.ExpressiveTextField
+import be.he2b.scoutpocket.ui.component.ExpressiveTimePicker
+import be.he2b.scoutpocket.ui.component.SectionDropdown
 import be.he2b.scoutpocket.viewmodel.EventViewModel
 import be.he2b.scoutpocket.viewmodel.EventViewModelFactory
+import com.composables.icons.lucide.ArrowLeft
+import com.composables.icons.lucide.Check
+import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.MapPin
+import com.composables.icons.lucide.Type
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEventScreen(
     modifier: Modifier = Modifier,
+    navController: NavController,
     viewModel: EventViewModel = viewModel(
         factory = EventViewModelFactory(LocalContext.current.applicationContext)
     ),
-    navController: NavController,
 ) {
     val eventName by viewModel.newEventName
     val eventSection by viewModel.newEventSection
@@ -48,119 +63,176 @@ fun AddEventScreen(
     val eventNameError by viewModel.newEventNameError
     val eventLocationError by viewModel.newEventLocationError
 
-    val isFormValid = eventName.isNotBlank() && eventLocation.isNotBlank()
-
     LaunchedEffect(eventIsCreated) {
         if (eventIsCreated) {
-            navController.navigateUp()
             viewModel.resetEventCreationState()
+            navController.navigateUp()
         }
     }
 
-    Box(
+    Scaffold(
         modifier = modifier
-            .fillMaxSize()
-            .padding(top = 24.dp, start = 24.dp, end = 24.dp, bottom = 120.dp),
-        contentAlignment = Alignment.TopCenter,
-    ) {
+            .fillMaxSize(),
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        "Nouvel évènement",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = {
+                        viewModel.resetEventCreationState()
+                        navController.navigateUp()
+                    }) {
+                        Icon(
+                            Lucide.ArrowLeft,
+                            contentDescription = "Retour",
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface
+                )
+            )
+        },
+    ) { paddingValues ->
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+                .fillMaxSize()
+                .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            OutlinedTextField(
+            Text(
+                text = "Informations générales",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.SemiBold
+            )
+
+            ExpressiveTextField(
                 value = eventName,
-                onValueChange = {
-                    viewModel.newEventName.value = it
-                    if (viewModel.newEventNameError.value != null) {
-                        viewModel.newEventNameError.value = null
-                    }
-                },
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text("Nom de l'événement") },
-                placeholder = {
-                    Text(
-                        text = "ex: Réunion classique",
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+                onValueChange = { viewModel.newEventName.value = it },
+                label = "Nom de l\'évènement",
+                leadingIcon = Lucide.Type,
                 isError = eventNameError != null,
-                supportingText = {
-                    if (eventNameError != null) {
-                        Text(
-                            text = eventNameError!!,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    }
-                },
+                errorMessage = eventNameError,
             )
 
-            LabeledSelect(
-                label = "Section",
-                options = Section.entries.map { it.label },
-                selected = eventSection.label,
-                onSelectedChange = { selectedLabel ->
-                    viewModel.newEventSection.value = Section.entries.first { it.label == selectedLabel }
-                }
+            SectionDropdown(
+                selectedSection = eventSection,
+                onSectionChange = { viewModel.newEventSection.value = it },
             )
 
-            DatePickerField(
-                label = "Date de l'événement",
-                selectedDate = eventDate,
-                onDateSelected = { newDate ->
-                    viewModel.newEventDate.value = newDate
-                }
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Date et horaires",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.SemiBold
             )
 
-            TimePickerField(
-                label = "Heure de début",
-                selectedTime = eventStartTime,
-                onTimeSelected = { newTime ->
-                    viewModel.newEventStartTime.value = newTime
-                }
+            ExpressiveDatePicker(
+                value = eventDate,
+                onValueChange = { viewModel.newEventDate.value = it },
+                label = "Date",
             )
 
-            TimePickerField(
-                label = "Heure de fin",
-                selectedTime = eventEndTime,
-                onTimeSelected = { newTime ->
-                    viewModel.newEventEndTime.value = newTime
-                }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                ExpressiveTimePicker(
+                    value = eventStartTime,
+                    onValueChange = { viewModel.newEventStartTime.value = it },
+                    label = "Heure de début",
+                    modifier = Modifier
+                        .weight(1f),
+                )
+
+                ExpressiveTimePicker(
+                    value = eventEndTime,
+                    onValueChange = { viewModel.newEventEndTime.value = it },
+                    label = "Heure de fin",
+                    modifier = Modifier
+                        .weight(1f),
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Lieu",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.SemiBold
             )
 
-            OutlinedTextField(
+            ExpressiveTextField(
                 value = eventLocation,
-                onValueChange = {
-                    viewModel.newEventLocation.value = it
-                    if (viewModel.newEventLocationError.value != null) {
-                        viewModel.newEventLocationError.value = null
-                    }
-                },
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text("Lieu") },
-                placeholder = {
-                    Text(
-                        text = "ex: Local de l\'unité",
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+                onValueChange = { viewModel.newEventLocation.value = it },
+                label = "Lieu de l\'évènement",
+                leadingIcon = Lucide.MapPin,
                 isError = eventLocationError != null,
-                supportingText = {
-                    if (eventLocationError != null) {
-                        Text(
-                            text = eventLocationError!!,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    }
-                },
+                errorMessage = eventLocationError,
             )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                OutlinedButton(
+                    onClick = {
+                        viewModel.resetEventCreationState()
+                        navController.navigateUp()
+                    },
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(56.dp),
+                    shape = MaterialTheme.shapes.large,
+                ) {
+                    Text(
+                        text = "Annuler",
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
+
+                Button(
+                    onClick = { viewModel.createEvent() },
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(56.dp),
+                    shape = MaterialTheme.shapes.large,
+                ) {
+                    Icon(
+                        Lucide.Check,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
+                    )
+
+                    Spacer(Modifier.width(8.dp))
+
+                    Text(
+                        "Créer",
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(120.dp))
         }
     }
-
 }
