@@ -78,7 +78,7 @@ fun AddEventScreen(
                 title = {
                     Text(
                         "Nouvel évènement",
-                        style = MaterialTheme.typography.headlineMedium,
+                        style = MaterialTheme.typography.headlineLarge,
                         fontWeight = FontWeight.Bold
                     )
                 },

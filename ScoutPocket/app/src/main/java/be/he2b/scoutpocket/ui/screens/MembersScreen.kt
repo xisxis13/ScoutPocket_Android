@@ -52,7 +52,7 @@ fun MembersScreen(
                     Column {
                         Text(
                             "Membres",
-                            style = MaterialTheme.typography.headlineMedium,
+                            style = MaterialTheme.typography.headlineLarge,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
@@ -105,7 +105,7 @@ fun MembersScreen(
                         .background(MaterialTheme.colorScheme.surface)
                         .padding(paddingValues),
                     contentPadding = PaddingValues(top = 16.dp, bottom = 120.dp, start = 16.dp, end = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     membersBySection.forEach { (section, membersInSection) ->
                         item(key = "header_${section.name}") {

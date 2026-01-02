@@ -2,24 +2,21 @@ package be.he2b.scoutpocket.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
+
 // ---- Main App Colors ----
 
-// Palette principale basée sur #9334E9
 val PurplePrimary = Color(0xFF9334E9)
 val PurplePrimaryLight = Color(0xFFB366F2)
 val PurplePrimaryDark = Color(0xFF7221C4)
 
-// Palette secondaire - Cyan pour contraste vibrant
 val CyanSecondary = Color(0xFF00D9FF)
 val CyanSecondaryLight = Color(0xFF5CE5FF)
 val CyanSecondaryDark = Color(0xFF00A6CC)
 
-// Palette tertiaire - Rose pour accents expressifs
 val RoseTertiary = Color(0xFFFF6B9D)
 val RoseTertiaryLight = Color(0xFFFF9DBE)
 val RoseTertiaryDark = Color(0xFFCC4973)
 
-// Surfaces et backgrounds - Light Mode
 val SurfaceLight = Color(0xFFFFFBFF)
 val SurfaceVariantLight = Color(0xFFF4EFFA)
 val SurfaceContainerLight = Color(0xFFF7F2FD)
@@ -29,7 +26,6 @@ val SurfaceContainerHighestLight = Color(0xFFE8E1ED)
 val OnSurfaceLight = Color(0xFF1C1B1F)
 val OnSurfaceVariantLight = Color(0xFF49454F)
 
-// Surfaces et backgrounds - Dark Mode
 val SurfaceDark = Color(0xFF1C1B1F)
 val SurfaceVariantDark = Color(0xFF2B2930)
 val SurfaceContainerDark = Color(0xFF211F26)
@@ -39,7 +35,6 @@ val SurfaceContainerHighestDark = Color(0xFF36343B)
 val OnSurfaceDark = Color(0xFFE6E1E5)
 val OnSurfaceVariantDark = Color(0xFFCAC4D0)
 
-// Primaires sur fond
 val OnPrimaryLight = Color(0xFFFFFFFF)
 val OnPrimaryDark = Color(0xFF4A148C)
 
@@ -49,7 +44,6 @@ val OnSecondaryDark = Color(0xFF00171F)
 val OnTertiaryLight = Color(0xFF650032)
 val OnTertiaryDark = Color(0xFF3B001E)
 
-// Conteneurs de couleur
 val PrimaryContainerLight = Color(0xFFEADDFF)
 val PrimaryContainerDark = Color(0xFF4F378B)
 
@@ -59,13 +53,11 @@ val SecondaryContainerDark = Color(0xFF004F5C)
 val TertiaryContainerLight = Color(0xFFFFD9E2)
 val TertiaryContainerDark = Color(0xFF8C2552)
 
-// États
 val ErrorLight = Color(0xFFBA1A1A)
 val ErrorDark = Color(0xFFFFB4AB)
 val ErrorContainerLight = Color(0xFFFFDAD6)
 val ErrorContainerDark = Color(0xFF93000A)
 
-// Outline et dividers
 val OutlineLight = Color(0xFF79747E)
 val OutlineDark = Color(0xFF938F99)
 val OutlineVariantLight = Color(0xFFCAC4D0)

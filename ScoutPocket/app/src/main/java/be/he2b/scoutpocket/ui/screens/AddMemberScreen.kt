@@ -71,7 +71,7 @@ fun AddMemberScreen(
                 title = {
                     Text(
                         "Nouveau membre",
-                        style = MaterialTheme.typography.headlineMedium,
+                        style = MaterialTheme.typography.headlineLarge,
                         fontWeight = FontWeight.Bold
                     )
                 },

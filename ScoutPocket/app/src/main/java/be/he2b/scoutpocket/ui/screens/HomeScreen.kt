@@ -50,7 +50,7 @@ fun HomeScreen(
                     Column {
                         Text(
                             "Accueil",
-                            style = MaterialTheme.typography.headlineMedium,
+                            style = MaterialTheme.typography.headlineLarge,
                             fontWeight = FontWeight.Bold
                         )
                         Text(

@@ -86,7 +86,7 @@ fun EventDetailsScreen(
                 title = {
                     Text(
                         "Détails",
-                        style = MaterialTheme.typography.headlineMedium,
+                        style = MaterialTheme.typography.headlineLarge,
                         fontWeight = FontWeight.Bold
                     )
                 },
@@ -158,7 +158,7 @@ fun EventDetailsScreen(
 
                         Text(
                             text = event.name,
-                            style = MaterialTheme.typography.headlineMedium,
+                            style = MaterialTheme.typography.headlineLarge,
                             color = MaterialTheme.colorScheme.onBackground,
                         )
 
@@ -292,7 +292,7 @@ fun EventDetailsScreen(
                             .background(MaterialTheme.colorScheme.surface)
                             .padding(paddingValues),
                         contentPadding = PaddingValues(top = 16.dp, bottom = 120.dp, start = 16.dp, end = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         item {
                             PresenceWidget(

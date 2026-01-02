@@ -38,7 +38,7 @@ fun AboutScreen(
                 title = {
                     Text(
                         "À propos",
-                        style = MaterialTheme.typography.headlineMedium,
+                        style = MaterialTheme.typography.headlineLarge,
                         fontWeight = FontWeight.Bold
                     )
                 },

@@ -8,7 +8,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import be.he2b.scoutpocket.R
 
-// Police sans-serif moderne (Poppins)
+// ---- Poppins ----
 val PoppinsFontFamily = FontFamily(
     Font(R.font.poppins_light, FontWeight.Light),
     Font(R.font.poppins_regular, FontWeight.Normal),
@@ -17,51 +17,48 @@ val PoppinsFontFamily = FontFamily(
     Font(R.font.poppins_bold, FontWeight.Bold),
 )
 
-// Police serif élégante pour les titres expressifs (Cormorant Garamond)
-val CormorantGaramondFontFamily = FontFamily(
-    Font(R.font.cormorant_garamond_regular, FontWeight.Normal),
-    Font(R.font.cormorant_garamond_medium, FontWeight.Medium),
-    Font(R.font.cormorant_garamond_semibold, FontWeight.SemiBold),
-    Font(R.font.cormorant_garamond_bold, FontWeight.Bold),
+// ---- Source Serif 4 ----
+val SourceSerif4FontFamily = FontFamily(
+    Font(R.font.source_serif4_regular, FontWeight.Normal),
+    Font(R.font.source_serif4_medium, FontWeight.Medium),
+    Font(R.font.source_serif4_semibold, FontWeight.SemiBold),
+    Font(R.font.source_serif4_bold, FontWeight.Bold),
 )
 
-// M3 Expressive Typography avec styles emphasized
 val Typography = Typography(
-    // Display - Pour titres hero expressifs (avec serif)
     displayLarge = TextStyle(
-        fontFamily = CormorantGaramondFontFamily,
+        fontFamily = SourceSerif4FontFamily,
         fontWeight = FontWeight.Bold,
         fontSize = 57.sp,
         lineHeight = 64.sp,
         letterSpacing = (-0.25).sp,
     ),
     displayMedium = TextStyle(
-        fontFamily = CormorantGaramondFontFamily,
+        fontFamily = SourceSerif4FontFamily,
         fontWeight = FontWeight.Bold,
         fontSize = 45.sp,
         lineHeight = 52.sp,
         letterSpacing = 0.sp,
     ),
     displaySmall = TextStyle(
-        fontFamily = CormorantGaramondFontFamily,
+        fontFamily = SourceSerif4FontFamily,
         fontWeight = FontWeight.SemiBold,
         fontSize = 36.sp,
         lineHeight = 44.sp,
         letterSpacing = 0.sp,
     ),
 
-    // Headline - Pour titres de sections (mélange serif/sans-serif pour expressivité)
     headlineLarge = TextStyle(
-        fontFamily = CormorantGaramondFontFamily,
+        fontFamily = SourceSerif4FontFamily,
         fontWeight = FontWeight.Bold,
-        fontSize = 32.sp,
+        fontSize = 28.sp,
         lineHeight = 40.sp,
         letterSpacing = 0.sp,
     ),
     headlineMedium = TextStyle(
-        fontFamily = CormorantGaramondFontFamily,
+        fontFamily = SourceSerif4FontFamily,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 28.sp,
+        fontSize = 24.sp,
         lineHeight = 36.sp,
         letterSpacing = 0.sp,
     ),
@@ -73,7 +70,6 @@ val Typography = Typography(
         letterSpacing = 0.sp,
     ),
 
-    // Title - Pour titres de cartes et composants (sans-serif pour lisibilité)
     titleLarge = TextStyle(
         fontFamily = PoppinsFontFamily,
         fontWeight = FontWeight.SemiBold,
@@ -96,7 +92,6 @@ val Typography = Typography(
         letterSpacing = 0.1.sp,
     ),
 
-    // Body - Pour contenu principal (sans-serif)
     bodyLarge = TextStyle(
         fontFamily = PoppinsFontFamily,
         fontWeight = FontWeight.Normal,
@@ -119,7 +114,6 @@ val Typography = Typography(
         letterSpacing = 0.4.sp,
     ),
 
-    // Label - Pour boutons et labels (sans-serif)
     labelLarge = TextStyle(
         fontFamily = PoppinsFontFamily,
         fontWeight = FontWeight.Medium,

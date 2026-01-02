@@ -66,7 +66,7 @@ fun AgendaScreen(
                     Column {
                         Text(
                             "Agenda",
-                            style = MaterialTheme.typography.headlineMedium,
+                            style = MaterialTheme.typography.headlineLarge,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
