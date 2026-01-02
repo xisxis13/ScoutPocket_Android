@@ -57,12 +57,13 @@ import be.he2b.scoutpocket.model.formattedTimeRange
 import be.he2b.scoutpocket.model.textColor
 import be.he2b.scoutpocket.ui.theme.ScoutPocketTheme
 import com.composables.icons.lucide.Calendar
-import com.composables.icons.lucide.CheckCheck
 import com.composables.icons.lucide.ChevronRight
+import com.composables.icons.lucide.CircleCheck
+import com.composables.icons.lucide.CircleHelp
+import com.composables.icons.lucide.CircleX
 import com.composables.icons.lucide.Clock
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.MapPin
-import com.composables.icons.lucide.Minus
 import com.composables.icons.lucide.Plus
 import com.composables.icons.lucide.X
 
@@ -231,6 +232,7 @@ fun MemberCard(
             }
 
             Text(
+                modifier = Modifier.weight(1f),
                 text = "${member.firstName} ${member.lastName.uppercase()}",
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
@@ -279,23 +281,22 @@ fun PresenceButton(
     Box(
         modifier = modifier
             .size(44.dp)
-            .background(
-                color = status.backgroundColor(),
-                shape = CircleShape,
-            )
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
+        val presenceIcon = when (status) {
+            PresenceStatus.PRESENT -> Lucide.CircleCheck
+            PresenceStatus.ABSENT -> Lucide.CircleX
+            else -> Lucide.CircleHelp
+        }
+
+        val presenceColor = status.contentColor()
+
         Icon(
-            modifier = Modifier
-                .size(22.dp),
-            imageVector = when (status) {
-                PresenceStatus.DEFAULT -> Lucide.Minus
-                PresenceStatus.PRESENT -> Lucide.CheckCheck
-                PresenceStatus.ABSENT -> Lucide.X
-            },
-            contentDescription = "Statut",
-            tint = status.contentColor(),
+            imageVector = presenceIcon,
+            contentDescription = null,
+            tint = presenceColor,
+            modifier = Modifier.size(28.dp)
         )
     }
 }
@@ -436,6 +437,7 @@ fun FABMenuItemRow(
     }
 }
 
+// TODO: add action (like reload event, reload members,...)
 @Composable
 fun EmptyState(
     icon: ImageVector,
@@ -729,4 +731,3 @@ fun ProfileMenuItem(
         }
     }
 }
-

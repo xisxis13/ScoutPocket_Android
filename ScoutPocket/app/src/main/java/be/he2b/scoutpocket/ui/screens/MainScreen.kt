@@ -306,6 +306,7 @@ fun MainScreen(
                         EventDetailsScreen(
                             modifier = Modifier.fillMaxSize(),
                             eventId = eventId,
+                            navController = navController,
                             viewModel = eventViewModel,
                         )
                     } else {

@@ -37,7 +37,7 @@ class EventViewModel (
         private set
     var errorMessage = mutableStateOf<String?>(null)
         private set
-    var showEventInformations = mutableStateOf(true)
+    var showInfos = mutableStateOf(true)
 
     // New event
     var newEventName = mutableStateOf("")
@@ -221,7 +221,7 @@ class EventViewModel (
     }
 
     fun switchEventDetailsView() {
-        showEventInformations.value = !showEventInformations.value
+        showInfos.value = !showInfos.value
     }
 
 }
