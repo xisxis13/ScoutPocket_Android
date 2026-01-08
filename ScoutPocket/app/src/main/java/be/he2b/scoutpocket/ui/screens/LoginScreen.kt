@@ -116,7 +116,6 @@ fun LoginScreen(
                 text = "ScoutPocket",
                 style = MaterialTheme.typography.displaySmall,
                 color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.Bold,
             )
 
             Text(

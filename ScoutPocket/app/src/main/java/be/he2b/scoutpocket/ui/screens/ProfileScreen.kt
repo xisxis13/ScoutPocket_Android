@@ -65,9 +65,8 @@ fun ProfileScreen(
             TopAppBar(
                 title = {
                     Text(
-                        "Profile",
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold
+                        "Profil",
+                        style = MaterialTheme.typography.headlineLarge,
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(

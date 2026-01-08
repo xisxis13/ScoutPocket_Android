@@ -520,7 +520,6 @@ fun EventCard(
                 text = event.name,
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.Bold,
                 lineHeight = 32.sp,
             )
 

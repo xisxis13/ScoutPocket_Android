@@ -99,6 +99,7 @@ fun MembersScreen(
             }
 
             else -> {
+                // TODO: Add searchbar
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()

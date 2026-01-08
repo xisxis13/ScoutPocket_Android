@@ -42,7 +42,7 @@ val Typography = Typography(
     ),
     displaySmall = TextStyle(
         fontFamily = SourceSerif4FontFamily,
-        fontWeight = FontWeight.SemiBold,
+        fontWeight = FontWeight.Bold,
         fontSize = 36.sp,
         lineHeight = 44.sp,
         letterSpacing = 0.sp,
@@ -57,7 +57,7 @@ val Typography = Typography(
     ),
     headlineMedium = TextStyle(
         fontFamily = SourceSerif4FontFamily,
-        fontWeight = FontWeight.SemiBold,
+        fontWeight = FontWeight.Bold,
         fontSize = 24.sp,
         lineHeight = 36.sp,
         letterSpacing = 0.sp,
