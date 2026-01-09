@@ -18,6 +18,8 @@ import be.he2b.scoutpocket.model.PresenceStatus
 import be.he2b.scoutpocket.model.Section
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime
@@ -46,6 +48,7 @@ abstract class ScoutPocketDatabase : RoomDatabase() {
                     DATABASE_NAME
                 )
                 sInstance = dbBuilder.addCallback(PrepopulateCallback(context)).build()
+                // sInstance = dbBuilder.build()
             }
             return sInstance!!
         }
@@ -120,9 +123,9 @@ abstract class ScoutPocketDatabase : RoomDatabase() {
                 val eventId = eventDao.insert(event)
 
                 val membersForEvent = if (event.section != Section.UNITE) {
-                    memberDao.getMembersBySection(event.section)
+                    memberDao.getMembersBySection(event.section).first()
                 } else {
-                    memberDao.getAllMembers()
+                    memberDao.getAllMembers().first()
                 }
 
                 val presencesToInsert = membersForEvent.map { member ->

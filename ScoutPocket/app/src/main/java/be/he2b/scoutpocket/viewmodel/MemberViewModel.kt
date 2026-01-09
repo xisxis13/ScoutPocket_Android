@@ -58,7 +58,12 @@ class MemberViewModel(
 
         viewModelScope.launch {
             try {
-                members.value = memberRepository.getAllMembers()
+                memberRepository
+                    .getAllMembers()
+                    .collect { list ->
+                        members.value = list
+                        isLoading.value = false
+                    }
             } catch (e: Exception) {
                 errorMessage.value = R.string.members_loading_error.toString()
             } finally {
@@ -73,7 +78,12 @@ class MemberViewModel(
 
         viewModelScope.launch {
             try {
-                members.value = memberRepository.getMembersBySection(section)
+                memberRepository
+                    .getMembersBySection(section)
+                    .collect { list ->
+                        members.value = list
+                        isLoading.value = false
+                    }
             } catch (e: Exception) {
                 errorMessage.value = R.string.members_loading_error.toString()
             } finally {
@@ -137,6 +147,8 @@ class MemberViewModel(
                     presenceRepository.addPresences(presencesToInsert)
                 }
 
+                loadMembers()
+
                 newMemberIsCreated.value = true
             } catch (e: Exception) {
                 errorMessage.value = "Erreur lors de la création d\'un nouveau membre"
@@ -191,7 +203,7 @@ class MemberViewModel(
                         return@launch
                     }
 
-                    val existingMembers = memberRepository.getAllMembers()
+                    val existingMembers = memberRepository.getAllMembers().first()
 
                     val (duplicates, newMembers) = importedMembers.partition { newMember ->
                         existingMembers.any { existing ->

@@ -7,6 +7,7 @@ import androidx.room.Query
 import androidx.room.Update
 import be.he2b.scoutpocket.database.entity.Member
 import be.he2b.scoutpocket.model.Section
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MemberDao {
@@ -20,10 +21,10 @@ interface MemberDao {
     suspend fun delete(member: Member)
 
     @Query("SELECT * FROM members")
-    suspend fun getAllMembers(): List<Member>
+    fun getAllMembers(): Flow<List<Member>>
 
     @Query("SELECT * FROM members WHERE section = :section")
-    suspend fun getMembersBySection(section: Section): List<Member>
+    fun getMembersBySection(section: Section): Flow<List<Member>>
 
     @Query("SELECT * FROM members WHERE id = :memberId")
     suspend fun getMemberById(memberId: Int): Member?

@@ -15,6 +15,7 @@ import be.he2b.scoutpocket.database.repository.PresenceRepository
 import be.he2b.scoutpocket.model.PresenceStatus
 import be.he2b.scoutpocket.model.Section
 import be.he2b.scoutpocket.model.next
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime
@@ -80,7 +81,7 @@ class EventViewModel (
             try {
                 val eventPresences = presenceRepository.getPresencesByEvent(currentEvent.id)
 
-                val allMembers = memberRepository.getAllMembers()
+                val allMembers = memberRepository.getAllMembers().first()
 
                 membersConcerned.value = allMembers.filter { member ->
                     eventPresences.any { presence -> presence.memberId == member.id }
@@ -137,9 +138,9 @@ class EventViewModel (
 
     private suspend fun getMembersForSection(section: Section): List<Member> {
         return if (section != Section.UNITE) {
-            memberRepository.getMembersBySection(section)
+            memberRepository.getMembersBySection(section).first()
         } else {
-            memberRepository.getAllMembers()
+            memberRepository.getAllMembers().first()
         }
     }
 

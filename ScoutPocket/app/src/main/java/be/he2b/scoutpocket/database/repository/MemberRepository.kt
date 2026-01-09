@@ -4,15 +4,16 @@ import android.content.Context
 import be.he2b.scoutpocket.database.ScoutPocketDatabase
 import be.he2b.scoutpocket.database.entity.Member
 import be.he2b.scoutpocket.model.Section
+import kotlinx.coroutines.flow.Flow
 
 class MemberRepository(context: Context) {
 
-    private val db = ScoutPocketDatabase.Companion.getInstance(context)
+    private val db = ScoutPocketDatabase.getInstance(context)
     private val memberDao = db.memberDao()
 
     suspend fun addMember(member: Member): Long = memberDao.insert(member)
-    suspend fun getAllMembers(): List<Member> = memberDao.getAllMembers()
-    suspend fun getMembersBySection(section: Section): List<Member> = memberDao.getMembersBySection(section)
+    fun getAllMembers(): Flow<List<Member>> = memberDao.getAllMembers()
+    fun getMembersBySection(section: Section): Flow<List<Member>> = memberDao.getMembersBySection(section)
     suspend fun getMemberById(memberId: Int): Member? = memberDao.getMemberById(memberId)
     suspend fun findMemberByName(lastName: String, firstName: String): Member? =
         memberDao.findMemberByName(lastName, firstName)
