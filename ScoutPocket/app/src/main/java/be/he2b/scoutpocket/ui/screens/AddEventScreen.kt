@@ -1,30 +1,10 @@
 package be.he2b.scoutpocket.ui.screens
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -33,17 +13,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import be.he2b.scoutpocket.R
-import be.he2b.scoutpocket.ui.component.ExpressiveDatePicker
-import be.he2b.scoutpocket.ui.component.ExpressiveTextField
-import be.he2b.scoutpocket.ui.component.ExpressiveTimePicker
-import be.he2b.scoutpocket.ui.component.SectionDropdown
+import be.he2b.scoutpocket.ui.component.*
 import be.he2b.scoutpocket.viewmodel.EventViewModel
 import be.he2b.scoutpocket.viewmodel.EventViewModelFactory
-import com.composables.icons.lucide.ArrowLeft
-import com.composables.icons.lucide.Check
-import com.composables.icons.lucide.Lucide
-import com.composables.icons.lucide.MapPin
-import com.composables.icons.lucide.Type
+import com.composables.icons.lucide.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,9 +34,11 @@ fun AddEventScreen(
     val eventEndTime by viewModel.newEventEndTime
     val eventLocation by viewModel.newEventLocation
     val eventIsCreated by viewModel.newEventIsCreated
-
     val eventNameError by viewModel.newEventNameError
     val eventLocationError by viewModel.newEventLocationError
+    val errorMessage by viewModel.errorMessage
+
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(eventIsCreated) {
         if (eventIsCreated) {
@@ -72,9 +47,18 @@ fun AddEventScreen(
         }
     }
 
+    LaunchedEffect(errorMessage) {
+        errorMessage?.let {
+            snackbarHostState.showSnackbar(
+                message = it,
+                duration = SnackbarDuration.Short
+            )
+            viewModel.clearError()
+        }
+    }
+
     Scaffold(
-        modifier = modifier
-            .fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
                 title = {
@@ -101,6 +85,9 @@ fun AddEventScreen(
                     titleContentColor = MaterialTheme.colorScheme.onSurface
                 )
             )
+        },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
         },
     ) { paddingValues ->
         Column(

@@ -19,6 +19,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -59,10 +62,36 @@ fun AddMemberScreen(
     var selectedIndex by remember { mutableIntStateOf(if(initialMode.lowercase() == "manual") 0 else 1) }
     val memberIsCreated by viewModel.newMemberIsCreated
 
+    val errorMessage by viewModel.errorMessage
+    val importSuccessMessage by viewModel.importSuccessMessage
+
+    val snackbarHostState = remember { SnackbarHostState() }
+
     LaunchedEffect(memberIsCreated) {
         if (memberIsCreated) {
             navController.navigate(BottomNavItem.Members.route)
             viewModel.resetMemberCreationState()
+        }
+    }
+
+    LaunchedEffect(errorMessage) {
+        errorMessage?.let {
+            snackbarHostState.showSnackbar(
+                message = it,
+                duration = SnackbarDuration.Long
+            )
+
+            viewModel.clearError()
+        }
+    }
+
+    LaunchedEffect(importSuccessMessage) {
+        importSuccessMessage?.let {
+            snackbarHostState.showSnackbar(
+                message = it,
+                duration = SnackbarDuration.Long
+            )
+            viewModel.clearImportSuccess()
         }
     }
 
@@ -91,7 +120,10 @@ fun AddMemberScreen(
                     titleContentColor = MaterialTheme.colorScheme.onSurface
                 )
             )
-        }
+        },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        },
     ) { paddingValues ->
         Column(
             modifier = Modifier

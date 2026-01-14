@@ -13,10 +13,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -45,6 +50,18 @@ fun MembersScreen(
     val errorMessage = viewModel.errorMessage.value
     val importSuccessMessage = viewModel.importSuccessMessage.value
 
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(importSuccessMessage) {
+        importSuccessMessage?.let {
+            snackbarHostState.showSnackbar(
+                message = it,
+                duration = SnackbarDuration.Long
+            )
+            viewModel.clearImportSuccess()
+        }
+    }
+
     Scaffold(
         modifier = modifier
             .fillMaxSize(),
@@ -68,6 +85,13 @@ fun MembersScreen(
                     containerColor = MaterialTheme.colorScheme.surface,
                     titleContentColor = MaterialTheme.colorScheme.onSurface
                 )
+            )
+        },
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier
+                    .padding(bottom = 150.dp)
             )
         },
     ) { paddingValues ->
