@@ -33,9 +33,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import be.he2b.scoutpocket.R
 import be.he2b.scoutpocket.model.Section
 import be.he2b.scoutpocket.model.backgroundColor
 import be.he2b.scoutpocket.model.textColor
@@ -243,6 +245,7 @@ fun ExpressiveDatePicker(
                                 .toLocalDate()
                             onValueChange(localDate)
                         }
+                        showDatePicker = false
                     },
                 ) {
                     Text(
@@ -255,7 +258,7 @@ fun ExpressiveDatePicker(
                 TextButton(
                     onClick = { showDatePicker = false },
                 ) {
-                    Text("Annuler")
+                    Text(stringResource(R.string.cancel_button))
                 }
             },
             shape = MaterialTheme.shapes.extraLarge,
@@ -332,7 +335,7 @@ fun ExpressiveTimePicker(
             },
             dismissButton = {
                 TextButton(onClick = { showTimePicker = false }) {
-                    Text("Annuler")
+                    Text(stringResource(R.string.cancel_button))
                 }
             },
             text = {
