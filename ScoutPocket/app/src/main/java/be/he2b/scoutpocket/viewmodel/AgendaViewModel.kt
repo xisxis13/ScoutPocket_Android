@@ -52,8 +52,7 @@ class AgendaViewModel(
                     isLoading.value = false
                 }
             } catch (e: Exception) {
-                errorMessage.value = R.string.events_loading_error.toString()
-            } finally {
+                errorMessage.value = context.getString(R.string.events_loading_error)
                 isLoading.value = false
             }
         }
@@ -62,7 +61,6 @@ class AgendaViewModel(
     fun clearError() {
         errorMessage.value = null
     }
-
 }
 
 class AgendaViewModelFactory(private val context: Context) : ViewModelProvider.Factory {

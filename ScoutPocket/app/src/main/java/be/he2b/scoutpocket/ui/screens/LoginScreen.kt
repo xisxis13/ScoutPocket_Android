@@ -36,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -65,8 +64,6 @@ fun LoginScreen(
     viewModel: LoginViewModel,
     navController: NavController,
 ) {
-    val context = LocalContext.current
-
     val email by viewModel.email
     val password by viewModel.password
     val isEmailValid by viewModel.isEmailValid

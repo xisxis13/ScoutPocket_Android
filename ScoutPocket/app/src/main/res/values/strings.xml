@@ -11,6 +11,41 @@
     <string name="login_password_show">Afficher</string>
     <string name="login_password_hide">Masquer</string>
 
+    <!-- AgendaScreen -->
+    <string name="agenda_screen_title">Agenda</string>
+    <string name="agenda_upcoming_count_zero">Aucun évènement à venir</string>
+    <string name="agenda_upcoming_count_one">1 évènement à venir</string>
+    <string name="agenda_upcoming_count_other">%1$d évènements à venir</string>
+    <string name="agenda_loading_events">Chargement des évènements</string>
+    <string name="agenda_no_events_title">Aucun évènement</string>
+    <string name="agenda_no_events_subtitle">Créez votre premier évènement pour commencer</string>
+    <string name="agenda_next_event">Prochain évènement</string>
+    <string name="agenda_upcoming_tab">À venir</string>
+    <string name="agenda_past_tab">Passés</string>
+    <string name="agenda_upcoming_section">À venir</string>
+    <string name="agenda_past_section">Passés</string>
+    <string name="agenda_no_upcoming_title">Aucun évènement à venir</string>
+    <string name="agenda_no_upcoming_subtitle">Créez un évènement et il apparaîtra ici</string>
+    <string name="agenda_no_past_title">Aucun évènement passé</string>
+    <string name="agenda_no_past_subtitle">Les évènements passés apparaîtront ici</string>
+
+    <!-- Add Event Screen -->
+    <string name="add_event_screen_title">Nouvel évènement</string>
+    <string name="add_event_back">Retour</string>
+    <string name="add_event_general_info">Informations générales</string>
+    <string name="add_event_name_label">Nom de l\'évènement</string>
+    <string name="add_event_name_error_empty">Le nom ne peut pas être vide</string>
+    <string name="add_event_datetime_info">Date et horaires</string>
+    <string name="add_event_date_label">Date</string>
+    <string name="add_event_start_time_label">Heure de début</string>
+    <string name="add_event_end_time_label">Heure de fin</string>
+    <string name="add_event_location_info">Lieu</string>
+    <string name="add_event_location_label">Lieu de l\'évènement</string>
+    <string name="add_event_location_error_empty">Le lieu ne peut pas être vide</string>
+    <string name="add_event_cancel_button">Annuler</string>
+    <string name="add_event_create_button">Créer</string>
+
+
     <!-- Authentifications errors -->
     <string name="auth_error_invalid_email">Email non valide</string>
     <string name="auth_error_empty_email">L\'email ne peut pas être vide</string>

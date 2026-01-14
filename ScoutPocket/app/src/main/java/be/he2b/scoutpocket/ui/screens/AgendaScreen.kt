@@ -30,10 +30,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import be.he2b.scoutpocket.R
 import be.he2b.scoutpocket.navigation.AppScreen
 import be.he2b.scoutpocket.ui.component.ConnectedButtonGroup
 import be.he2b.scoutpocket.ui.component.EmptyState
@@ -66,12 +68,14 @@ fun AgendaScreen(
 
     var selectedIndex by remember { mutableIntStateOf(0) }
 
+    val retryLabel = stringResource(R.string.error_retry)
+
     LaunchedEffect(errorMessage) {
         errorMessage?.let { message ->
             scope.launch {
                 val result = snackbarHostState.showSnackbar(
                     message = message,
-                    actionLabel = "Réassayer",
+                    actionLabel = retryLabel,
                     duration = SnackbarDuration.Long,
                 )
 
@@ -92,12 +96,19 @@ fun AgendaScreen(
                 title = {
                     Column {
                         Text(
-                            "Agenda",
+                            stringResource(R.string.agenda_screen_title),
                             style = MaterialTheme.typography.headlineLarge,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            "${upcomingEvents.size} évènement${if (upcomingEvents.size > 1) "s" else ""} à venir",
+                            text = when (upcomingEvents.size) {
+                                0 -> stringResource(R.string.agenda_upcoming_count_zero)
+                                1 -> stringResource(R.string.agenda_upcoming_count_one)
+                                else -> stringResource(
+                                    R.string.agenda_upcoming_count_other,
+                                    upcomingEvents.size
+                                )
+                            },
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -114,7 +125,7 @@ fun AgendaScreen(
         when {
             isLoading -> {
                 LoadingState(
-                    title = "Chargement des membres",
+                    title = stringResource(R.string.agenda_loading_events),
                     modifier = Modifier
                         .padding(paddingValues),
                 )
@@ -123,8 +134,8 @@ fun AgendaScreen(
             allEvents.isEmpty() -> {
                 EmptyState(
                     icon = Lucide.Calendar,
-                    title = "Aucun évènement",
-                    subtitle = "Créer votre premier évènement pour commencer",
+                    title = stringResource(R.string.agenda_no_events_title),
+                    subtitle = stringResource(R.string.agenda_no_events_subtitle),
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues),
@@ -146,7 +157,7 @@ fun AgendaScreen(
                         ) {
                             Spacer(modifier = Modifier.height(12.dp))
                             Text(
-                                text = "Prochain évènement",
+                                text = stringResource(R.string.agenda_next_event),
                                 style = MaterialTheme.typography.headlineSmall,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 fontWeight = FontWeight.Bold,
@@ -166,7 +177,10 @@ fun AgendaScreen(
                     item {
                         Spacer(modifier = Modifier.height(12.dp))
                         ConnectedButtonGroup(
-                            options = listOf("À venir", "Passés"),
+                            options = listOf(
+                                stringResource(R.string.agenda_upcoming_tab),
+                                stringResource(R.string.agenda_past_tab),
+                            ),
                             selectedIndex = selectedIndex,
                             onIndexSelected = { selectedIndex = it },
                             modifier = Modifier.fillMaxWidth(),
@@ -180,7 +194,7 @@ fun AgendaScreen(
                         ) {
                             Spacer(modifier = Modifier.height(12.dp))
                             Text(
-                                text = "À venir",
+                                text = stringResource(R.string.agenda_upcoming_section),
                                 style = MaterialTheme.typography.headlineSmall,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 fontWeight = FontWeight.Bold,
@@ -205,8 +219,8 @@ fun AgendaScreen(
                             item {
                                 EmptyState(
                                     icon = Lucide.Calendar,
-                                    title = "Aucun évènement à venir",
-                                    subtitle = "Créer un évènement et il apparaitra ici",
+                                    title = stringResource(R.string.agenda_no_upcoming_title),
+                                    subtitle = stringResource(R.string.agenda_no_upcoming_subtitle),
                                     modifier = Modifier
                                         .fillMaxWidth(),
                                 )
@@ -218,7 +232,7 @@ fun AgendaScreen(
                         ) {
                             Spacer(modifier = Modifier.height(12.dp))
                             Text(
-                                text = "Passés",
+                                text = stringResource(R.string.agenda_past_section),
                                 style = MaterialTheme.typography.headlineSmall,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 fontWeight = FontWeight.Bold,
@@ -241,8 +255,8 @@ fun AgendaScreen(
                             item {
                                 EmptyState(
                                     icon = Lucide.Calendar,
-                                    title = "Aucun évènement passé",
-                                    subtitle = "Les évènements passés apparaîtront ici",
+                                    title = stringResource(R.string.agenda_no_past_title),
+                                    subtitle = stringResource(R.string.agenda_no_past_subtitle),
                                     modifier = Modifier
                                         .fillMaxWidth(),
                                 )
