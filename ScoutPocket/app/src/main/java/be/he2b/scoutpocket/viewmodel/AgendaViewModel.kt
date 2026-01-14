@@ -14,6 +14,7 @@ import java.time.LocalDate
 
 class AgendaViewModel(
     private val eventRepository: EventRepository,
+    private val context: Context,
 ) : ViewModel() {
 
     var upcomingEvents = mutableStateOf<List<Event>>(emptyList())
@@ -58,6 +59,10 @@ class AgendaViewModel(
         }
     }
 
+    fun clearError() {
+        errorMessage.value = null
+    }
+
 }
 
 class AgendaViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
@@ -66,7 +71,7 @@ class AgendaViewModelFactory(private val context: Context) : ViewModelProvider.F
             val database = ScoutPocketDatabase.getInstance(context)
             val repository = EventRepository(context)
             @Suppress("UNCHECKED_CAST")
-            return AgendaViewModel(repository) as T
+            return AgendaViewModel(repository, context) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

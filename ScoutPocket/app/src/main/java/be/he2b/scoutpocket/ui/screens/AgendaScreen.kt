@@ -14,13 +14,19 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -36,8 +42,8 @@ import be.he2b.scoutpocket.ui.component.LoadingState
 import be.he2b.scoutpocket.viewmodel.AgendaViewModel
 import be.he2b.scoutpocket.viewmodel.AgendaViewModelFactory
 import com.composables.icons.lucide.Calendar
-import com.composables.icons.lucide.CircleAlert
 import com.composables.icons.lucide.Lucide
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,6 +54,9 @@ fun AgendaScreen(
         factory = AgendaViewModelFactory(LocalContext.current.applicationContext)
     ),
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
     val upcomingEvents = agendaViewModel.upcomingEvents.value
     val pastEvents = agendaViewModel.pastEvents.value
     val allEvents = agendaViewModel.allEvents.value
@@ -56,6 +65,24 @@ fun AgendaScreen(
     val errorMessage = agendaViewModel.errorMessage.value
 
     var selectedIndex by remember { mutableIntStateOf(0) }
+
+    LaunchedEffect(errorMessage) {
+        errorMessage?.let { message ->
+            scope.launch {
+                val result = snackbarHostState.showSnackbar(
+                    message = message,
+                    actionLabel = "Réassayer",
+                    duration = SnackbarDuration.Long,
+                )
+
+                if (result == SnackbarResult.ActionPerformed) {
+                    agendaViewModel.loadEvents()
+                }
+
+                agendaViewModel.clearError()
+            }
+        }
+    }
 
     Scaffold(
         modifier = modifier
@@ -70,7 +97,7 @@ fun AgendaScreen(
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            "${allEvents.size} évènement${if (allEvents.size > 1) "s" else ""}",
+                            "${upcomingEvents.size} évènement${if (upcomingEvents.size > 1) "s" else ""} à venir",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -82,23 +109,13 @@ fun AgendaScreen(
                 )
             )
         },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
         when {
             isLoading -> {
                 LoadingState(
                     title = "Chargement des membres",
                     modifier = Modifier
-                        .padding(paddingValues),
-                )
-            }
-
-            errorMessage != null -> {
-                EmptyState(
-                    icon = Lucide.CircleAlert,
-                    title = "Erreur",
-                    subtitle = errorMessage ?: "Une erreur est survenue",
-                    modifier = Modifier
-                        .fillMaxSize()
                         .padding(paddingValues),
                 )
             }

@@ -1,11 +1,32 @@
 <resources>
+    <!-- Application -->
     <string name="app_name">ScoutPocket</string>
-    <string name="welcome_message">Bienvenue sur %1$s !</string>
-    <string name="login_button">Connexion</string>
-    <string name="email_label">Email</string>
-    <string name="email_placeholder">ex: example@email.com</string>
-    <string name="password_label">Mot de passe</string>
-    <string name="password_placeholder">ex: •••••••</string>
+    <string name="app_logo_description">Logo ScoutPocket</string>
+
+    <!-- LoginScreen -->
+    <string name="login_welcome_title">Bienvenue</string>
+    <string name="login_email_label">Email</string>
+    <string name="login_password_label">Mot de passe</string>
+    <string name="login_button">Se connecter</string>
+    <string name="login_password_show">Afficher</string>
+    <string name="login_password_hide">Masquer</string>
+
+    <!-- Authentifications errors -->
+    <string name="auth_error_invalid_email">Email non valide</string>
+    <string name="auth_error_empty_email">L\'email ne peut pas être vide</string>
+    <string name="auth_error_empty_password">Le mot de passe ne peut pas être vide</string>
+    <string name="auth_error_wrong_credentials">Mauvais login ou mot de passe</string>
+    <string name="auth_error_connexion">Erreur de connexion : impossible de joindre le serveur</string>
+
+    <!-- Loading states -->
+    <string name="loading_authentification">Connexion en cours…</string>
+    <string name="loading_events">Chargement des évènements…</string>
+    <string name="loading_members">Chargement des membres…</string>
+
+    <!-- General errors -->
+    <string name="error_generic">Une erreur est survenue</string>
+    <string name="error_retry">Réessayer</string>
+    <string name="error_unknown_viewmodel">Classe ViewModel inconnue : %1$s</string>
 
     <string name="events_loading_error">Erreur lors du chargement des événements</string>
     <string name="wrong_login_or_password_error">Mauvais login ou mot de passe</string>

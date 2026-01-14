@@ -34,8 +34,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -61,10 +63,13 @@ fun LoginScreen(
     viewModel: LoginViewModel,
     navController: NavController,
 ) {
+    val context = LocalContext.current
+
     val email by viewModel.email
     val password by viewModel.password
     val isEmailValid by viewModel.isEmailValid
     val isPasswordValid by viewModel.isPasswordValid
+
     val isAuthenticated by viewModel.isAuthenticated
     val errorMessage by viewModel.errorMessage
     val isLoading by viewModel.isLoading
@@ -112,13 +117,13 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "ScoutPocket",
+                text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.displaySmall,
                 color = MaterialTheme.colorScheme.onSurface,
             )
 
             Text(
-                text = "Bienvenue",
+                text = stringResource(R.string.login_welcome_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 8.dp)
@@ -129,10 +134,9 @@ fun LoginScreen(
             ExpressiveTextField(
                 value = email,
                 onValueChange = {
-                    viewModel.email.value = it
-                    viewModel.isEmailValid.value = true
+                    viewModel.updateEmail(it)
                 },
-                label = "Mail",
+                label = stringResource(R.string.login_email_label),
                 leadingIcon = Lucide.Mail,
                 isError = !isEmailValid,
                 singleLine = true,
@@ -152,10 +156,9 @@ fun LoginScreen(
             ExpressiveTextField(
                 value = password,
                 onValueChange = {
-                    viewModel.password.value = it
-                    viewModel.isPasswordValid.value = true
+                    viewModel.updatePassword(it)
                 },
-                label = "Mot de passe",
+                label = stringResource(R.string.login_password_label),
                 leadingIcon = Lucide.Lock,
                 isError = !isPasswordValid,
                 singleLine = true,
@@ -166,14 +169,17 @@ fun LoginScreen(
                 keyboardActions = KeyboardActions(
                     onDone = {
                         focusManager.clearFocus()
-                        viewModel.authenticate(email, password)
+                        viewModel.authenticate()
                     }
                 ),
                 trailingIcon = {
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
                         Icon(
                             if (passwordVisible) Lucide.EyeOff else Lucide.Eye,
-                            contentDescription = if (passwordVisible) "Masquer" else "Afficher"
+                            contentDescription = stringResource(
+                                if (passwordVisible) R.string.login_password_hide
+                                else R.string.login_password_show
+                            )
                         )
                     }
                 },
@@ -216,7 +222,7 @@ fun LoginScreen(
 
             Button(
                 onClick = {
-                    viewModel.authenticate(email, password)
+                    viewModel.authenticate()
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -230,6 +236,15 @@ fun LoginScreen(
                             .size(24.dp),
                         color = MaterialTheme.colorScheme.onPrimary,
                     )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Text(
+                        text = stringResource(R.string.loading_authentification),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        fontWeight = FontWeight.SemiBold,
+                    )
                 } else {
                     Icon(
                         imageVector = Lucide.LogIn,
@@ -241,7 +256,7 @@ fun LoginScreen(
                     Spacer(modifier = Modifier.width(8.dp))
 
                     Text(
-                        text = "Se connecter",
+                        text = stringResource(R.string.login_button),
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.SemiBold,
                     )
