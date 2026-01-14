@@ -32,10 +32,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import be.he2b.scoutpocket.R
 import be.he2b.scoutpocket.navigation.AppScreen
 import be.he2b.scoutpocket.ui.component.ProfileMenuItem
 import be.he2b.scoutpocket.viewmodel.LoginViewModel
@@ -65,7 +67,7 @@ fun ProfileScreen(
             TopAppBar(
                 title = {
                     Text(
-                        "Profil",
+                        stringResource(R.string.profile_screen_title),
                         style = MaterialTheme.typography.headlineLarge,
                     )
                 },
@@ -112,7 +114,7 @@ fun ProfileScreen(
 
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = if (userEmail.isNotBlank()) userEmail else "Utilisateur non connecté",
+                            text = if (userEmail.isNotBlank()) userEmail else stringResource(R.string.profile_not_logged_in),
                             style = MaterialTheme.typography.titleLarge,
                             color = MaterialTheme.colorScheme.onPrimary,
                             fontWeight = FontWeight.Bold
@@ -124,7 +126,7 @@ fun ProfileScreen(
                             modifier = Modifier.padding(top = 8.dp)
                         ) {
                             Text(
-                                text = "Chef d'unité",
+                                text = stringResource(R.string.profile_role_chef),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onPrimary,
                                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
@@ -138,7 +140,7 @@ fun ProfileScreen(
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "Actions",
+                text = stringResource(R.string.profile_actions_section),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.SemiBold
@@ -146,8 +148,8 @@ fun ProfileScreen(
 
             ProfileMenuItem(
                 icon = Lucide.Info,
-                title = "À propos",
-                subtitle = "Informations du développeur",
+                title = stringResource(R.string.profile_about_title),
+                subtitle = stringResource(R.string.profile_about_subtitle),
                 onClick = {
                     navController.navigate(AppScreen.About.route)
                 },
@@ -173,7 +175,7 @@ fun ProfileScreen(
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    "Déconnexion",
+                    stringResource(R.string.profile_logout_button),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -204,14 +206,14 @@ fun ProfileScreen(
             },
             title = {
                 Text(
-                    "Se déconnecter",
+                    stringResource(R.string.profile_logout_dialog_title),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
             },
             text = {
                 Text(
-                    "Êtes-vous sûr de vouloir vous déconnecter ?",
+                    stringResource(R.string.profile_logout_confirm),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -228,7 +230,7 @@ fun ProfileScreen(
                     ),
                     shape = MaterialTheme.shapes.large
                 ) {
-                    Text("Déconnexion", fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.profile_logout_button), fontWeight = FontWeight.SemiBold)
                 }
             },
             dismissButton = {
@@ -236,7 +238,7 @@ fun ProfileScreen(
                     onClick = { showLogoutDialog = false },
                     shape = MaterialTheme.shapes.large
                 ) {
-                    Text("Annuler")
+                    Text(stringResource(R.string.cancel_button))
                 }
             },
             shape = MaterialTheme.shapes.extraLarge,

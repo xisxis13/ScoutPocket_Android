@@ -34,6 +34,7 @@ import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
@@ -46,6 +47,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import be.he2b.scoutpocket.R
 import be.he2b.scoutpocket.navigation.AppScreen
 import be.he2b.scoutpocket.navigation.BottomNavItem
 import be.he2b.scoutpocket.ui.component.ExpressiveFABMenu
@@ -220,7 +222,7 @@ fun MainScreen(
                             contentAlignment = Alignment.Center,
                         ) {
                             Text(
-                                text = "Erreur : ID de l\'évènement manquant.",
+                                text = stringResource(R.string.event_missing_error),
                                 style = MaterialTheme.typography.titleLarge,
                                 color = MaterialTheme.colorScheme.error,
                             )
@@ -255,21 +257,21 @@ fun MainScreen(
                     fabMenuItems = listOf(
                         FABMenuItem(
                             icon = Lucide.CalendarPlus,
-                            label = "Nouvel événement",
+                            label = stringResource(R.string.new_event_title),
                             onClick = {
                                 navController.navigate(AppScreen.AddEvent.route)
                             }
                         ),
                         FABMenuItem(
                             icon = Lucide.UserPlus,
-                            label = "Nouveau membre",
+                            label = stringResource(R.string.new_member_title),
                             onClick = {
                                 navController.navigate(AppScreen.addMemberRoute("manual"))
                             }
                         ),
                         FABMenuItem(
                             icon = Lucide.FileUp,
-                            label = "Importer CSV",
+                            label = stringResource(R.string.member_csv_mode),
                             onClick = {
                                 navController.navigate(AppScreen.addMemberRoute("import"))
                             }

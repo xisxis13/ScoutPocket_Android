@@ -111,7 +111,7 @@ fun LoginScreen(
                 ) {
                     Image(
                         painter = painterResource(R.drawable.scoutpocket_s),
-                        contentDescription = "Logo ScoutPocket",
+                        contentDescription = stringResource(R.string.content_description_logo),
                         modifier = Modifier.fillMaxSize(),
                         colorFilter = ColorFilter.tint(
                             color = MaterialTheme.colorScheme.onPrimaryContainer,

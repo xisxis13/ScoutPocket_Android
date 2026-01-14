@@ -3,6 +3,12 @@
     <string name="app_name">ScoutPocket</string>
     <string name="content_description_logo">Logo ScoutPocket</string>
 
+    <!-- Navigation -->
+    <string name="nav_home">Accueil</string>
+    <string name="nav_agenda">Agenda</string>
+    <string name="nav_members">Membres</string>
+    <string name="nav_profile">Profil</string>
+
     <!-- Login -->
     <string name="login_welcome_title">Bienvenue</string>
     <string name="login_email_label">Email</string>
@@ -16,6 +22,15 @@
     <string name="login_invalid_credentials">Mauvais login ou mot de passe</string>
     <string name="login_network_error">Erreur de connexion : impossible de joindre le serveur</string>
     <string name="loading_authentification">Connexion en cours…</string>
+
+    <!-- Home -->
+    <string name="home_screen_title">Accueil</string>
+    <string name="home_welcome_subtitle">Bienvenue sur ScoutPocket</string>
+    <string name="home_hero_title">Gérez votre unité</string>
+    <string name="home_hero_subtitle">Organisez vos événements, suivez vos membres et gérez les présences facilement.</string>
+    <string name="home_quick_actions">Accès rapide</string>
+    <string name="home_action_agenda">Voir l\'agenda</string>
+    <string name="home_action_members">Voir les membres</string>
 
     <!-- Agenda -->
     <string name="agenda_screen_title">Agenda</string>
@@ -62,6 +77,7 @@
     <string name="presences_title">Présences</string>
     <string name="members_present_singular">Membre présent</string>
     <string name="members_present_plural">Membres présents</string>
+    <string name="toggle_view_description">Basculer la vue</string>
 
     <!-- Member Form -->
     <string name="new_member_title">Nouveau membre</string>
@@ -78,6 +94,23 @@
     <string name="members_count">%1$d membre(s)</string>
     <string name="members_empty_title">Aucun membre</string>
     <string name="members_empty_subtitle">Commencez par ajouter des membres à votre unité</string>
+
+    <!-- Profile -->
+    <string name="profile_screen_title">Profil</string>
+    <string name="profile_not_logged_in">Utilisateur non connecté</string>
+    <string name="profile_role_chef">Chef d\'unité</string>
+    <string name="profile_actions_section">Actions</string>
+    <string name="profile_about_title">À propos</string>
+    <string name="profile_about_subtitle">Informations du développeur</string>
+    <string name="profile_logout_button">Déconnexion</string>
+    <string name="profile_logout_dialog_title">Se déconnecter</string>
+    <string name="profile_logout_confirm">Êtes-vous sûr de vouloir vous déconnecter ?</string>
+
+    <!-- About -->
+    <string name="about_screen_title">À propos</string>
+    <string name="about_dev_name">Ravasco Alexis</string>
+    <string name="about_dev_id">Id: 62664</string>
+    <string name="about_dev_group">Groupe: E112</string>
 
     <!-- CSV Import -->
     <string name="csv_format_title">Format du fichier CSV</string>

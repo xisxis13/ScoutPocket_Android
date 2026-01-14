@@ -25,10 +25,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import be.he2b.scoutpocket.R
 import be.he2b.scoutpocket.navigation.AppScreen
 import com.composables.icons.lucide.Calendar
 import com.composables.icons.lucide.CalendarPlus
@@ -50,12 +52,12 @@ fun HomeScreen(
                 title = {
                     Column {
                         Text(
-                            "Accueil",
+                            stringResource(R.string.home_screen_title),
                             style = MaterialTheme.typography.headlineLarge,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            "Bienvenue sur ScoutPocket",
+                            stringResource(R.string.home_welcome_subtitle),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -93,14 +95,14 @@ fun HomeScreen(
                     )
 
                     Text(
-                        text = "Gérez votre unité",
+                        text = stringResource(R.string.home_hero_title),
                         style = MaterialTheme.typography.headlineSmall,
                         color = MaterialTheme.colorScheme.onPrimary,
                         fontWeight = FontWeight.Bold
                     )
 
                     Text(
-                        text = "Organisez vos événements, suivez vos membres et gérez les présences facilement.",
+                        text = stringResource(R.string.home_hero_subtitle),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.9f)
                     )
@@ -110,7 +112,7 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "Accès rapide",
+                text = stringResource(R.string.home_quick_actions),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.SemiBold
@@ -124,7 +126,7 @@ fun HomeScreen(
             ) {
                 QuickActionCard(
                     icon = Lucide.CalendarPlus,
-                    label = "Nouvel événement",
+                    label = stringResource(R.string.new_event_title),
                     onClick = { navController.navigate(AppScreen.AddEvent.route) },
                     modifier = Modifier
                         .weight(1f)
@@ -133,7 +135,7 @@ fun HomeScreen(
 
                 QuickActionCard(
                     icon = Lucide.UserPlus,
-                    label = "Nouveau membre",
+                    label = stringResource(R.string.new_member_title),
                     onClick = { navController.navigate(AppScreen.addMemberRoute("manual")) },
                     modifier = Modifier
                         .weight(1f)
@@ -142,7 +144,7 @@ fun HomeScreen(
 
                 QuickActionCard(
                     icon = Lucide.Calendar,
-                    label = "Voir l'agenda",
+                    label = stringResource(R.string.home_action_agenda),
                     onClick = { navController.navigate(AppScreen.Agenda.route) },
                     modifier = Modifier
                         .weight(1f)
@@ -151,7 +153,7 @@ fun HomeScreen(
 
                 QuickActionCard(
                     icon = Lucide.Users,
-                    label = "Voir les membres",
+                    label = stringResource(R.string.home_action_members),
                     onClick = { navController.navigate(AppScreen.Members.route) },
                     modifier = Modifier
                         .weight(1f)
