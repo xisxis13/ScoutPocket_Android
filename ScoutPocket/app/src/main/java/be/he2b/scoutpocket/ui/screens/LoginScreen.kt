@@ -34,6 +34,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -101,17 +103,31 @@ fun LoginScreen(
             verticalArrangement = Arrangement.Center,
         ) {
             Surface(
-                modifier = Modifier
-                    .size(120.dp),
+                modifier = Modifier.size(120.dp),
                 shape = MaterialTheme.shapes.extraLarge,
                 color = MaterialTheme.colorScheme.primaryContainer,
             ) {
-                Image(
-                    painter = painterResource(R.drawable.scoutpocket_icon),
-                    contentDescription = "Logo ScoutPocket",
+                Box(
                     modifier = Modifier
-                        .padding(28.dp),
-                )
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.scoutpocket_s),
+                        contentDescription = "Logo ScoutPocket",
+                        modifier = Modifier.fillMaxSize(),
+                        colorFilter = ColorFilter.tint(
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            blendMode = BlendMode.SrcIn
+                        )
+                    )
+
+                    Image(
+                        painter = painterResource(R.drawable.scoutpocket_foulard),
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
