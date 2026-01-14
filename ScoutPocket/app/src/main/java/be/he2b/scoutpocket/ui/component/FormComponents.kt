@@ -113,6 +113,7 @@ fun SectionDropdown(
     selectedSection: Section,
     onSectionChange: (Section) -> Unit,
     label: String = "Section",
+    allowedSections: List<Section> = Section.entries,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -159,7 +160,7 @@ fun SectionDropdown(
             onDismissRequest = { expanded = false },
             modifier = Modifier.fillMaxWidth(0.9f)
         ) {
-            Section.entries.forEach { section ->
+            allowedSections.forEach { section ->
                 DropdownMenuItem(
                     text = {
                         Row(

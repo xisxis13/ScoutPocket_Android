@@ -39,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import be.he2b.scoutpocket.R
+import be.he2b.scoutpocket.model.Section
 import be.he2b.scoutpocket.navigation.BottomNavItem
 import be.he2b.scoutpocket.ui.component.ConnectedButtonGroup
 import be.he2b.scoutpocket.ui.component.ExpressiveTextField
@@ -101,7 +102,7 @@ fun AddMemberScreen(
             TopAppBar(
                 title = {
                     Text(
-                        stringResource(R.string.new_event_title),
+                        stringResource(R.string.new_member_title),
                         style = MaterialTheme.typography.headlineLarge,
                         fontWeight = FontWeight.Bold
                     )
@@ -200,10 +201,15 @@ private fun ManualMemberForm(
             errorMessage = memberLastNameError,
         )
 
-        // TODO: add option to block 'Unité' section when member creation
         SectionDropdown(
             selectedSection = memberSection,
             onSectionChange = { viewModel.newMemberSection.value = it },
+            allowedSections = listOf(
+                Section.BALADINS,
+                Section.LOUVETEAUX,
+                Section.ECLAIREURS,
+                Section.PIONNIERS
+            )
         )
 
         Spacer(modifier = Modifier.height(16.dp))
