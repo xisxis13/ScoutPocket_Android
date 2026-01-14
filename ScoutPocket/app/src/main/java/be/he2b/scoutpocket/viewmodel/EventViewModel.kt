@@ -2,6 +2,7 @@ package be.he2b.scoutpocket.viewmodel
 
 import android.content.Context
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -24,6 +25,7 @@ class EventViewModel (
     private val eventRepository: EventRepository,
     private val memberRepository: MemberRepository,
     private val presenceRepository: PresenceRepository,
+    private val context: Context,
 ) : ViewModel() {
 
     var event = mutableStateOf<Event?>(null)
@@ -59,7 +61,7 @@ class EventViewModel (
             try {
                 event.value = eventRepository.getEventById(eventId = eventId)
             } catch (e: Exception) {
-                errorMessage.value = "Erreur lors de récupération de l\'évènement"
+                errorMessage.value = context.getString(R.string.events_loading_error)
             } finally {
                 isLoading.value = false
             }
@@ -70,7 +72,7 @@ class EventViewModel (
         val currentEvent = event.value
 
         if (currentEvent == null) {
-            errorMessage.value = "Impossible de charger les membres car l\'événement est manquant."
+            errorMessage.value = context.getString(R.string.event_missing_error)
             return
         }
 
@@ -87,7 +89,7 @@ class EventViewModel (
                     eventPresences.any { presence -> presence.memberId == member.id }
                 }
             } catch (e: Exception) {
-                errorMessage.value = "Erreur lors de récupération des membres concernés par l\'évènement"
+                errorMessage.value = context.getString(R.string.event_members_loading_error)
             } finally {
                 isLoading.value = false
             }
@@ -98,7 +100,7 @@ class EventViewModel (
         val currentEvent = event.value
 
         if (currentEvent == null) {
-            errorMessage.value = "Impossible de charger les membres car l\'événement est manquant."
+            errorMessage.value = context.getString(R.string.event_missing_error)
             return
         }
 
@@ -112,7 +114,7 @@ class EventViewModel (
 
                 totalMembersPresent.value = loadedPresences.count { it.status == PresenceStatus.PRESENT }
             } catch (e: Exception) {
-                errorMessage.value = "Erreur lors de récupération des présences pour l\'évènement"
+                errorMessage.value = context.getString(R.string.presences_loading_error)
             } finally {
                 isLoading.value = false
             }
@@ -126,10 +128,10 @@ class EventViewModel (
         var isValid = true
 
         if (newEventName.value.isBlank()) {
-            newEventNameError.value = "Le nom ne peut pas être vide"
+            newEventNameError.value = context.getString(R.string.event_name_error)
             isValid = false
         } else if (newEventLocation.value.isBlank()) {
-            newEventLocationError.value = "Le lieu ne peut pas être vide"
+            newEventLocationError.value = context.getString(R.string.event_location_error)
             isValid = false
         }
 
@@ -181,14 +183,9 @@ class EventViewModel (
                 presenceRepository.addPresences(presencesToInsert)
                 newEventIsCreated.value = true
             } catch (e: Exception) {
-                errorMessage.value = R.string.new_event_creation_error.toString()
+                errorMessage.value = context.getString(R.string.new_event_creation_error)
             } finally {
                 isLoading.value = false
-
-                if (newEventIsCreated.value) {
-                    newEventName.value = ""
-                    newEventLocation.value = ""
-                }
             }
         }
     }
@@ -199,22 +196,29 @@ class EventViewModel (
                 val currentPresence = presences.value.find {
                     it.eventId == eventId && it.memberId == memberId
                 }
+
                 if (currentPresence != null) {
                     val updatedPresence = currentPresence.copy(
                         status = currentPresence.status.next()
                     )
-                    if (updatedPresence.status == PresenceStatus.PRESENT) {
-                        totalMembersPresent.value++
-                    } else if (updatedPresence.status == PresenceStatus.ABSENT) {
-                        totalMembersPresent.value--
+
+                    when (updatedPresence.status) {
+                        PresenceStatus.PRESENT -> totalMembersPresent.value++
+                        PresenceStatus.ABSENT -> totalMembersPresent.value--
+                        else -> {}
                     }
+
                     presenceRepository.updatePresence(updatedPresence)
                     loadPresences()
                 }
             } catch (e: Exception) {
-                errorMessage.value = "Erreur lors de la mise à jour de la présence"
+                errorMessage.value = context.getString(R.string.presence_update_error)
             }
         }
+    }
+
+    fun clearError() {
+        errorMessage.value = null
     }
 
     fun resetEventCreationState() {
@@ -246,8 +250,8 @@ class EventViewModelFactory(private val context: Context) : ViewModelProvider.Fa
             val memberRepository = MemberRepository(context)
             val presenceRepository = PresenceRepository(context)
             @Suppress("UNCHECKED_CAST")
-            return EventViewModel(eventRepository, memberRepository, presenceRepository) as T
+            return EventViewModel(eventRepository, memberRepository, presenceRepository, context) as T
         }
-        throw IllegalArgumentException("Unknown ViewModel class")
+        throw IllegalArgumentException(context.getString(R.string.unknown_viewmodel_class, modelClass.name))
     }
 }

@@ -93,7 +93,7 @@ fun MainScreen(
     ) { result ->
         if (result.resultCode == android.app.Activity.RESULT_OK) {
             result.data?.data?.let { uri ->
-                memberViewModel.importMembers(context, uri)
+                memberViewModel.importMembers(uri)
             }
         }
     }

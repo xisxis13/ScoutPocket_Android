@@ -25,6 +25,7 @@ class MemberViewModel(
     private val memberRepository: MemberRepository,
     private val eventRepository: EventRepository,
     private val presenceRepository: PresenceRepository,
+    private val context: Context
 ) : ViewModel() {
 
     var csvFileContent = mutableStateOf<String?>(null)
@@ -65,27 +66,7 @@ class MemberViewModel(
                         isLoading.value = false
                     }
             } catch (e: Exception) {
-                errorMessage.value = R.string.members_loading_error.toString()
-            } finally {
-                isLoading.value = false
-            }
-        }
-    }
-
-    fun loadSectionMembers(section: Section) {
-        isLoading.value = true
-        errorMessage.value = null
-
-        viewModelScope.launch {
-            try {
-                memberRepository
-                    .getMembersBySection(section)
-                    .collect { list ->
-                        members.value = list
-                        isLoading.value = false
-                    }
-            } catch (e: Exception) {
-                errorMessage.value = R.string.members_loading_error.toString()
+                errorMessage.value = context.getString(R.string.members_loading_error)
             } finally {
                 isLoading.value = false
             }
@@ -99,10 +80,10 @@ class MemberViewModel(
         var isValid = true
 
         if (newMemberLastName.value.isBlank()) {
-            newMemberLastNameError.value = "Le nom de famille ne peut pas être vide"
+            newMemberLastNameError.value = context.getString(R.string.member_lastname_error)
             isValid = false
         } else if (newMemberFirstName.value.isBlank()) {
-            newMemberFirstNameError.value = "Le prénom ne peut pas être vide"
+            newMemberFirstNameError.value = context.getString(R.string.member_firstname_error)
             isValid = false
         }
 
@@ -151,7 +132,7 @@ class MemberViewModel(
 
                 newMemberIsCreated.value = true
             } catch (e: Exception) {
-                errorMessage.value = "Erreur lors de la création d\'un nouveau membre"
+                errorMessage.value = context.getString(R.string.member_creation_error)
             } finally {
                 isLoading.value = false
 
@@ -163,27 +144,24 @@ class MemberViewModel(
         }
     }
 
-    fun importMembers(context: Context, fileUri: Uri) {
+    fun importMembers(fileUri: Uri) {
         viewModelScope.launch {
             isLoading.value = true
             errorMessage.value = null
+            importSuccessMessage.value = null
             csvFileContent.value = null
 
             try {
                 val fileName = getFileName(context, fileUri)
                 if (!fileName.endsWith(".csv", ignoreCase = true)) {
-                    errorMessage.value = "Le fichier doit avoir l\'extension .csv"
+                    errorMessage.value = context.getString(R.string.csv_extension_error)
                     return@launch
                 }
 
                 val mimeType = context.contentResolver.getType(fileUri)
-                val validMimeTypes = listOf(
-                    "text/csv",
-                    "text/comma-separated-values",
-                    "text/plain"
-                )
+                val validMimeTypes = listOf("text/csv", "text/comma-separated-values", "text/plain")
                 if (mimeType !in validMimeTypes) {
-                    errorMessage.value = "Type de fichier non supporté: $mimeType"
+                    errorMessage.value = context.getString(R.string.csv_mimetype_error, mimeType ?: "unknown")
                     return@launch
                 }
 
@@ -193,18 +171,17 @@ class MemberViewModel(
                     val content = reader.readText()
 
                     if (!isValidCSV(content)) {
-                        errorMessage.value = "Le fichier n\'est pas un CSV valide"
+                        errorMessage.value = context.getString(R.string.csv_invalid_error)
                         return@launch
                     }
 
                     val importedMembers = parseCSV(content)
                     if (importedMembers.isEmpty()) {
-                        errorMessage.value = "Aucun membre valide trouvé dans le fichier"
+                        errorMessage.value = context.getString(R.string.csv_no_members_error)
                         return@launch
                     }
 
                     val existingMembers = memberRepository.getAllMembers().first()
-
                     val (duplicates, newMembers) = importedMembers.partition { newMember ->
                         existingMembers.any { existing ->
                             existing.lastName.lowercase() == newMember.lastName.lowercase() &&
@@ -213,19 +190,18 @@ class MemberViewModel(
                     }
 
                     if (duplicates.isNotEmpty()) {
-                        duplicates.forEach { duplicates ->
-                            Log.w("CSV", "Membre déjà existant ignoré: ${duplicates.firstName} ${duplicates.lastName}")
+                        duplicates.forEach { duplicate ->
+                            Log.w("CSV", "Membre déjà existant ignoré: ${duplicate.firstName} ${duplicate.lastName}")
                         }
                     }
 
                     if (newMembers.isEmpty()) {
-                        errorMessage.value = "Tous les membres du fichier existent déjà dans la base"
+                        errorMessage.value = context.getString(R.string.csv_all_duplicates_error)
                         return@launch
                     }
 
                     newMembers.forEach { member ->
                         val memberId = memberRepository.addMember(member)
-
                         val allEvents = eventRepository.getAllEvents().first()
                         val relevantEvents = allEvents.filter { event ->
                             event.section == member.section || event.section == Section.UNITE
@@ -247,18 +223,15 @@ class MemberViewModel(
                     csvFileContent.value = content
                     loadMembers()
 
-                    val message = buildString {
-                        append("✓ ${newMembers.size} membre(s) importé(s)")
-                        if (duplicates.isNotEmpty()) {
-                            append("\n⚠ ${duplicates.size} doublon(s) ignoré(s)")
-                        }
-                    }
-                    Log.i("CSV", message)
-                    importSuccessMessage.value = message
+                    importSuccessMessage.value = context.getString(
+                        R.string.csv_import_success,
+                        newMembers.size,
+                        duplicates.size
+                    )
                 }
             } catch (e: Exception) {
-                Log.e("CSV", "Erreur lors de la lecture", e)
-                errorMessage.value = "Erreur lors de la lecture du fichier."
+                Log.e("CSV", "Erreur lors de l'import", e)
+                errorMessage.value = context.getString(R.string.csv_read_error)
             } finally {
                 isLoading.value = false
             }
@@ -369,6 +342,14 @@ class MemberViewModel(
         }
     }
 
+    fun clearError() {
+        errorMessage.value = null
+    }
+
+    fun clearImportSuccess() {
+        importSuccessMessage.value = null
+    }
+
     fun resetMemberCreationState() {
         newMemberIsCreated.value = false
         resetForm()
@@ -392,8 +373,8 @@ class MemberViewModelFactory(private val context: Context) : ViewModelProvider.F
             val presenceRepository = PresenceRepository(context)
 
             @Suppress("UNCHECKED_CAST")
-            return MemberViewModel(memberRepository, eventRepository, presenceRepository) as T
+            return MemberViewModel(memberRepository, eventRepository, presenceRepository, context) as T
         }
-        throw IllegalArgumentException("Unknown ViewModel class")
+        throw IllegalArgumentException(context.getString(R.string.unknown_viewmodel_class, modelClass.name))
     }
 }

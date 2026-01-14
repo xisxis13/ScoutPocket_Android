@@ -18,9 +18,11 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import be.he2b.scoutpocket.R
 import be.he2b.scoutpocket.ui.component.EmptyState
 import be.he2b.scoutpocket.ui.component.LoadingState
 import be.he2b.scoutpocket.ui.component.MemberCard
@@ -51,12 +53,12 @@ fun MembersScreen(
                 title = {
                     Column {
                         Text(
-                            "Membres",
+                            stringResource(R.string.members_screen_title),
                             style = MaterialTheme.typography.headlineLarge,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            "${members.size} membre${if (members.size > 1) "s" else ""}",
+                            stringResource(R.string.members_count, members.size),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -72,7 +74,7 @@ fun MembersScreen(
         when {
             isLoading -> {
                 LoadingState(
-                    title = "Chargement des membres",
+                    title = stringResource(R.string.loading_members),
                     modifier = Modifier
                         .padding(paddingValues),
                 )
@@ -81,8 +83,8 @@ fun MembersScreen(
             errorMessage != null -> {
                 EmptyState(
                     icon = Lucide.CircleAlert,
-                    title = "Erreur",
-                    subtitle = errorMessage ?: "Une erreur est survenue",
+                    title = stringResource(R.string.error_general),
+                    subtitle = errorMessage ?: stringResource(R.string.error_general),
                     modifier = Modifier
                         .padding(paddingValues),
                 )
@@ -91,8 +93,8 @@ fun MembersScreen(
             members.isEmpty() -> {
                 EmptyState(
                     icon = Lucide.Users,
-                    title = "Aucun membre",
-                    subtitle = "Commencez par ajouter des membres à votre unité",
+                    title = stringResource(R.string.members_empty_title),
+                    subtitle = stringResource(R.string.members_empty_subtitle),
                     modifier = Modifier
                         .padding(paddingValues),
                 )

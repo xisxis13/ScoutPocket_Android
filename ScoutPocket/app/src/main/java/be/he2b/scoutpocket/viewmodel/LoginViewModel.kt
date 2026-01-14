@@ -72,12 +72,12 @@ class LoginViewModel(
         return when {
             emailValue.isEmpty() -> {
                 isEmailValid.value = false
-                errorMessage.value = context.getString(R.string.auth_error_empty_email)
+                errorMessage.value = context.getString(R.string.email_empty_error)
                 false
             }
             !emailRegex.matches(emailValue) -> {
                 isEmailValid.value = false
-                errorMessage.value = context.getString(R.string.auth_error_invalid_email)
+                errorMessage.value = context.getString(R.string.email_invalid_error)
                 false
             }
             else -> {
@@ -93,7 +93,7 @@ class LoginViewModel(
         return when {
             passwordValue.isEmpty() -> {
                 isPasswordValid.value = false
-                errorMessage.value = context.getString(R.string.auth_error_empty_password)
+                errorMessage.value = context.getString(R.string.password_empty_error)
                 false
             }
             else -> {
@@ -139,15 +139,15 @@ class LoginViewModel(
                         isAuthenticated.value = true
                         password.value = ""
                     } ?: run {
-                        errorMessage.value = context.getString(R.string.auth_error_connexion)
+                        errorMessage.value = context.getString(R.string.login_network_error)
                     }
                 } else {
                     errorMessage.value = context.getString(
-                        R.string.auth_error_wrong_credentials
+                        R.string.login_invalid_credentials
                     )
                 }
             } catch (e: Exception) {
-                errorMessage.value = context.getString(R.string.auth_error_connexion)
+                errorMessage.value = context.getString(R.string.login_network_error)
             } finally {
                 isLoading.value = false
             }
@@ -180,7 +180,7 @@ class LoginViewModelFactory(private val context: Context) : ViewModelProvider.Fa
             ) as T
         }
         throw IllegalArgumentException(
-            context.getString(R.string.error_unknown_viewmodel, modelClass.name)
+            context.getString(R.string.unknown_viewmodel_class, modelClass.name)
         )
     }
 }

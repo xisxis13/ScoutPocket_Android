@@ -27,10 +27,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import be.he2b.scoutpocket.R
 import be.he2b.scoutpocket.ui.component.ExpressiveDatePicker
 import be.he2b.scoutpocket.ui.component.ExpressiveTextField
 import be.he2b.scoutpocket.ui.component.ExpressiveTimePicker
@@ -77,7 +79,7 @@ fun AddEventScreen(
             TopAppBar(
                 title = {
                     Text(
-                        "Nouvel évènement",
+                        stringResource(R.string.new_event_title),
                         style = MaterialTheme.typography.headlineLarge,
                         fontWeight = FontWeight.Bold
                     )
@@ -89,7 +91,7 @@ fun AddEventScreen(
                     }) {
                         Icon(
                             Lucide.ArrowLeft,
-                            contentDescription = "Retour",
+                            contentDescription = stringResource(R.string.back_button),
                             tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
@@ -110,7 +112,7 @@ fun AddEventScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                text = "Informations générales",
+                text = stringResource(R.string.event_general_info),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.SemiBold
@@ -119,7 +121,7 @@ fun AddEventScreen(
             ExpressiveTextField(
                 value = eventName,
                 onValueChange = { viewModel.newEventName.value = it },
-                label = "Nom de l\'évènement",
+                label = stringResource(R.string.event_name_label),
                 leadingIcon = Lucide.Type,
                 isError = eventNameError != null,
                 errorMessage = eventNameError,
@@ -133,7 +135,7 @@ fun AddEventScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Date et horaires",
+                text = stringResource(R.string.event_date_time),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.SemiBold
@@ -142,7 +144,7 @@ fun AddEventScreen(
             ExpressiveDatePicker(
                 value = eventDate,
                 onValueChange = { viewModel.newEventDate.value = it },
-                label = "Date",
+                label = stringResource(R.string.event_date),
             )
 
             Row(
@@ -153,7 +155,7 @@ fun AddEventScreen(
                 ExpressiveTimePicker(
                     value = eventStartTime,
                     onValueChange = { viewModel.newEventStartTime.value = it },
-                    label = "Heure de début",
+                    label = stringResource(R.string.event_start_time),
                     modifier = Modifier
                         .weight(1f),
                 )
@@ -161,7 +163,7 @@ fun AddEventScreen(
                 ExpressiveTimePicker(
                     value = eventEndTime,
                     onValueChange = { viewModel.newEventEndTime.value = it },
-                    label = "Heure de fin",
+                    label = stringResource(R.string.event_end_time),
                     modifier = Modifier
                         .weight(1f),
                 )
@@ -170,7 +172,7 @@ fun AddEventScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Lieu",
+                text = stringResource(R.string.event_location),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.SemiBold
@@ -179,7 +181,7 @@ fun AddEventScreen(
             ExpressiveTextField(
                 value = eventLocation,
                 onValueChange = { viewModel.newEventLocation.value = it },
-                label = "Lieu de l\'évènement",
+                label = stringResource(R.string.event_location_label),
                 leadingIcon = Lucide.MapPin,
                 isError = eventLocationError != null,
                 errorMessage = eventLocationError,
@@ -203,7 +205,7 @@ fun AddEventScreen(
                     shape = MaterialTheme.shapes.large,
                 ) {
                     Text(
-                        text = "Annuler",
+                        text = stringResource(R.string.cancel_button),
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.SemiBold,
                     )
@@ -225,7 +227,7 @@ fun AddEventScreen(
                     Spacer(Modifier.width(8.dp))
 
                     Text(
-                        "Créer",
+                        stringResource(R.string.create_button),
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.SemiBold
                     )

@@ -1,17 +1,23 @@
 <resources>
-    <!-- Application -->
+    <!-- App -->
     <string name="app_name">ScoutPocket</string>
-    <string name="app_logo_description">Logo ScoutPocket</string>
+    <string name="content_description_logo">Logo ScoutPocket</string>
 
-    <!-- LoginScreen -->
+    <!-- Login -->
     <string name="login_welcome_title">Bienvenue</string>
     <string name="login_email_label">Email</string>
     <string name="login_password_label">Mot de passe</string>
     <string name="login_button">Se connecter</string>
     <string name="login_password_show">Afficher</string>
     <string name="login_password_hide">Masquer</string>
+    <string name="email_invalid_error">Email non valide</string>
+    <string name="email_empty_error">L\'email ne peut pas être vide</string>
+    <string name="password_empty_error">Le mot de passe ne peut pas être vide</string>
+    <string name="login_invalid_credentials">Mauvais login ou mot de passe</string>
+    <string name="login_network_error">Erreur de connexion : impossible de joindre le serveur</string>
+    <string name="loading_authentification">Connexion en cours…</string>
 
-    <!-- AgendaScreen -->
+    <!-- Agenda -->
     <string name="agenda_screen_title">Agenda</string>
     <string name="agenda_upcoming_count_zero">Aucun évènement à venir</string>
     <string name="agenda_upcoming_count_one">1 évènement à venir</string>
@@ -29,43 +35,83 @@
     <string name="agenda_no_past_title">Aucun évènement passé</string>
     <string name="agenda_no_past_subtitle">Les évènements passés apparaîtront ici</string>
 
-    <!-- Add Event Screen -->
-    <string name="add_event_screen_title">Nouvel évènement</string>
-    <string name="add_event_back">Retour</string>
-    <string name="add_event_general_info">Informations générales</string>
-    <string name="add_event_name_label">Nom de l\'évènement</string>
-    <string name="add_event_name_error_empty">Le nom ne peut pas être vide</string>
-    <string name="add_event_datetime_info">Date et horaires</string>
-    <string name="add_event_date_label">Date</string>
-    <string name="add_event_start_time_label">Heure de début</string>
-    <string name="add_event_end_time_label">Heure de fin</string>
-    <string name="add_event_location_info">Lieu</string>
-    <string name="add_event_location_label">Lieu de l\'évènement</string>
-    <string name="add_event_location_error_empty">Le lieu ne peut pas être vide</string>
-    <string name="add_event_cancel_button">Annuler</string>
-    <string name="add_event_create_button">Créer</string>
+    <!-- Event Form -->
+    <string name="new_event_title">Nouvel évènement</string>
+    <string name="back_button">Retour</string>
+    <string name="event_general_info">Informations générales</string>
+    <string name="event_name_label">Nom de l\'évènement</string>
+    <string name="event_name_error">Le nom ne peut pas être vide</string>
+    <string name="event_date_time">Date et horaires</string>
+    <string name="event_date">Date</string>
+    <string name="event_start_time">Heure de début</string>
+    <string name="event_end_time">Heure de fin</string>
+    <string name="event_location">Lieu</string>
+    <string name="event_location_label">Lieu de l\'évènement</string>
+    <string name="event_location_error">Le lieu ne peut pas être vide</string>
+    <string name="cancel_button">Annuler</string>
+    <string name="create_button">Créer</string>
 
+    <!-- Event Details -->
+    <string name="event_details_title">Détails</string>
+    <string name="event_not_found_title">Évènement non trouvé</string>
+    <string name="event_not_found_subtitle">Veuillez réessayer</string>
+    <string name="event_detail_date">Date</string>
+    <string name="event_detail_time">Horaires</string>
+    <string name="event_detail_location">Lieu</string>
+    <string name="loading_event">Chargement de l\'évènement</string>
+    <string name="presences_title">Présences</string>
+    <string name="members_present_singular">Membre présent</string>
+    <string name="members_present_plural">Membres présents</string>
 
-    <!-- Authentifications errors -->
-    <string name="auth_error_invalid_email">Email non valide</string>
-    <string name="auth_error_empty_email">L\'email ne peut pas être vide</string>
-    <string name="auth_error_empty_password">Le mot de passe ne peut pas être vide</string>
-    <string name="auth_error_wrong_credentials">Mauvais login ou mot de passe</string>
-    <string name="auth_error_connexion">Erreur de connexion : impossible de joindre le serveur</string>
+    <!-- Member Form -->
+    <string name="new_member_title">Nouveau membre</string>
+    <string name="member_manual_mode">Manuel</string>
+    <string name="member_csv_mode">Importer un CSV</string>
+    <string name="member_personal_info">Informations Personnelles</string>
+    <string name="member_lastname_label">Nom de famille</string>
+    <string name="member_lastname_error">Le nom de famille ne peut pas être vide</string>
+    <string name="member_firstname_label">Prénom</string>
+    <string name="member_firstname_error">Le prénom ne peut pas être vide</string>
 
-    <!-- Loading states -->
-    <string name="loading_authentification">Connexion en cours…</string>
+    <!-- Members Screen -->
+    <string name="members_screen_title">Membres</string>
+    <string name="members_count">%1$d membre(s)</string>
+    <string name="members_empty_title">Aucun membre</string>
+    <string name="members_empty_subtitle">Commencez par ajouter des membres à votre unité</string>
+
+    <!-- CSV Import -->
+    <string name="csv_format_title">Format du fichier CSV</string>
+    <string name="csv_format_rule1">• 3 colonnes : Nom, Prénom, Section</string>
+    <string name="csv_format_rule2">• Délimiteur : virgule (,) ou point-virgule (;)</string>
+    <string name="csv_format_rule3">• Sections valides : baladins, louveteaux, éclaireurs, pionniers</string>
+    <string name="csv_format_rule4">• Les variantes sont acceptées (baladin, eclaireur, etc.)</string>
+    <string name="csv_format_rule5">• Les doublons sont automatiquement ignorés</string>
+    <string name="csv_example_title">Exemple de fichier</string>
+    <string name="csv_example_content">DUPONT,Jean,baladins\nMARTIN,Sophie,louveteaux\nBERNARD,Lucas,eclaireurs</string>
+    <string name="csv_select_file">Sélectionner un fichier CSV</string>
+    <string name="csv_extension_error">Le fichier doit avoir l\'extension .csv</string>
+    <string name="csv_mimetype_error">Type de fichier non supporté : %1$s</string>
+    <string name="csv_invalid_error">Le fichier n\'est pas un CSV valide</string>
+    <string name="csv_no_members_error">Aucun membre valide trouvé dans le fichier</string>
+    <string name="csv_all_duplicates_error">Tous les membres du fichier existent déjà</string>
+    <string name="csv_read_error">Erreur lors de la lecture du fichier</string>
+    <string name="csv_import_success">✓ %1$d membre(s) importé(s)\n⚠ %2$d doublon(s) ignoré(s)</string>
+
+    <!-- Loading States -->
     <string name="loading_events">Chargement des évènements…</string>
     <string name="loading_members">Chargement des membres…</string>
 
-    <!-- General errors -->
-    <string name="error_generic">Une erreur est survenue</string>
+    <!-- Errors -->
+    <string name="error_general">Une erreur est survenue</string>
     <string name="error_retry">Réessayer</string>
-    <string name="error_unknown_viewmodel">Classe ViewModel inconnue : %1$s</string>
-
+    <string name="unknown_viewmodel_class">Classe ViewModel inconnue : %1$s</string>
     <string name="events_loading_error">Erreur lors du chargement des événements</string>
-    <string name="wrong_login_or_password_error">Mauvais login ou mot de passe</string>
-    <string name="auth_connection_error">Erreur de connexion : impossible de joindre le serveur.</string>
-    <string name="new_event_creation_error">Erreur lors de la création d\'un nouvel événement</string>
+    <string name="event_loading_error">Erreur lors du chargement de l\'événement</string>
+    <string name="event_missing_error">L\'événement est manquant</string>
+    <string name="event_members_loading_error">Erreur lors du chargement des membres de l\'événement</string>
+    <string name="presences_loading_error">Erreur lors du chargement des présences</string>
+    <string name="presence_update_error">Erreur lors de la mise à jour de la présence</string>
+    <string name="new_event_creation_error">Erreur lors de la création de l\'événement</string>
     <string name="members_loading_error">Erreur lors du chargement des membres</string>
+    <string name="member_creation_error">Erreur lors de la création du membre</string>
 </resources>

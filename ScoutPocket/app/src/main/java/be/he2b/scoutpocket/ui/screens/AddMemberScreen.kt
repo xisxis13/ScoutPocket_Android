@@ -30,10 +30,12 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import be.he2b.scoutpocket.R
 import be.he2b.scoutpocket.navigation.BottomNavItem
 import be.he2b.scoutpocket.ui.component.ConnectedButtonGroup
 import be.he2b.scoutpocket.ui.component.ExpressiveTextField
@@ -70,7 +72,7 @@ fun AddMemberScreen(
             TopAppBar(
                 title = {
                     Text(
-                        "Nouveau membre",
+                        stringResource(R.string.new_event_title),
                         style = MaterialTheme.typography.headlineLarge,
                         fontWeight = FontWeight.Bold
                     )
@@ -79,7 +81,7 @@ fun AddMemberScreen(
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(
                             Lucide.ArrowLeft,
-                            contentDescription = "Retour",
+                            contentDescription = stringResource(R.string.back_button),
                             tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
@@ -100,7 +102,10 @@ fun AddMemberScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             ConnectedButtonGroup(
-                options = listOf("Manuel", "Importer un CSV"),
+                options = listOf(
+                    stringResource(R.string.member_manual_mode),
+                    stringResource(R.string.member_csv_mode),
+                ),
                 selectedIndex = selectedIndex,
                 onIndexSelected = { selectedIndex = it },
                 modifier = Modifier.fillMaxWidth(),
@@ -139,7 +144,7 @@ private fun ManualMemberForm(
         Spacer(modifier = Modifier.height(4.dp))
 
         Text(
-            text = "Informations Personnelles",
+            text = stringResource(R.string.member_personal_info),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.SemiBold
@@ -148,7 +153,7 @@ private fun ManualMemberForm(
         ExpressiveTextField(
             value = memberFirstName,
             onValueChange = { viewModel.newMemberFirstName.value = it },
-            label = "Prénom",
+            label = stringResource(R.string.member_firstname_label),
             leadingIcon = Lucide.User,
             isError = memberFirstNameError != null,
             errorMessage = memberFirstNameError,
@@ -157,7 +162,7 @@ private fun ManualMemberForm(
         ExpressiveTextField(
             value = memberLastName,
             onValueChange = { viewModel.newMemberLastName.value = it },
-            label = "Nom de famille",
+            label = stringResource(R.string.member_lastname_label),
             leadingIcon = Lucide.User,
             isError = memberLastNameError != null,
             errorMessage = memberLastNameError,
@@ -187,7 +192,7 @@ private fun ManualMemberForm(
                 shape = MaterialTheme.shapes.large,
             ) {
                 Text(
-                    text = "Annuler",
+                    text = stringResource(R.string.cancel_button),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.SemiBold,
                 )
@@ -209,7 +214,7 @@ private fun ManualMemberForm(
                 Spacer(Modifier.width(8.dp))
 
                 Text(
-                    "Créer",
+                    stringResource(R.string.create_button),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -230,7 +235,7 @@ private fun CSVImportSection(
         Spacer(modifier = Modifier.height(4.dp))
 
         Text(
-            text = "Format du fichier CSV",
+            text = stringResource(R.string.csv_format_title),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.SemiBold
@@ -248,18 +253,18 @@ private fun CSVImportSection(
                     .padding(24.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Text("• 3 colonnes : Nom, Prénom, Section")
-                Text("• Délimiteur : virgule (,) ou point-virgule (;)")
-                Text("• Sections valides : baladins, louveteaux, éclaireurs, pionniers")
-                Text("• Les variantes sont acceptées (baladin, eclaireur, etc.)")
-                Text("• Les doublons sont automatiquement ignorés")
+                Text(stringResource(R.string.csv_format_rule1))
+                Text(stringResource(R.string.csv_format_rule2))
+                Text(stringResource(R.string.csv_format_rule3))
+                Text(stringResource(R.string.csv_format_rule4))
+                Text(stringResource(R.string.csv_format_rule5))
             }
         }
 
         Spacer(modifier = Modifier.height(4.dp))
 
         Text(
-            text = "Exemple de fichier",
+            text = stringResource(R.string.csv_example_title),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.SemiBold
@@ -278,7 +283,7 @@ private fun CSVImportSection(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Text(
-                    text = "DUPONT,Jean,baladins\nMARTIN,Sophie,louveteaux\nBERNARD,Lucas,eclaireurs",
+                    text = stringResource(R.string.csv_example_content),
                     modifier = Modifier.padding(16.dp),
                     style = MaterialTheme.typography.bodySmall,
                     fontFamily = FontFamily.Monospace,
@@ -304,7 +309,7 @@ private fun CSVImportSection(
             Spacer(Modifier.width(8.dp))
 
             Text(
-                "Sélectionner un fichier CSV",
+                stringResource(R.string.csv_select_file),
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.SemiBold
             )

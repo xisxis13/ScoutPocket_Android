@@ -29,10 +29,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import be.he2b.scoutpocket.R
 import be.he2b.scoutpocket.model.formattedDateLong
 import be.he2b.scoutpocket.model.formattedTimeRange
 import be.he2b.scoutpocket.ui.component.EmptyState
@@ -85,7 +87,7 @@ fun EventDetailsScreen(
             TopAppBar(
                 title = {
                     Text(
-                        "Détails",
+                        stringResource(R.string.event_details_title),
                         style = MaterialTheme.typography.headlineLarge,
                         fontWeight = FontWeight.Bold
                     )
@@ -94,7 +96,7 @@ fun EventDetailsScreen(
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(
                             Lucide.ArrowLeft,
-                            contentDescription = "Retour",
+                            contentDescription = stringResource(R.string.back_button),
                             tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
@@ -118,7 +120,7 @@ fun EventDetailsScreen(
         when {
             isLoading -> {
                 LoadingState(
-                    title = "Chargement de l\'évènement",
+                    title = stringResource(R.string.loading_event),
                     modifier = Modifier
                         .padding(paddingValues),
                 )
@@ -127,8 +129,8 @@ fun EventDetailsScreen(
             errorMessage != null -> {
                 EmptyState(
                     icon = Lucide.CircleAlert,
-                    title = "Erreur",
-                    subtitle = errorMessage ?: "Une erreur est survenue",
+                    title = stringResource(R.string.error_general),
+                    subtitle = errorMessage ?: stringResource(R.string.error_general),
                     modifier = Modifier
                         .padding(paddingValues),
                 )
@@ -137,8 +139,8 @@ fun EventDetailsScreen(
             event == null -> {
                 EmptyState(
                     icon = Lucide.CircleAlert,
-                    title = "Évènement non trouvé",
-                    subtitle = "Veuillez réessayer",
+                    title = stringResource(R.string.event_not_found_title),
+                    subtitle = stringResource(R.string.event_not_found_subtitle),
                     modifier = Modifier
                         .padding(paddingValues),
                 )
@@ -186,7 +188,7 @@ fun EventDetailsScreen(
                                 verticalArrangement = Arrangement.spacedBy(2.dp),
                             ) {
                                 Text(
-                                    text = "Date",
+                                    text = stringResource(R.string.event_detail_date),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     fontWeight = FontWeight.Medium,
@@ -225,7 +227,7 @@ fun EventDetailsScreen(
                                 verticalArrangement = Arrangement.spacedBy(2.dp),
                             ) {
                                 Text(
-                                    text = "Horaires",
+                                    text = stringResource(R.string.event_detail_time),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     fontWeight = FontWeight.Medium,
@@ -264,7 +266,7 @@ fun EventDetailsScreen(
                                 verticalArrangement = Arrangement.spacedBy(2.dp),
                             ) {
                                 Text(
-                                    text = "Lieu",
+                                    text = stringResource(R.string.event_detail_location),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     fontWeight = FontWeight.Medium,
@@ -356,13 +358,15 @@ fun PresenceWidget(
         ) {
             Column {
                 Text(
-                    text = "Présences",
+                    text = stringResource(R.string.presences_title),
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "Membre${if (presence > 1) "s" else ""} présent${if (presence > 1) "s" else ""}",
+                    text = stringResource(
+                        if (presence > 1) R.string.members_present_plural else R.string.members_present_singular
+                    ),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
