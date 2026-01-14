@@ -101,12 +101,11 @@ fun LoginScreen(
                 shape = MaterialTheme.shapes.extraLarge,
                 color = MaterialTheme.colorScheme.primaryContainer,
             ) {
-                // TODO: Change by ScoutPocket logo
                 Image(
-                    painter = painterResource(R.drawable.logo),
+                    painter = painterResource(R.drawable.scoutpocket_icon),
                     contentDescription = "Logo ScoutPocket",
                     modifier = Modifier
-                        .padding(24.dp),
+                        .padding(28.dp),
                 )
             }
 
