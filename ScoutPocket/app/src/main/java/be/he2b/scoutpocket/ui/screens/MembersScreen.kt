@@ -26,13 +26,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import be.he2b.scoutpocket.R
 import be.he2b.scoutpocket.ui.component.EmptyState
 import be.he2b.scoutpocket.ui.component.LoadingState
 import be.he2b.scoutpocket.ui.component.MemberCard
 import be.he2b.scoutpocket.viewmodel.MemberViewModel
-import com.composables.icons.lucide.CircleAlert
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.Users
 
@@ -40,7 +38,6 @@ import com.composables.icons.lucide.Users
 @Composable
 fun MembersScreen(
     modifier: Modifier = Modifier,
-    navController: NavController,
     viewModel: MemberViewModel,
 ) {
     val members = viewModel.members.value
@@ -51,6 +48,17 @@ fun MembersScreen(
     val importSuccessMessage = viewModel.importSuccessMessage.value
 
     val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(errorMessage) {
+        errorMessage?.let {
+            snackbarHostState.showSnackbar(
+                message = it,
+                duration = SnackbarDuration.Long
+            )
+
+            viewModel.clearError()
+        }
+    }
 
     LaunchedEffect(importSuccessMessage) {
         importSuccessMessage?.let {
@@ -99,16 +107,6 @@ fun MembersScreen(
             isLoading -> {
                 LoadingState(
                     title = stringResource(R.string.loading_members),
-                    modifier = Modifier
-                        .padding(paddingValues),
-                )
-            }
-
-            errorMessage != null -> {
-                EmptyState(
-                    icon = Lucide.CircleAlert,
-                    title = stringResource(R.string.error_general),
-                    subtitle = errorMessage ?: stringResource(R.string.error_general),
                     modifier = Modifier
                         .padding(paddingValues),
                 )

@@ -40,7 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import be.he2b.scoutpocket.R
 import be.he2b.scoutpocket.model.Section
-import be.he2b.scoutpocket.navigation.BottomNavItem
+import be.he2b.scoutpocket.navigation.AppScreen
 import be.he2b.scoutpocket.ui.component.ConnectedButtonGroup
 import be.he2b.scoutpocket.ui.component.ExpressiveTextField
 import be.he2b.scoutpocket.ui.component.SectionDropdown
@@ -70,8 +70,18 @@ fun AddMemberScreen(
 
     LaunchedEffect(memberIsCreated) {
         if (memberIsCreated) {
-            navController.navigate(BottomNavItem.Members.route)
+            navController.navigate(AppScreen.Members.route)
             viewModel.resetMemberCreationState()
+        }
+    }
+
+    LaunchedEffect(importSuccessMessage) {
+        importSuccessMessage?.let {
+            navController.navigate(AppScreen.Members.route)
+            snackbarHostState.showSnackbar(
+                message = it,
+                duration = SnackbarDuration.Long
+            )
         }
     }
 
@@ -83,16 +93,6 @@ fun AddMemberScreen(
             )
 
             viewModel.clearError()
-        }
-    }
-
-    LaunchedEffect(importSuccessMessage) {
-        importSuccessMessage?.let {
-            snackbarHostState.showSnackbar(
-                message = it,
-                duration = SnackbarDuration.Long
-            )
-            viewModel.clearImportSuccess()
         }
     }
 

@@ -141,7 +141,6 @@ fun MainScreen(
                 composable(AppScreen.Members.route) {
                     MembersScreen(
                         modifier = Modifier.fillMaxSize(),
-                        navController = navController,
                         viewModel = memberViewModel,
                     )
                 }
@@ -191,7 +190,6 @@ fun MainScreen(
                                 ))
                             }
                             filePickerLauncher.launch(intent)
-                            navController.navigate(BottomNavItem.Members.route)
                         }
                     )
                 }
