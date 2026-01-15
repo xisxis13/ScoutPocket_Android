@@ -19,7 +19,6 @@ import be.he2b.scoutpocket.model.Section
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime
@@ -47,7 +46,10 @@ abstract class ScoutPocketDatabase : RoomDatabase() {
                     ScoutPocketDatabase::class.java,
                     DATABASE_NAME
                 )
+                // with sample data
                 sInstance = dbBuilder.addCallback(PrepopulateCallback(context)).build()
+
+                // without sample data
                 // sInstance = dbBuilder.build()
             }
             return sInstance!!
@@ -56,7 +58,7 @@ abstract class ScoutPocketDatabase : RoomDatabase() {
 
     private class PrepopulateCallback(
         private val context: Context
-    ) : RoomDatabase.Callback() {
+    ) : Callback() {
 
         override fun onCreate(db: SupportSQLiteDatabase) {
             super.onCreate(db)

@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -19,7 +20,6 @@ import be.he2b.scoutpocket.ui.screens.MainScreen
 import be.he2b.scoutpocket.ui.theme.ScoutPocketTheme
 import be.he2b.scoutpocket.viewmodel.LoginViewModel
 import be.he2b.scoutpocket.viewmodel.LoginViewModelFactory
-import androidx.compose.runtime.getValue
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

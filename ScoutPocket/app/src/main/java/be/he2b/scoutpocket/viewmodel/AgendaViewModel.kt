@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import be.he2b.scoutpocket.R
-import be.he2b.scoutpocket.database.ScoutPocketDatabase
 import be.he2b.scoutpocket.database.entity.Event
 import be.he2b.scoutpocket.database.repository.EventRepository
 import kotlinx.coroutines.launch
@@ -66,7 +65,6 @@ class AgendaViewModel(
 class AgendaViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(AgendaViewModel::class.java)) {
-            val database = ScoutPocketDatabase.getInstance(context)
             val repository = EventRepository(context)
             @Suppress("UNCHECKED_CAST")
             return AgendaViewModel(repository, context) as T

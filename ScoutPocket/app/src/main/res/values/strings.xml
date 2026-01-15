@@ -78,6 +78,8 @@
     <string name="members_present_singular">Membre présent</string>
     <string name="members_present_plural">Membres présents</string>
     <string name="toggle_view_description">Basculer la vue</string>
+    <string name="event_details_infos_tab">Informations</string>
+    <string name="event_details_presences_tab">Présences</string>
 
     <!-- Member Form -->
     <string name="new_member_title">Nouveau membre</string>

@@ -14,8 +14,5 @@ class MemberRepository(context: Context) {
     suspend fun addMember(member: Member): Long = memberDao.insert(member)
     fun getAllMembers(): Flow<List<Member>> = memberDao.getAllMembers()
     fun getMembersBySection(section: Section): Flow<List<Member>> = memberDao.getMembersBySection(section)
-    suspend fun getMemberById(memberId: Int): Member? = memberDao.getMemberById(memberId)
-    suspend fun findMemberByName(lastName: String, firstName: String): Member? =
-        memberDao.findMemberByName(lastName, firstName)
 
 }

@@ -184,8 +184,8 @@ class MemberViewModel(
                     val existingMembers = memberRepository.getAllMembers().first()
                     val (duplicates, newMembers) = importedMembers.partition { newMember ->
                         existingMembers.any { existing ->
-                            existing.lastName.lowercase() == newMember.lastName.lowercase() &&
-                                    existing.firstName.lowercase() == newMember.firstName.lowercase()
+                            existing.lastName.equals(newMember.lastName, ignoreCase = true) &&
+                                    existing.firstName.equals(newMember.firstName, ignoreCase = true)
                         }
                     }
 

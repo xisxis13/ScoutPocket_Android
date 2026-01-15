@@ -325,7 +325,7 @@ fun ExpressiveFABMenu(
             Icon(
                 imageVector = if (isExpanded) Lucide.X else Lucide.Plus,
                 contentDescription = if (isExpanded) "Fermer le menu" else "Ouvrir le menu",
-                modifier = Modifier
+                modifier = modifier
                     .size(24.dp)
                     .rotate(0f),
             )

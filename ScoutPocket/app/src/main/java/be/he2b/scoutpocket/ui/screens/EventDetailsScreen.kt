@@ -30,7 +30,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -41,6 +44,7 @@ import androidx.navigation.NavController
 import be.he2b.scoutpocket.R
 import be.he2b.scoutpocket.model.formattedDateLong
 import be.he2b.scoutpocket.model.formattedTimeRange
+import be.he2b.scoutpocket.ui.component.ConnectedButtonGroup
 import be.he2b.scoutpocket.ui.component.EmptyState
 import be.he2b.scoutpocket.ui.component.LoadingState
 import be.he2b.scoutpocket.ui.component.MemberCard
@@ -50,10 +54,8 @@ import com.composables.icons.lucide.ArrowLeft
 import com.composables.icons.lucide.Calendar
 import com.composables.icons.lucide.CircleAlert
 import com.composables.icons.lucide.Clock
-import com.composables.icons.lucide.Info
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.MapPin
-import com.composables.icons.lucide.Users
 import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -75,7 +77,8 @@ fun EventDetailsScreen(
     val totalMembersPresent = viewModel.totalMembersPresent.value
     val isLoading = viewModel.isLoading.value
     val errorMessage = viewModel.errorMessage.value
-    var showInfos = viewModel.showInfos.value
+
+    var selectedIndex by remember { mutableIntStateOf(0) }
 
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -119,15 +122,8 @@ fun EventDetailsScreen(
                         )
                     }
                 },
-                actions = {
-                    IconButton(onClick = { viewModel.switchEventDetailsView() }) {
-                        Icon(
-                            if (showInfos) Lucide.Users else Lucide.Info,
-                            contentDescription = "Basculer la vue",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                },
+                // TODO: Add a settings button (delete, update, ...)
+                actions = { },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface,
                     titleContentColor = MaterialTheme.colorScheme.onSurface
@@ -172,7 +168,7 @@ fun EventDetailsScreen(
             }
 
             else -> {
-                if (showInfos) {
+                if (selectedIndex == 0) {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -181,6 +177,18 @@ fun EventDetailsScreen(
                             .padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.Top)
                     ) {
+                        ConnectedButtonGroup(
+                            options = listOf(
+                                stringResource(R.string.event_details_infos_tab),
+                                stringResource(R.string.event_details_presences_tab),
+                            ),
+                            selectedIndex = selectedIndex,
+                            onIndexSelected = { selectedIndex = it },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
                         SectionPill(section = event.section)
 
                         Text(
@@ -309,7 +317,7 @@ fun EventDetailsScreen(
                         PresenceWidget(
                             totalMembers = membersConcerned.size,
                             presence = totalMembersPresent,
-                            onClick = { viewModel.switchEventDetailsView() },
+                            onClick = { selectedIndex = 1 },
                         )
                     }
                 } else {
@@ -322,6 +330,18 @@ fun EventDetailsScreen(
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         item {
+                            ConnectedButtonGroup(
+                                options = listOf(
+                                    "Informations",
+                                    "Présences",
+                                ),
+                                selectedIndex = selectedIndex,
+                                onIndexSelected = { selectedIndex = it },
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+
+                            Spacer(modifier = Modifier.height(24.dp))
+
                             PresenceWidget(
                                 totalMembers = membersConcerned.size,
                                 presence = totalMembersPresent,

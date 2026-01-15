@@ -2,7 +2,6 @@ package be.he2b.scoutpocket.viewmodel
 
 import android.content.Context
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -40,7 +39,6 @@ class EventViewModel (
         private set
     var errorMessage = mutableStateOf<String?>(null)
         private set
-    var showInfos = mutableStateOf(true)
 
     // New event
     var newEventName = mutableStateOf("")
@@ -235,10 +233,6 @@ class EventViewModel (
         newEventLocation.value = ""
         newEventNameError.value = null
         newEventLocationError.value = null
-    }
-
-    fun switchEventDetailsView() {
-        showInfos.value = !showInfos.value
     }
 
 }

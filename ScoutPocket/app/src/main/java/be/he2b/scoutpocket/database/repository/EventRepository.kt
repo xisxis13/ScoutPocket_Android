@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 
 class EventRepository(context: Context) {
 
-    private val db = ScoutPocketDatabase.Companion.getInstance(context)
+    private val db = ScoutPocketDatabase.getInstance(context)
     private val eventDao = db.eventDao()
 
     suspend fun addEvent(event: Event): Long = eventDao.insert(event)
