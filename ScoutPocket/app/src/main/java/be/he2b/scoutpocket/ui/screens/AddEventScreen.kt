@@ -15,6 +15,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -73,6 +74,7 @@ fun AddEventScreen(
     val eventLocation by viewModel.newEventLocation.collectAsState()
 
     val uiState by viewModel.uiState.collectAsState()
+    val isLoading = uiState.isLoading
     val isEventCreated = uiState.isEventCreated
     val eventNameErrorRes = uiState.nameError
     val eventLocationErrorRes = uiState.locationError
@@ -255,6 +257,7 @@ fun AddEventScreen(
                         .weight(1f)
                         .height(56.dp),
                     shape = MaterialTheme.shapes.large,
+                    enabled = !isLoading,
                 ) {
                     Text(
                         text = stringResource(R.string.cancel_button),
@@ -269,20 +272,30 @@ fun AddEventScreen(
                         .weight(1f)
                         .height(56.dp),
                     shape = MaterialTheme.shapes.large,
+                    enabled = !isLoading,
                 ) {
-                    Icon(
-                        Lucide.Check,
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp)
-                    )
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .size(24.dp),
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            strokeWidth = 2.dp,
+                        )
+                    } else {
+                        Icon(
+                            Lucide.Check,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp)
+                        )
 
-                    Spacer(Modifier.width(8.dp))
+                        Spacer(Modifier.width(8.dp))
 
-                    Text(
-                        stringResource(R.string.create_button),
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.SemiBold
-                    )
+                        Text(
+                            stringResource(R.string.create_button),
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
                 }
             }
 
