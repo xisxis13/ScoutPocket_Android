@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import be.he2b.scoutpocket.R
 import be.he2b.scoutpocket.database.entity.Event
 import be.he2b.scoutpocket.database.repository.EventRepository
+import be.he2b.scoutpocket.database.repository.RoomEventRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -67,7 +68,7 @@ class AgendaViewModel(
 class AgendaViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(AgendaViewModel::class.java)) {
-            val repository = EventRepository(context)
+            val repository = RoomEventRepository(context)
             @Suppress("UNCHECKED_CAST")
             return AgendaViewModel(repository) as T
         }

@@ -13,6 +13,9 @@ import be.he2b.scoutpocket.database.entity.Presence
 import be.he2b.scoutpocket.database.repository.EventRepository
 import be.he2b.scoutpocket.database.repository.MemberRepository
 import be.he2b.scoutpocket.database.repository.PresenceRepository
+import be.he2b.scoutpocket.database.repository.RoomEventRepository
+import be.he2b.scoutpocket.database.repository.RoomMemberRepository
+import be.he2b.scoutpocket.database.repository.RoomPresenceRepository
 import be.he2b.scoutpocket.model.PresenceStatus
 import be.he2b.scoutpocket.model.Section
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -318,9 +321,9 @@ class MemberViewModel(
 class MemberViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MemberViewModel::class.java)) {
-            val memberRepository = MemberRepository(context)
-            val eventRepository = EventRepository(context)
-            val presenceRepository = PresenceRepository(context)
+            val memberRepository = RoomMemberRepository(context)
+            val eventRepository = RoomEventRepository(context)
+            val presenceRepository = RoomPresenceRepository(context)
 
             @Suppress("UNCHECKED_CAST")
             return MemberViewModel(memberRepository, eventRepository, presenceRepository) as T

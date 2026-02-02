@@ -6,7 +6,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import be.he2b.scoutpocket.database.entity.Event
-import be.he2b.scoutpocket.database.repository.EventRepository
+import be.he2b.scoutpocket.database.repository.RoomEventRepository
 import be.he2b.scoutpocket.model.Section
 import be.he2b.scoutpocket.ui.screens.AgendaScreen
 import be.he2b.scoutpocket.viewmodel.AgendaViewModel
@@ -25,7 +25,7 @@ class AgendaScreenIntegrationTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    private lateinit var mockRepository: EventRepository
+    private lateinit var mockRepository: RoomEventRepository
     private lateinit var viewModel: AgendaViewModel
     private val context = ApplicationProvider.getApplicationContext<android.content.Context>()
 

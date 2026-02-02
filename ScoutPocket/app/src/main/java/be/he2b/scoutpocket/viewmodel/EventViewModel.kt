@@ -11,6 +11,9 @@ import be.he2b.scoutpocket.database.entity.Presence
 import be.he2b.scoutpocket.database.repository.EventRepository
 import be.he2b.scoutpocket.database.repository.MemberRepository
 import be.he2b.scoutpocket.database.repository.PresenceRepository
+import be.he2b.scoutpocket.database.repository.RoomEventRepository
+import be.he2b.scoutpocket.database.repository.RoomMemberRepository
+import be.he2b.scoutpocket.database.repository.RoomPresenceRepository
 import be.he2b.scoutpocket.model.PresenceStatus
 import be.he2b.scoutpocket.model.Section
 import be.he2b.scoutpocket.model.next
@@ -215,9 +218,9 @@ class EventViewModel (
 class EventViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(EventViewModel::class.java)) {
-            val eventRepository = EventRepository(context)
-            val memberRepository = MemberRepository(context)
-            val presenceRepository = PresenceRepository(context)
+            val eventRepository = RoomEventRepository(context)
+            val memberRepository = RoomMemberRepository(context)
+            val presenceRepository = RoomPresenceRepository(context)
             @Suppress("UNCHECKED_CAST")
             return EventViewModel(eventRepository, memberRepository, presenceRepository) as T
         }

@@ -3,7 +3,7 @@ package be.he2b.scoutpocket
 import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import be.he2b.scoutpocket.database.entity.Event
-import be.he2b.scoutpocket.database.repository.EventRepository
+import be.he2b.scoutpocket.database.repository.RoomEventRepository
 import be.he2b.scoutpocket.model.Section
 import be.he2b.scoutpocket.viewmodel.AgendaViewModel
 import io.mockk.*
@@ -29,7 +29,7 @@ class AgendaViewModelTest {
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
     private val testDispatcher = StandardTestDispatcher()
-    private lateinit var mockRepository: EventRepository
+    private lateinit var mockRepository: RoomEventRepository
     private lateinit var mockContext: Context
     private lateinit var viewModel: AgendaViewModel
 
