@@ -17,11 +17,16 @@ import be.he2b.scoutpocket.database.repository.RoomPresenceRepository
 import be.he2b.scoutpocket.model.PresenceStatus
 import be.he2b.scoutpocket.model.Section
 import be.he2b.scoutpocket.model.next
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -56,67 +61,45 @@ class EventViewModel (
     var newEventEndTime = MutableStateFlow(LocalTime.of(17, 30))
     var newEventLocation = MutableStateFlow("")
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun loadEvent(eventId: String) {
-        _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-
-        viewModelScope.launch {
-            try {
-                eventRepository.getEventById(eventId).collect { event ->
-                    _uiState.update { it.copy(event = event, isLoading = false) }
-                }
-            } catch (e: Exception) {
-                _uiState.update { it.copy(errorMessage = R.string.events_loading_error, isLoading = false) }
-            }
-        }
-    }
-
-    fun loadMembersConcerned() {
-        val currentEvent = _uiState.value.event ?: run {
-            _uiState.update { it.copy(errorMessage = R.string.event_missing_error) }
-            return
+        if (_uiState.value.event == null) {
+            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
         }
 
-        _uiState.update { it.copy(isLoading = true, errorMessage = null) }
         viewModelScope.launch {
-            try {
-                combine(
-                    presenceRepository.getPresencesByEvent(currentEvent.id),
-                    memberRepository.getAllMembers()
-                ) { presences, allMembers ->
-                    allMembers.filter { member ->
-                        presences.any { presence -> presence.memberId == member.id }
+            eventRepository.getEventById(eventId)
+                .filterNotNull()
+                .flatMapLatest { event ->
+                    val membersFlow = if (event.section == Section.UNITE) {
+                        memberRepository.getAllMembers()
+                    } else {
+                        memberRepository.getMembersBySection(event.section)
                     }
-                }.collect { concernedMembers ->
-                    _uiState.update { it.copy(membersConcerned = concernedMembers, isLoading = false) }
-                }
-            } catch (e: Exception) {
-                _uiState.update { it.copy(errorMessage = R.string.event_members_loading_error, isLoading = false) }
-            }
-        }
-    }
 
-    fun loadPresences() {
-        val currentEvent = _uiState.value.event ?: run {
-            _uiState.update { it.copy(errorMessage = R.string.event_missing_error) }
-            return
-        }
+                    val presencesFlow = presenceRepository.getPresencesByEvent(eventId)
 
-        _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-
-        viewModelScope.launch {
-            try {
-                presenceRepository.getPresencesByEvent(currentEvent.id).collect { loadedPresences ->
-                    _uiState.update {
-                        it.copy(
-                            presences = loadedPresences,
-                            totalMembersPresent = loadedPresences.count { p -> p.status == PresenceStatus.PRESENT },
-                            isLoading = false
+                    combine(membersFlow, presencesFlow) { members, presences ->
+                        EventUiState(
+                            event = event,
+                            membersConcerned = members,
+                            presences = presences,
+                            totalMembersPresent = presences.count { it.status == PresenceStatus.PRESENT },
+                            isLoading = false,
+                            errorMessage = null,
+                            isEventCreated = _uiState.value.isEventCreated,
+                            nameError = _uiState.value.nameError,
+                            locationError = _uiState.value.locationError
                         )
                     }
                 }
-            } catch (e: Exception) {
-                _uiState.update { it.copy(errorMessage = R.string.presences_loading_error, isLoading = false) }
-            }
+                .catch { e ->
+                    e.printStackTrace()
+                    _uiState.update { it.copy(errorMessage = R.string.events_loading_error, isLoading = false) }
+                }
+                .collectLatest { newState ->
+                    _uiState.value = newState
+                }
         }
     }
 
@@ -188,6 +171,13 @@ class EventViewModel (
                         status = currentPresence.status.next()
                     )
                     presenceRepository.updatePresence(updatedPresence)
+                } else {
+                    val newPresence = Presence(
+                        eventId = eventId,
+                        memberId = memberId,
+                        status = PresenceStatus.PRESENT
+                    )
+                    presenceRepository.addPresences(listOf(newPresence))
                 }
             } catch (e: Exception) {
                 _uiState.update { it.copy(errorMessage = R.string.presence_update_error) }

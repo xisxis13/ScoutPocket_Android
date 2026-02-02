@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -23,7 +23,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -31,7 +33,8 @@ import androidx.compose.ui.unit.dp
 import be.he2b.scoutpocket.R
 import be.he2b.scoutpocket.ui.component.EmptyState
 import be.he2b.scoutpocket.ui.component.LoadingState
-import be.he2b.scoutpocket.ui.component.MemberCard
+import be.he2b.scoutpocket.ui.component.SwipeableMemberRow
+import be.he2b.scoutpocket.ui.component.getSegmentedShape
 import be.he2b.scoutpocket.viewmodel.MemberViewModel
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.Users
@@ -61,6 +64,8 @@ fun MembersScreen(
     val snackbarHostState = remember { SnackbarHostState() }
 
     val errorMessage = errorMessageRes?.let { stringResource(it) }
+
+    var revealedMemberId by remember { mutableStateOf<String?>(null) }
 
     val importSuccessMessage = importSuccessMessageRes?.let {
         if (importArgs != null) {
@@ -149,28 +154,50 @@ fun MembersScreen(
                         .fillMaxSize()
                         .background(MaterialTheme.colorScheme.surface)
                         .padding(paddingValues),
-                    contentPadding = PaddingValues(top = 16.dp, bottom = 120.dp, start = 16.dp, end = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(top = 0.dp, bottom = 160.dp, start = 16.dp, end = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(2.dp),
                 ) {
                     membersBySection.forEach { (section, membersInSection) ->
                         item(key = "header_${section.name}") {
-                            Spacer(modifier = Modifier.height(12.dp))
+                            Spacer(modifier = Modifier.height(24.dp))
+
                             Text(
                                 text = section.label,
                                 style = MaterialTheme.typography.headlineSmall,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 fontWeight = FontWeight.Bold,
                             )
+
+                            Spacer(modifier = Modifier.height(12.dp))
                         }
 
-                        items(
+                        itemsIndexed(
                             items = membersInSection,
-                            key = { it.id }
-                        ) { member ->
-                            MemberCard(
-                                member = member,
-                                presence = null,
-                            )
+                            key = { _, member -> member.id }
+                        ) { index, member ->
+
+                            val itemShape = getSegmentedShape(index, membersInSection.size)
+
+                            Column {
+                                SwipeableMemberRow(
+                                    member = member,
+                                    shape = itemShape,
+                                    isRevealed = revealedMemberId == member.id,
+                                    onExpand = { revealedMemberId = member.id },
+                                    onCollapse = {
+                                        if (revealedMemberId == member.id) {
+                                            revealedMemberId = null
+                                        }
+                                    },
+                                    onEdit = { /* TODO: add edit action */ },
+                                    onShare = { /* TODO: add share action */ },
+                                    onFavorite = { /* TODO: add favorite action */ }
+                                )
+
+                                if (index < membersInSection.size - 1) {
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                }
+                            }
                         }
                     }
                 }

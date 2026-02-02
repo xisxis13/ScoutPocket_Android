@@ -22,7 +22,7 @@ interface MemberDao {
     suspend fun delete(member: Member)
 
     // TODO: Find a way to sort by section and for each section, members are sorted by lastName et firstName
-    @Query("SELECT * FROM members")
+    @Query("SELECT * FROM members ORDER BY section ASC, lastName ASC, firstName ASC")
     fun getAllMembers(): Flow<List<Member>>
 
     @Query("SELECT * FROM members WHERE section = :section ORDER BY lastName ASC, firstName ASC")

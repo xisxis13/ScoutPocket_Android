@@ -125,7 +125,13 @@ fun AgendaScreen(
                 )
             )
         },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier
+                    .padding(bottom = 150.dp)
+            )
+        }
     ) { paddingValues ->
         when {
             isLoading -> {

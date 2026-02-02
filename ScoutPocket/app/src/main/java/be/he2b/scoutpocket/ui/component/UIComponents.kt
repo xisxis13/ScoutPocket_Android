@@ -1,24 +1,32 @@
 package be.he2b.scoutpocket.ui.component
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
@@ -27,19 +35,27 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import be.he2b.scoutpocket.database.entity.Event
@@ -54,15 +70,46 @@ import be.he2b.scoutpocket.model.formattedTimeRange
 import be.he2b.scoutpocket.model.textColor
 import be.he2b.scoutpocket.ui.theme.ScoutPocketTheme
 import com.composables.icons.lucide.Calendar
+import com.composables.icons.lucide.Check
 import com.composables.icons.lucide.ChevronRight
-import com.composables.icons.lucide.CircleCheck
 import com.composables.icons.lucide.CircleHelp
-import com.composables.icons.lucide.CircleX
 import com.composables.icons.lucide.Clock
+import com.composables.icons.lucide.Ellipsis
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.MapPin
+import com.composables.icons.lucide.Pencil
 import com.composables.icons.lucide.Plus
+import com.composables.icons.lucide.Share
+import com.composables.icons.lucide.Star
 import com.composables.icons.lucide.X
+import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
+
+fun getSegmentedShape(index: Int, totalCount: Int): Shape {
+    val radius = 24.dp // Large radius pour les coins extérieurs
+    val smallRadius = 4.dp // Petit radius pour la séparation interne
+
+    return when {
+        // Cas unique : un seul élément dans la liste
+        totalCount == 1 -> RoundedCornerShape(radius)
+        // Premier élément
+        index == 0 -> RoundedCornerShape(
+            topStart = radius,
+            topEnd = radius,
+            bottomStart = smallRadius,
+            bottomEnd = smallRadius
+        )
+        // Dernier élément
+        index == totalCount - 1 -> RoundedCornerShape(
+            topStart = smallRadius,
+            topEnd = smallRadius,
+            bottomStart = radius,
+            bottomEnd = radius
+        )
+        // Éléments du milieu
+        else -> RoundedCornerShape(smallRadius)
+    }
+}
 
 @Composable
 fun SectionPill(
@@ -133,6 +180,186 @@ fun ConnectedButtonGroup(
 }
 
 @Composable
+fun MemberRowContent(
+    member: Member,
+    trailingContent: @Composable () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 10.dp, bottom = 10.dp, start = 16.dp, end = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Box(
+            modifier = Modifier
+                .size(48.dp)
+                .clip(CircleShape)
+                .background(member.section.backgroundColor()),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "${member.firstName.take(1)}${member.lastName.take(1)}",
+                style = MaterialTheme.typography.titleMedium,
+                color = member.section.textColor(),
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+
+        Text(
+            text = "${member.firstName} ${member.lastName.uppercase()}",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(1f),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+
+        trailingContent()
+    }
+}
+
+@Composable
+fun SwipeableMemberRow(
+    member: Member,
+    shape: Shape,
+    isRevealed: Boolean,
+    onExpand: () -> Unit,
+    onCollapse: () -> Unit,
+    onEdit: () -> Unit,
+    onShare: () -> Unit,
+    onFavorite: () -> Unit
+) {
+    val density = LocalDensity.current
+    // TODO: change to 156px ?
+    val actionWidth = 168.dp
+    val actionWidthPx = with(density) { actionWidth.toPx() }
+
+    val offsetX = remember { Animatable(0f) }
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(isRevealed) {
+        if (isRevealed) {
+            if (offsetX.value != -actionWidthPx) {
+                offsetX.animateTo(-actionWidthPx, tween(300))
+            }
+        } else {
+            if (offsetX.value != 0f) {
+                offsetX.animateTo(0f, tween(300))
+            }
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth(),
+    ) {
+        // Actions
+        Row(
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .fillMaxHeight(),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            ActionIcon(
+                icon = Lucide.Star,
+                color = MaterialTheme.colorScheme.secondaryContainer,
+                iconColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                onClick = onFavorite
+            )
+            ActionIcon(
+                icon = Lucide.Share,
+                color = MaterialTheme.colorScheme.secondaryContainer,
+                iconColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                onClick = onShare
+            )
+            ActionIcon(
+                icon = Lucide.Pencil,
+                color = MaterialTheme.colorScheme.primary,
+                iconColor = MaterialTheme.colorScheme.onPrimary,
+                onClick = onEdit
+            )
+        }
+
+        // Member card
+        Surface(
+            modifier = Modifier
+                .offset { IntOffset(offsetX.value.roundToInt(), 0) }
+                .fillMaxSize()
+                .draggable(
+                    orientation = Orientation.Horizontal,
+                    state = rememberDraggableState { delta ->
+                        scope.launch {
+                            val newOffset = (offsetX.value + delta).coerceIn(-actionWidthPx, 0f)
+                            offsetX.snapTo(newOffset)
+                        }
+                    },
+                    onDragStopped = { velocity ->
+                        val threshold = -actionWidthPx * 0.4f
+
+                        val shouldOpen = offsetX.value < threshold || (velocity < -500f && offsetX.value < 0f)
+
+                        scope.launch {
+                            if (shouldOpen) {
+                                offsetX.animateTo(-actionWidthPx, tween(300))
+                                onExpand()
+                            } else {
+                                offsetX.animateTo(0f, tween(300))
+                                onCollapse()
+                            }
+                        }
+                    }
+                ),
+            shape = shape,
+            color = MaterialTheme.colorScheme.surfaceContainer,
+            shadowElevation = 0.dp
+        ) {
+            MemberRowContent(member = member) {
+                IconButton(
+                    onClick = { if (isRevealed) onCollapse() else onExpand() }
+                ) {
+                    Icon(
+                        imageVector = Lucide.Ellipsis,
+                        contentDescription = "Actions",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ActionIcon(
+    icon: ImageVector,
+    color: Color,
+    iconColor: Color,
+    onClick: () -> Unit
+) {
+    Surface(
+        onClick = onClick,
+        shape = CircleShape,
+        color = color,
+        modifier = Modifier
+            .height(60.dp)
+            .width(52.dp),
+    ) {
+        Box(
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = iconColor,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+    }
+}
+
+@Composable
 fun MemberCard(
     modifier: Modifier = Modifier,
     member: Member,
@@ -141,40 +368,12 @@ fun MemberCard(
 ) {
     Surface(
         modifier = modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .height(72.dp),
         color = MaterialTheme.colorScheme.surfaceContainer,
         shape = MaterialTheme.shapes.large,
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(CircleShape)
-                    .background(member.section.backgroundColor()),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "${member.firstName.firstOrNull()?.uppercase() ?: ""}${member.lastName.firstOrNull()?.uppercase() ?: ""}",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = member.section.textColor(),
-                    fontWeight = FontWeight.Bold
-                )
-            }
-
-            Text(
-                modifier = Modifier.weight(1f),
-                text = "${member.firstName} ${member.lastName.uppercase()}",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.SemiBold
-            )
-
+        MemberRowContent(member = member) {
             if (presence != null && onPresenceClick != null) {
                 PresenceButton(
                     status = presence.status,
@@ -191,15 +390,22 @@ fun PresenceButton(
     status: PresenceStatus,
     onClick: () -> Unit,
 ) {
+    val presenceBackgroundColor = status.backgroundColor()
+
     Box(
         modifier = modifier
-            .size(44.dp)
-            .clickable(onClick = onClick),
+            .fillMaxHeight()
+            .width(64.dp)
+            .clickable(onClick = onClick)
+            .background(
+                color = presenceBackgroundColor,
+                shape = MaterialTheme.shapes.medium,
+            ),
         contentAlignment = Alignment.Center,
     ) {
         val presenceIcon = when (status) {
-            PresenceStatus.PRESENT -> Lucide.CircleCheck
-            PresenceStatus.ABSENT -> Lucide.CircleX
+            PresenceStatus.PRESENT -> Lucide.Check
+            PresenceStatus.ABSENT -> Lucide.X
             else -> Lucide.CircleHelp
         }
 

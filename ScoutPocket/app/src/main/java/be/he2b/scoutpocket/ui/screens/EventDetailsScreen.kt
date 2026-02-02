@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -43,6 +43,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import be.he2b.scoutpocket.R
+import be.he2b.scoutpocket.database.entity.Presence
+import be.he2b.scoutpocket.model.PresenceStatus
 import be.he2b.scoutpocket.model.formattedDateLong
 import be.he2b.scoutpocket.model.formattedTimeRange
 import be.he2b.scoutpocket.ui.component.ConnectedButtonGroup
@@ -50,6 +52,7 @@ import be.he2b.scoutpocket.ui.component.EmptyState
 import be.he2b.scoutpocket.ui.component.LoadingState
 import be.he2b.scoutpocket.ui.component.MemberCard
 import be.he2b.scoutpocket.ui.component.SectionPill
+import be.he2b.scoutpocket.ui.component.getSegmentedShape
 import be.he2b.scoutpocket.viewmodel.EventViewModel
 import com.composables.icons.lucide.ArrowLeft
 import com.composables.icons.lucide.Calendar
@@ -89,13 +92,6 @@ fun EventDetailsScreen(
 
     var selectedIndex by remember { mutableIntStateOf(0) }
     val snackbarHostState = remember { SnackbarHostState() }
-
-    LaunchedEffect(event) {
-        if (event != null) {
-            viewModel.loadMembersConcerned()
-            viewModel.loadPresences()
-        }
-    }
 
     val errorMessage = errorMessageRes?.let { stringResource(it) }
 
@@ -331,13 +327,17 @@ fun EventDetailsScreen(
                         )
                     }
                 } else {
+                    val presencesMap = remember(presences) {
+                        presences.associateBy { it.memberId }
+                    }
+
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxSize()
                             .background(MaterialTheme.colorScheme.surface)
                             .padding(paddingValues),
-                        contentPadding = PaddingValues(top = 16.dp, bottom = 120.dp, start = 16.dp, end = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        contentPadding = PaddingValues(top = 16.dp, bottom = 160.dp, start = 16.dp, end = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(2.dp),
                     ) {
                         item {
                             ConnectedButtonGroup(
@@ -361,30 +361,52 @@ fun EventDetailsScreen(
 
                         membersBySection.forEach { (section, membersInSection) ->
                             item(key = "header_${section.name}") {
-                                Spacer(modifier = Modifier.height(12.dp))
+                                Spacer(modifier = Modifier.height(24.dp))
+
                                 Text(
                                     text = section.label,
                                     style = MaterialTheme.typography.headlineSmall,
                                     color = MaterialTheme.colorScheme.onSurface,
                                     fontWeight = FontWeight.Bold,
                                 )
+
+                                Spacer(modifier = Modifier.height(12.dp))
                             }
 
-                            items(
+                            itemsIndexed(
                                 items = membersInSection,
-                                key = { it.id }
-                            ) { member ->
-                                val presence = presences.find { it.memberId == member.id }
+                                key = { _, member -> member.id }
+                            ) { index, member ->
 
-                                MemberCard(
-                                    member = member,
-                                    presence = presence,
-                                    onPresenceClick = if (presence != null && event.date >= LocalDate.now()) {
-                                        { viewModel.updatePresenceStatus(presence.eventId, presence.memberId) }
-                                    } else if (presence != null) {
-                                        { }
-                                    } else null,
-                                )
+                                val presence = presencesMap[member.id]
+                                val itemShape = getSegmentedShape(index, membersInSection.size)
+                                val currentStatus = presence?.status ?: PresenceStatus.DEFAULT
+
+                                Column {
+                                    Surface(
+                                        modifier = Modifier
+                                            .fillMaxSize(),
+                                        shape = itemShape,
+                                        color = MaterialTheme.colorScheme.surfaceContainer,
+                                        shadowElevation = 0.dp
+                                    ) {
+                                        val displayPresence = presence ?: Presence(
+                                            eventId = eventId,
+                                            memberId = member.id,
+                                            status = PresenceStatus.DEFAULT,
+                                        )
+
+                                        MemberCard(
+                                            member = member,
+                                            presence = displayPresence,
+                                            onPresenceClick = if (event.date >= LocalDate.now()) {
+                                                { viewModel.updatePresenceStatus(eventId, member.id) }
+                                            } else {
+                                                if (currentStatus != PresenceStatus.DEFAULT) { {} } else null
+                                            },
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
