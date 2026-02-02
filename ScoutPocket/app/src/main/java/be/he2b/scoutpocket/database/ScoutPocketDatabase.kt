@@ -122,7 +122,7 @@ abstract class ScoutPocketDatabase : RoomDatabase() {
             )
 
             sampleEvents.forEach { event ->
-                val eventId = eventDao.insert(event)
+                eventDao.insert(event)
 
                 val membersForEvent = if (event.section != Section.UNITE) {
                     memberDao.getMembersBySection(event.section).first()
@@ -132,7 +132,7 @@ abstract class ScoutPocketDatabase : RoomDatabase() {
 
                 val presencesToInsert = membersForEvent.map { member ->
                     Presence(
-                        eventId = eventId.toInt(),
+                        eventId = event.id,
                         memberId = member.id,
                         status = PresenceStatus.DEFAULT,
                     )

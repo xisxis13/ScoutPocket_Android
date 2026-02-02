@@ -11,8 +11,24 @@ class MemberRepository(context: Context) {
     private val db = ScoutPocketDatabase.getInstance(context)
     private val memberDao = db.memberDao()
 
-    suspend fun addMember(member: Member): Long = memberDao.insert(member)
+    suspend fun addMember(member: Member) {
+        memberDao.insert(member)
+    }
+
+    suspend fun updateMember(member: Member) {
+        memberDao.update(member)
+    }
+
+    suspend fun deleteMember(member: Member) {
+        memberDao.delete(member)
+    }
+
     fun getAllMembers(): Flow<List<Member>> = memberDao.getAllMembers()
+
+    fun getMemberById(memberId: String): Flow<Member?> {
+        return memberDao.getMemberById(memberId)
+    }
+
     fun getMembersBySection(section: Section): Flow<List<Member>> = memberDao.getMembersBySection(section)
 
 }

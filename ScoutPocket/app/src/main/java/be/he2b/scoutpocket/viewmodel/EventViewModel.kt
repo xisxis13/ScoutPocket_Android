@@ -17,6 +17,7 @@ import be.he2b.scoutpocket.model.next
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -52,13 +53,14 @@ class EventViewModel (
     var newEventEndTime = MutableStateFlow(LocalTime.of(17, 30))
     var newEventLocation = MutableStateFlow("")
 
-    fun loadEvent(eventId: Int) {
+    fun loadEvent(eventId: String) {
         _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
         viewModelScope.launch {
             try {
-                val event = eventRepository.getEventById(eventId = eventId)
-                _uiState.update { it.copy(event = event, isLoading = false) }
+                eventRepository.getEventById(eventId).collect { event ->
+                    _uiState.update { it.copy(event = event, isLoading = false) }
+                }
             } catch (e: Exception) {
                 _uiState.update { it.copy(errorMessage = R.string.events_loading_error, isLoading = false) }
             }
@@ -72,16 +74,18 @@ class EventViewModel (
         }
 
         _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-
         viewModelScope.launch {
             try {
-                val eventPresences = presenceRepository.getPresencesByEvent(currentEvent.id)
-                val allMembers = memberRepository.getAllMembers().first()
-                val concerned = allMembers.filter { member ->
-                    eventPresences.any { presence -> presence.memberId == member.id }
+                combine(
+                    presenceRepository.getPresencesByEvent(currentEvent.id),
+                    memberRepository.getAllMembers()
+                ) { presences, allMembers ->
+                    allMembers.filter { member ->
+                        presences.any { presence -> presence.memberId == member.id }
+                    }
+                }.collect { concernedMembers ->
+                    _uiState.update { it.copy(membersConcerned = concernedMembers, isLoading = false) }
                 }
-
-                _uiState.update { it.copy(membersConcerned = concerned, isLoading = false) }
             } catch (e: Exception) {
                 _uiState.update { it.copy(errorMessage = R.string.event_members_loading_error, isLoading = false) }
             }
@@ -98,13 +102,14 @@ class EventViewModel (
 
         viewModelScope.launch {
             try {
-                val loadedPresences = presenceRepository.getPresencesByEvent(currentEvent.id)
-                _uiState.update {
-                    it.copy(
-                        presences = loadedPresences,
-                        totalMembersPresent = loadedPresences.count { presence -> presence.status == PresenceStatus.PRESENT },
-                        isLoading = false
-                    )
+                presenceRepository.getPresencesByEvent(currentEvent.id).collect { loadedPresences ->
+                    _uiState.update {
+                        it.copy(
+                            presences = loadedPresences,
+                            totalMembersPresent = loadedPresences.count { p -> p.status == PresenceStatus.PRESENT },
+                            isLoading = false
+                        )
+                    }
                 }
             } catch (e: Exception) {
                 _uiState.update { it.copy(errorMessage = R.string.presences_loading_error, isLoading = false) }
@@ -144,7 +149,7 @@ class EventViewModel (
                     location = newEventLocation.value.trim()
                 )
 
-                val newEventId = eventRepository.addEvent(newEvent)
+                eventRepository.addEvent(newEvent)
 
                 val membersForNewEvent = if (newEvent.section != Section.UNITE) {
                     memberRepository.getMembersBySection(newEvent.section).first()
@@ -154,7 +159,7 @@ class EventViewModel (
 
                 val presencesToInsert = membersForNewEvent.map { member ->
                     Presence(
-                        eventId = newEventId.toInt(),
+                        eventId = newEvent.id,
                         memberId = member.id,
                         status = PresenceStatus.DEFAULT,
                     )
@@ -168,7 +173,7 @@ class EventViewModel (
         }
     }
 
-    fun updatePresenceStatus(eventId: Int, memberId: Int) {
+    fun updatePresenceStatus(eventId: String, memberId: String) {
         viewModelScope.launch {
             try {
                 val currentPresence = _uiState.value.presences.find {
@@ -180,7 +185,6 @@ class EventViewModel (
                         status = currentPresence.status.next()
                     )
                     presenceRepository.updatePresence(updatedPresence)
-                    loadPresences()
                 }
             } catch (e: Exception) {
                 _uiState.update { it.copy(errorMessage = R.string.presence_update_error) }

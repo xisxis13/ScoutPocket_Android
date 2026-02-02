@@ -185,29 +185,6 @@ fun MemberCard(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun MemberCardPreview() {
-    val sampleMember = Member(
-        lastName = "Dupont",
-        firstName = "Lucas",
-        section = Section.BALADINS
-    )
-
-    ScoutPocketTheme {
-        Box(modifier = Modifier.padding(16.dp)) {
-            MemberCard(
-                member = sampleMember,
-                presence = Presence(
-                    eventId = 0,
-                    memberId = 0,
-                    status = PresenceStatus.DEFAULT,
-                )
-            )
-        }
-    }
-}
-
 @Composable
 fun PresenceButton(
     modifier: Modifier = Modifier,

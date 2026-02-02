@@ -45,7 +45,13 @@ fun MembersScreen(
     val uiState by viewModel.uiState.collectAsState()
 
     val members = uiState.members
-    val membersBySection = members.groupBy { it.section }
+    val membersBySection = remember(members) {
+        members.groupBy { it.section }
+            .mapValues { (_, list) ->
+                list.sortedWith(compareBy({ it.lastName }, { it.firstName }))
+            }
+            .toSortedMap()
+    }
 
     val isLoading = uiState.isLoading
     val errorMessageRes = uiState.errorMessage

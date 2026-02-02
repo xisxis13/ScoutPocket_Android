@@ -65,7 +65,7 @@ fun EventDetailsScreen(
     modifier: Modifier = Modifier,
     navController: NavController,
     viewModel: EventViewModel,
-    eventId: Int,
+    eventId: String,
 ) {
     LaunchedEffect(eventId) {
         viewModel.loadEvent(eventId)
@@ -76,7 +76,13 @@ fun EventDetailsScreen(
     val event = uiState.event
     val presences = uiState.presences
     val membersConcerned = uiState.membersConcerned
-    val membersBySection = membersConcerned.groupBy { it.section }
+    val membersBySection = remember(membersConcerned) {
+        membersConcerned.groupBy { it.section }
+            .mapValues { (_, list) ->
+                list.sortedWith(compareBy({ it.lastName }, { it.firstName }))
+            }
+            .toSortedMap()
+    }
     val totalMembersPresent = uiState.totalMembersPresent
     val isLoading = uiState.isLoading
     val errorMessageRes = uiState.errorMessage

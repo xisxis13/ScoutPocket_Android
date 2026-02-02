@@ -3,16 +3,18 @@ package be.he2b.scoutpocket.database.dao
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import be.he2b.scoutpocket.database.entity.Presence
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PresenceDao {
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(presence: Presence)
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(presences: List<Presence>)
 
     @Update
@@ -25,5 +27,5 @@ interface PresenceDao {
     suspend fun getAllPresences(): List<Presence>
 
     @Query("SELECT * FROM presences WHERE eventId = :eventId")
-    suspend fun getPresencesByEvent(eventId: Int): List<Presence>
+    fun getPresencesByEvent(eventId: String): Flow<List<Presence>>
 }

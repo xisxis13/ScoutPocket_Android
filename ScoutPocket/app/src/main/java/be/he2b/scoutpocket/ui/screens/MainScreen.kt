@@ -197,15 +197,11 @@ fun MainScreen(
                     route = AppScreen.EventDetails.route,
                     arguments = listOf(
                         navArgument("eventId") {
-                            type = NavType.IntType
+                            type = NavType.StringType
                         }
                     )
                 ) { backStackEntry ->
-                    val eventId = backStackEntry.arguments?.getInt("eventId")
-
-                    val eventViewModel: EventViewModel = viewModel(
-                        factory = EventViewModelFactory(LocalContext.current.applicationContext)
-                    )
+                    val eventId = backStackEntry.arguments?.getString("eventId")
 
                     if (eventId != null) {
                         EventDetailsScreen(

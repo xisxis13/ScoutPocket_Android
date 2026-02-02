@@ -21,7 +21,7 @@ enum class AppScreen(val route: String) {
 
     companion object {
         fun addMemberRoute(mode: String = "manual") = "add_member?mode=$mode"
-        fun eventDetailsRoute(eventId: Int) = "eventDetails/$eventId"
+        fun eventDetailsRoute(eventId: String) = "eventDetails/$eventId"
     }
 }
 

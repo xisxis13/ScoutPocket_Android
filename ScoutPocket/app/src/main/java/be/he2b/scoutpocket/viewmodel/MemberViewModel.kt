@@ -96,7 +96,7 @@ class MemberViewModel(
                     section = newMemberSection.value,
                 )
 
-                val newMemberId = memberRepository.addMember(newMember)
+                memberRepository.addMember(newMember)
 
                 val allEvents = eventRepository.getAllEvents().first()
                 val relevantEvents = allEvents.filter { event ->
@@ -106,7 +106,7 @@ class MemberViewModel(
                 val presencesToInsert = relevantEvents.map { event ->
                     Presence(
                         eventId = event.id,
-                        memberId = newMemberId.toInt(),
+                        memberId = newMember.id,
                         status = PresenceStatus.DEFAULT,
                     )
                 }
@@ -170,7 +170,7 @@ class MemberViewModel(
                     }
 
                     newMembers.forEach { member ->
-                        val memberId = memberRepository.addMember(member)
+                        memberRepository.addMember(member)
                         val allEvents = eventRepository.getAllEvents().first()
                         val relevantEvents = allEvents.filter { event ->
                             event.section == member.section || event.section == Section.UNITE
@@ -179,7 +179,7 @@ class MemberViewModel(
                         val presencesToInsert = relevantEvents.map { event ->
                             Presence(
                                 eventId = event.id,
-                                memberId = memberId.toInt(),
+                                memberId = member.id,
                                 status = PresenceStatus.DEFAULT,
                             )
                         }
