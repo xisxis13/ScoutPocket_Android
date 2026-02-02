@@ -30,6 +30,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -67,21 +68,32 @@ fun AddMemberScreen(
     onImportCSV: () -> Unit,
 ) {
     var selectedIndex by remember { mutableIntStateOf(if(initialMode.lowercase() == "manual") 0 else 1) }
-    val memberIsCreated by viewModel.newMemberIsCreated
 
-    val errorMessage by viewModel.errorMessage
-    val importSuccessMessage by viewModel.importSuccessMessage
+    val uiState by viewModel.uiState.collectAsState()
+    val isMemberCreated = uiState.isMemberCreated
+    val errorMessageRes = uiState.errorMessage
+    val importSuccessMessageRes = uiState.importSuccessMessage
+    val importArgs = uiState.importSuccessArgs
 
     val snackbarHostState = remember { SnackbarHostState() }
 
-    LaunchedEffect(memberIsCreated) {
-        if (memberIsCreated) {
+    val errorMessage = errorMessageRes?.let { stringResource(it) }
+    val importSuccessMessage = importSuccessMessageRes?.let {
+        if (importArgs != null) {
+            stringResource(it, importArgs.first, importArgs.second)
+        } else {
+            stringResource(it)
+        }
+    }
+
+    LaunchedEffect(isMemberCreated) {
+        if (isMemberCreated) {
             navController.navigate(AppScreen.Members.route)
             viewModel.resetMemberCreationState()
         }
     }
 
-    LaunchedEffect(importSuccessMessage) {
+    LaunchedEffect(importSuccessMessageRes) {
         importSuccessMessage?.let {
             navController.navigate(AppScreen.Members.route)
             snackbarHostState.showSnackbar(
@@ -91,13 +103,12 @@ fun AddMemberScreen(
         }
     }
 
-    LaunchedEffect(errorMessage) {
+    LaunchedEffect(errorMessageRes) {
         errorMessage?.let {
             snackbarHostState.showSnackbar(
                 message = it,
                 duration = SnackbarDuration.Long
             )
-
             viewModel.clearError()
         }
     }
@@ -169,11 +180,13 @@ private fun ManualMemberForm(
     navController: NavController,
     viewModel: MemberViewModel,
 ) {
-    val memberLastName by viewModel.newMemberLastName
-    val memberFirstName by viewModel.newMemberFirstName
-    val memberSection by viewModel.newMemberSection
-    val memberLastNameError by viewModel.newMemberLastNameError
-    val memberFirstNameError by viewModel.newMemberFirstNameError
+    val memberLastName by viewModel.newMemberLastName.collectAsState()
+    val memberFirstName by viewModel.newMemberFirstName.collectAsState()
+    val memberSection by viewModel.newMemberSection.collectAsState()
+
+    val uiState by viewModel.uiState.collectAsState()
+    val memberLastNameError = uiState.lastNameError?.let { stringResource(it) }
+    val memberFirstNameError = uiState.firstNameError?.let { stringResource(it) }
 
     val focusManager = LocalFocusManager.current
 

@@ -1,7 +1,6 @@
 package be.he2b.scoutpocket.viewmodel
 
 import android.content.Context
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -9,31 +8,31 @@ import be.he2b.scoutpocket.R
 import be.he2b.scoutpocket.network.AuthBody
 import be.he2b.scoutpocket.network.AuthManager
 import be.he2b.scoutpocket.network.AuthService
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+data class LoginUiState(
+    val isEmailValid: Boolean = true,
+    val isPasswordValid: Boolean = true,
+    val isAuthenticated: Boolean = false,
+    val errorMessage: Int? = null,
+    val isLoading: Boolean = false
+)
+
 class LoginViewModel(
-    private val authManager: AuthManager,
-    private val context: Context,
+    private val authManager: AuthManager
 ) : ViewModel() {
 
-    val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$".toRegex()
+    private val _uiState = MutableStateFlow(LoginUiState())
+    val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
 
-    var email = mutableStateOf("")
-        private set
-    var password = mutableStateOf("")
-        private set
+    val email = MutableStateFlow("")
+    val password = MutableStateFlow("")
 
-    var isEmailValid = mutableStateOf(true)
-        private set
-    var isPasswordValid = mutableStateOf(true)
-        private set
-
-    var isAuthenticated = mutableStateOf(false)
-        private set
-    var errorMessage = mutableStateOf<String?>(null)
-        private set
-    var isLoading = mutableStateOf(false)
-        private set
+    private val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$".toRegex()
 
     init {
         checkAuthentificationStatus()
@@ -43,89 +42,56 @@ class LoginViewModel(
         if (authManager.isAuthenticated()) {
             authManager.getUserEmail()?.let { savedEmail ->
                 email.value = savedEmail
-                isAuthenticated.value = true
+                _uiState.update { it.copy(isAuthenticated = true) }
             }
         }
     }
 
     fun updateEmail(newEmail: String) {
         email.value = newEmail
-
-        if (!isEmailValid.value) {
-            isEmailValid.value = true
-            errorMessage.value = null
+        if (!_uiState.value.isEmailValid) {
+            _uiState.update { it.copy(isEmailValid = true, errorMessage = null) }
         }
     }
 
     fun updatePassword(newPassword: String) {
         password.value = newPassword
-
-        if (!isPasswordValid.value) {
-            isPasswordValid.value = true
-            errorMessage.value = null
-        }
-    }
-
-    private fun validateEmail(): Boolean {
-        val emailValue = email.value.trim()
-
-        return when {
-            emailValue.isEmpty() -> {
-                isEmailValid.value = false
-                errorMessage.value = context.getString(R.string.email_empty_error)
-                false
-            }
-            !emailRegex.matches(emailValue) -> {
-                isEmailValid.value = false
-                errorMessage.value = context.getString(R.string.email_invalid_error)
-                false
-            }
-            else -> {
-                isEmailValid.value = true
-                true
-            }
-        }
-    }
-
-    private fun validatePassword(): Boolean {
-        val passwordValue = password.value.trim()
-
-        return when {
-            passwordValue.isEmpty() -> {
-                isPasswordValid.value = false
-                errorMessage.value = context.getString(R.string.password_empty_error)
-                false
-            }
-            else -> {
-                isPasswordValid.value = true
-                true
-            }
+        if (!_uiState.value.isPasswordValid) {
+            _uiState.update { it.copy(isPasswordValid = true, errorMessage = null) }
         }
     }
 
     private fun validateForm(): Boolean {
-        val isEmailOk = validateEmail()
-        val isPasswordOk = validatePassword()
-        return isEmailOk && isPasswordOk
+        var isValid = true
+        val emailValue = email.value.trim()
+        val passwordValue = password.value.trim()
+
+        if (emailValue.isEmpty()) {
+            _uiState.update { it.copy(isEmailValid = false, errorMessage = R.string.email_empty_error) }
+            isValid = false
+        } else if (!emailRegex.matches(emailValue)) {
+            _uiState.update { it.copy(isEmailValid = false, errorMessage = R.string.email_invalid_error) }
+            isValid = false
+        }
+
+        if (isValid && passwordValue.isEmpty()) {
+            _uiState.update { it.copy(isPasswordValid = false, errorMessage = R.string.password_empty_error) }
+            isValid = false
+        }
+
+        return isValid
     }
 
     fun authenticate() {
-        errorMessage.value = null
-        isAuthenticated.value = false
+        _uiState.update { it.copy(errorMessage = null, isAuthenticated = false) }
 
-        if (!validateForm()) {
-            return
-        }
+        if (!validateForm()) return
 
-        isLoading.value = true
+        _uiState.update { it.copy(isLoading = true) }
 
         viewModelScope.launch {
             try {
-                val authBody = AuthBody(
-                    email = email.value.trim(),
-                    password = password.value.trim(),
-                )
-
+                val authBody = AuthBody(email.value.trim(), password.value.trim())
                 val response = AuthService.authClient.postAuth(authBody)
 
                 if (response.isSuccessful) {
@@ -136,38 +102,27 @@ class LoginViewModel(
                             expiresAt = authResponse.expiresAt,
                             email = email.value.trim(),
                         )
-                        isAuthenticated.value = true
                         password.value = ""
+                        _uiState.update { it.copy(isAuthenticated = true, isLoading = false) }
                     } ?: run {
-                        errorMessage.value = context.getString(R.string.login_network_error)
+                        _uiState.update { it.copy(errorMessage = R.string.login_network_error, isLoading = false) }
                     }
                 } else {
-                    errorMessage.value = context.getString(
-                        R.string.login_invalid_credentials
-                    )
+                    _uiState.update { it.copy(errorMessage = R.string.login_invalid_credentials, isLoading = false) }
                 }
             } catch (e: Exception) {
-                errorMessage.value = context.getString(R.string.login_network_error)
-            } finally {
-                isLoading.value = false
+                e.printStackTrace()
+                _uiState.update { it.copy(errorMessage = R.string.login_network_error, isLoading = false) }
             }
         }
     }
 
     fun logout() {
         authManager.clearAuth()
-        isAuthenticated.value = false
         email.value = ""
         password.value = ""
-        errorMessage.value = null
-        isEmailValid.value = true
-        isPasswordValid.value = true
+        _uiState.update { LoginUiState() }
     }
-
-    fun clearError() {
-        errorMessage.value = null
-    }
-
 }
 
 class LoginViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
@@ -175,12 +130,9 @@ class LoginViewModelFactory(private val context: Context) : ViewModelProvider.Fa
         if (modelClass.isAssignableFrom(LoginViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
             return LoginViewModel(
-                authManager = AuthManager(context),
-                context = context,
+                authManager = AuthManager(context)
             ) as T
         }
-        throw IllegalArgumentException(
-            context.getString(R.string.unknown_viewmodel_class, modelClass.name)
-        )
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

@@ -23,6 +23,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -59,19 +60,23 @@ fun AgendaScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    val upcomingEvents = agendaViewModel.upcomingEvents.value
-    val pastEvents = agendaViewModel.pastEvents.value
-    val allEvents = agendaViewModel.allEvents.value
+    val uiState by agendaViewModel.uiState.collectAsState()
 
-    val isLoading = agendaViewModel.isLoading.value
-    val errorMessage = agendaViewModel.errorMessage.value
+    val upcomingEvents = uiState.upcomingEvents
+    val pastEvents = uiState.pastEvents
+    val allEvents = uiState.allEvents
+
+    val isLoading = uiState.isLoading
+    val errorMessageRes = uiState.errorMessage
 
     var selectedIndex by remember { mutableIntStateOf(0) }
 
     val retryLabel = stringResource(R.string.error_retry)
 
-    LaunchedEffect(errorMessage) {
-        errorMessage?.let { message ->
+    val errorMessageString = errorMessageRes?.let { stringResource(it) }
+
+    LaunchedEffect(errorMessageRes) {
+        errorMessageString?.let { message ->
             scope.launch {
                 val result = snackbarHostState.showSnackbar(
                     message = message,

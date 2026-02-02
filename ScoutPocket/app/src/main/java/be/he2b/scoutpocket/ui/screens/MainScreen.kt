@@ -75,6 +75,8 @@ fun MainScreen(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
+    val context = LocalContext.current
+
     val agendaViewModel: AgendaViewModel = viewModel(
         factory = AgendaViewModelFactory(LocalContext.current.applicationContext)
     )
@@ -93,7 +95,7 @@ fun MainScreen(
     ) { result ->
         if (result.resultCode == android.app.Activity.RESULT_OK) {
             result.data?.data?.let { uri ->
-                memberViewModel.importMembers(uri)
+                memberViewModel.importMembers(uri, context.contentResolver)
             }
         }
     }
@@ -324,17 +326,17 @@ fun NavigationBar(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .dropShadow(
-                shape = CircleShape,
-                shadow = Shadow(
-                    radius = 15.dp,
-                    spread = 0.dp,
-                    color = Color(0xFF000000).copy(alpha = 0.10f),
-                    offset = DpOffset(x = 0.dp, y = 2.dp)
-                )
-            )
+//            .dropShadow(
+//                shape = CircleShape,
+//                shadow = Shadow(
+//                    radius = 15.dp,
+//                    spread = 0.dp,
+//                    color = Color(0xFF000000).copy(alpha = 0.10f),
+//                    offset = DpOffset(x = 0.dp, y = 2.dp)
+//                )
+//            )
             .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .background(MaterialTheme.colorScheme.surface)
             .border(
                 width = 1.dp,
                 color = MaterialTheme.colorScheme.primaryContainer,

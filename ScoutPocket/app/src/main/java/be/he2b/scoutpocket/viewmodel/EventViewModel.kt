@@ -1,7 +1,6 @@
 package be.he2b.scoutpocket.viewmodel
 
 import android.content.Context
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -15,147 +14,126 @@ import be.he2b.scoutpocket.database.repository.PresenceRepository
 import be.he2b.scoutpocket.model.PresenceStatus
 import be.he2b.scoutpocket.model.Section
 import be.he2b.scoutpocket.model.next
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime
+
+data class EventUiState(
+    val event: Event? = null,
+    val membersConcerned: List<Member> = emptyList(),
+    val presences: List<Presence> = emptyList(),
+    val totalMembersPresent: Int = 0,
+    val isLoading: Boolean = false,
+    val errorMessage: Int? = null,
+    val isEventCreated: Boolean = false,
+    val nameError: Int? = null,
+    val locationError: Int? = null,
+)
 
 class EventViewModel (
     private val eventRepository: EventRepository,
     private val memberRepository: MemberRepository,
     private val presenceRepository: PresenceRepository,
-    private val context: Context,
 ) : ViewModel() {
 
-    var event = mutableStateOf<Event?>(null)
-        private set
-    var membersConcerned = mutableStateOf<List<Member>>(emptyList())
-        private set
-    var presences = mutableStateOf<List<Presence>>(emptyList())
-        private set
-    var totalMembersPresent = mutableStateOf(0)
-        private set
-    var isLoading = mutableStateOf(true)
-        private set
-    var errorMessage = mutableStateOf<String?>(null)
-        private set
+    private val _uiState = MutableStateFlow(EventUiState())
+    val uiState: StateFlow<EventUiState> = _uiState.asStateFlow()
 
     // New event
-    var newEventName = mutableStateOf("")
-    var newEventSection = mutableStateOf(Section.UNITE)
-    var newEventDate = mutableStateOf(LocalDate.now())
-    var newEventStartTime = mutableStateOf(LocalTime.of(14, 0))
-    var newEventEndTime = mutableStateOf(LocalTime.of(17, 30))
-    var newEventLocation = mutableStateOf("")
-    var newEventIsCreated = mutableStateOf(false)
-    var newEventNameError = mutableStateOf<String?>(null)
-    var newEventLocationError = mutableStateOf<String?>(null)
+    var newEventName = MutableStateFlow("")
+    var newEventSection = MutableStateFlow(Section.UNITE)
+    var newEventDate = MutableStateFlow(LocalDate.now())
+    var newEventStartTime = MutableStateFlow(LocalTime.of(14, 0))
+    var newEventEndTime = MutableStateFlow(LocalTime.of(17, 30))
+    var newEventLocation = MutableStateFlow("")
 
     fun loadEvent(eventId: Int) {
-        viewModelScope.launch {
-            isLoading.value = true
-            errorMessage.value = null
+        _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
+        viewModelScope.launch {
             try {
-                event.value = eventRepository.getEventById(eventId = eventId)
+                val event = eventRepository.getEventById(eventId = eventId)
+                _uiState.update { it.copy(event = event, isLoading = false) }
             } catch (e: Exception) {
-                errorMessage.value = context.getString(R.string.events_loading_error)
-            } finally {
-                isLoading.value = false
+                _uiState.update { it.copy(errorMessage = R.string.events_loading_error, isLoading = false) }
             }
         }
     }
 
     fun loadMembersConcerned() {
-        val currentEvent = event.value
-
-        if (currentEvent == null) {
-            errorMessage.value = context.getString(R.string.event_missing_error)
+        val currentEvent = _uiState.value.event ?: run {
+            _uiState.update { it.copy(errorMessage = R.string.event_missing_error) }
             return
         }
 
-        viewModelScope.launch {
-            isLoading.value = true
-            errorMessage.value = null
+        _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
+        viewModelScope.launch {
             try {
                 val eventPresences = presenceRepository.getPresencesByEvent(currentEvent.id)
-
                 val allMembers = memberRepository.getAllMembers().first()
-
-                membersConcerned.value = allMembers.filter { member ->
+                val concerned = allMembers.filter { member ->
                     eventPresences.any { presence -> presence.memberId == member.id }
                 }
+
+                _uiState.update { it.copy(membersConcerned = concerned, isLoading = false) }
             } catch (e: Exception) {
-                errorMessage.value = context.getString(R.string.event_members_loading_error)
-            } finally {
-                isLoading.value = false
+                _uiState.update { it.copy(errorMessage = R.string.event_members_loading_error, isLoading = false) }
             }
         }
     }
 
     fun loadPresences() {
-        val currentEvent = event.value
-
-        if (currentEvent == null) {
-            errorMessage.value = context.getString(R.string.event_missing_error)
+        val currentEvent = _uiState.value.event ?: run {
+            _uiState.update { it.copy(errorMessage = R.string.event_missing_error) }
             return
         }
 
-        viewModelScope.launch {
-            isLoading.value = true
-            errorMessage.value = null
+        _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
+        viewModelScope.launch {
             try {
                 val loadedPresences = presenceRepository.getPresencesByEvent(currentEvent.id)
-                presences.value = loadedPresences
-
-                totalMembersPresent.value = loadedPresences.count { it.status == PresenceStatus.PRESENT }
+                _uiState.update {
+                    it.copy(
+                        presences = loadedPresences,
+                        totalMembersPresent = loadedPresences.count { presence -> presence.status == PresenceStatus.PRESENT },
+                        isLoading = false
+                    )
+                }
             } catch (e: Exception) {
-                errorMessage.value = context.getString(R.string.presences_loading_error)
-            } finally {
-                isLoading.value = false
+                _uiState.update { it.copy(errorMessage = R.string.presences_loading_error, isLoading = false) }
             }
         }
     }
 
     private fun validateForm(): Boolean {
-        newEventNameError.value = null
-        newEventLocationError.value = null
+        _uiState.update { it.copy(nameError = null, locationError = null) }
 
         var isValid = true
 
         if (newEventName.value.isBlank()) {
-            newEventNameError.value = context.getString(R.string.event_name_error)
+            _uiState.update { it.copy(nameError = R.string.event_name_error) }
             isValid = false
         } else if (newEventLocation.value.isBlank()) {
-            newEventLocationError.value = context.getString(R.string.event_location_error)
+            _uiState.update { it.copy(nameError = R.string.event_location_error) }
             isValid = false
         }
 
         return isValid
     }
 
-    private suspend fun getMembersForSection(section: Section): List<Member> {
-        return if (section != Section.UNITE) {
-            memberRepository.getMembersBySection(section).first()
-        } else {
-            memberRepository.getAllMembers().first()
-        }
-    }
-
     fun createEvent() {
-        if (!validateForm()) {
-            return
-        }
+        if (!validateForm()) return
 
-        errorMessage.value = null
-        newEventIsCreated.value = false
+        _uiState.update { it.copy(isLoading = true, errorMessage = null, isEventCreated = false) }
 
         viewModelScope.launch {
-            isLoading.value = true
-            errorMessage.value = null
-
             try {
                 val newEvent = Event(
                     name = newEventName.value.trim(),
@@ -168,7 +146,11 @@ class EventViewModel (
 
                 val newEventId = eventRepository.addEvent(newEvent)
 
-                val membersForNewEvent = getMembersForSection(newEvent.section)
+                val membersForNewEvent = if (newEvent.section != Section.UNITE) {
+                    memberRepository.getMembersBySection(newEvent.section).first()
+                } else {
+                    memberRepository.getAllMembers().first()
+                }
 
                 val presencesToInsert = membersForNewEvent.map { member ->
                     Presence(
@@ -179,11 +161,9 @@ class EventViewModel (
                 }
 
                 presenceRepository.addPresences(presencesToInsert)
-                newEventIsCreated.value = true
+                _uiState.update { it.copy(isEventCreated = true, isLoading = false) }
             } catch (e: Exception) {
-                errorMessage.value = context.getString(R.string.new_event_creation_error)
-            } finally {
-                isLoading.value = false
+                _uiState.update { it.copy(errorMessage = R.string.new_event_creation_error, isLoading = false) }
             }
         }
     }
@@ -191,7 +171,7 @@ class EventViewModel (
     fun updatePresenceStatus(eventId: Int, memberId: Int) {
         viewModelScope.launch {
             try {
-                val currentPresence = presences.value.find {
+                val currentPresence = _uiState.value.presences.find {
                     it.eventId == eventId && it.memberId == memberId
                 }
 
@@ -199,28 +179,21 @@ class EventViewModel (
                     val updatedPresence = currentPresence.copy(
                         status = currentPresence.status.next()
                     )
-
-                    when (updatedPresence.status) {
-                        PresenceStatus.PRESENT -> totalMembersPresent.value++
-                        PresenceStatus.ABSENT -> totalMembersPresent.value--
-                        else -> {}
-                    }
-
                     presenceRepository.updatePresence(updatedPresence)
                     loadPresences()
                 }
             } catch (e: Exception) {
-                errorMessage.value = context.getString(R.string.presence_update_error)
+                _uiState.update { it.copy(errorMessage = R.string.presence_update_error) }
             }
         }
     }
 
     fun clearError() {
-        errorMessage.value = null
+        _uiState.update { it.copy(errorMessage = null) }
     }
 
     fun resetEventCreationState() {
-        newEventIsCreated.value = false
+        _uiState.update { it.copy(isEventCreated = false, nameError = null, locationError = null) }
         resetForm()
     }
 
@@ -231,8 +204,6 @@ class EventViewModel (
         newEventStartTime.value = LocalTime.of(14, 0)
         newEventEndTime.value = LocalTime.of(17, 30)
         newEventLocation.value = ""
-        newEventNameError.value = null
-        newEventLocationError.value = null
     }
 
 }
@@ -244,7 +215,7 @@ class EventViewModelFactory(private val context: Context) : ViewModelProvider.Fa
             val memberRepository = MemberRepository(context)
             val presenceRepository = PresenceRepository(context)
             @Suppress("UNCHECKED_CAST")
-            return EventViewModel(eventRepository, memberRepository, presenceRepository, context) as T
+            return EventViewModel(eventRepository, memberRepository, presenceRepository) as T
         }
         throw IllegalArgumentException(context.getString(R.string.unknown_viewmodel_class, modelClass.name))
     }

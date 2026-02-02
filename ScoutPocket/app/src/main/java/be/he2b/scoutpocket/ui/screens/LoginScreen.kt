@@ -18,6 +18,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -26,6 +27,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -63,14 +65,18 @@ fun LoginScreen(
     viewModel: LoginViewModel,
     navController: NavController,
 ) {
-    val email by viewModel.email
-    val password by viewModel.password
-    val isEmailValid by viewModel.isEmailValid
-    val isPasswordValid by viewModel.isPasswordValid
+    val email by viewModel.email.collectAsState()
+    val password by viewModel.password.collectAsState()
 
-    val isAuthenticated by viewModel.isAuthenticated
-    val errorMessage by viewModel.errorMessage
-    val isLoading by viewModel.isLoading
+    val uiState by viewModel.uiState.collectAsState()
+
+    val isEmailValid = uiState.isEmailValid
+    val isPasswordValid = uiState.isPasswordValid
+    var isAuthenticated = uiState.isAuthenticated
+    val isLoading = uiState.isLoading
+    val errorMessageRes = uiState.errorMessage
+
+    val errorMessage = errorMessageRes?.let { stringResource(it) }
 
     val focusManager = LocalFocusManager.current
     var passwordVisible by remember { mutableStateOf(false) }
@@ -273,6 +279,30 @@ fun LoginScreen(
                         fontWeight = FontWeight.SemiBold,
                     )
                 }
+            }
+
+            // TODO: Delete for final version
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Button(
+                onClick = {
+                    navController.navigate(AppScreen.Main.route)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = MaterialTheme.shapes.large,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                ),
+            ) {
+                Text(
+                    text = "By pass auth",
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold,
+                )
             }
 
         }

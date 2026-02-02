@@ -21,6 +21,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -40,16 +42,29 @@ fun MembersScreen(
     modifier: Modifier = Modifier,
     viewModel: MemberViewModel,
 ) {
-    val members = viewModel.members.value
+    val uiState by viewModel.uiState.collectAsState()
+
+    val members = uiState.members
     val membersBySection = members.groupBy { it.section }
 
-    val isLoading = viewModel.isLoading.value
-    val errorMessage = viewModel.errorMessage.value
-    val importSuccessMessage = viewModel.importSuccessMessage.value
+    val isLoading = uiState.isLoading
+    val errorMessageRes = uiState.errorMessage
+    val importSuccessMessageRes = uiState.importSuccessMessage
+    val importArgs = uiState.importSuccessArgs
 
     val snackbarHostState = remember { SnackbarHostState() }
 
-    LaunchedEffect(errorMessage) {
+    val errorMessage = errorMessageRes?.let { stringResource(it) }
+
+    val importSuccessMessage = importSuccessMessageRes?.let {
+        if (importArgs != null) {
+            stringResource(it, importArgs.first, importArgs.second)
+        } else {
+            stringResource(it)
+        }
+    }
+
+    LaunchedEffect(errorMessageRes) {
         errorMessage?.let {
             snackbarHostState.showSnackbar(
                 message = it,
@@ -60,13 +75,12 @@ fun MembersScreen(
         }
     }
 
-    LaunchedEffect(importSuccessMessage) {
+    LaunchedEffect(importSuccessMessageRes) {
         importSuccessMessage?.let {
             snackbarHostState.showSnackbar(
                 message = it,
                 duration = SnackbarDuration.Long
             )
-            viewModel.clearImportSuccess()
         }
     }
 

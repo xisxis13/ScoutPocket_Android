@@ -30,6 +30,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -70,16 +71,17 @@ fun EventDetailsScreen(
         viewModel.loadEvent(eventId)
     }
 
-    val event = viewModel.event.value
-    val presences = viewModel.presences.value
-    val membersConcerned = viewModel.membersConcerned.value
+    val uiState by viewModel.uiState.collectAsState()
+
+    val event = uiState.event
+    val presences = uiState.presences
+    val membersConcerned = uiState.membersConcerned
     val membersBySection = membersConcerned.groupBy { it.section }
-    val totalMembersPresent = viewModel.totalMembersPresent.value
-    val isLoading = viewModel.isLoading.value
-    val errorMessage = viewModel.errorMessage.value
+    val totalMembersPresent = uiState.totalMembersPresent
+    val isLoading = uiState.isLoading
+    val errorMessageRes = uiState.errorMessage
 
     var selectedIndex by remember { mutableIntStateOf(0) }
-
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(event) {
@@ -89,7 +91,9 @@ fun EventDetailsScreen(
         }
     }
 
-    LaunchedEffect(errorMessage) {
+    val errorMessage = errorMessageRes?.let { stringResource(it) }
+
+    LaunchedEffect(errorMessageRes) {
         errorMessage?.let {
             if (event != null && !isLoading) {
                 snackbarHostState.showSnackbar(
@@ -147,11 +151,11 @@ fun EventDetailsScreen(
                 )
             }
 
-            errorMessage != null -> {
+            errorMessage != null && event == null -> {
                 EmptyState(
                     icon = Lucide.CircleAlert,
                     title = stringResource(R.string.error_general),
-                    subtitle = errorMessage ?: stringResource(R.string.error_general),
+                    subtitle = errorMessage,
                     modifier = Modifier
                         .padding(paddingValues),
                 )

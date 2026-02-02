@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -35,7 +36,9 @@ class MainActivity : ComponentActivity() {
                         factory = LoginViewModelFactory(LocalContext.current.applicationContext)
                     )
 
-                    val isAuthenticated by loginViewModel.isAuthenticated
+                    val uiState by loginViewModel.uiState.collectAsState()
+
+                    val isAuthenticated = uiState.isAuthenticated
                     val navController = rememberNavController()
 
                     NavHost(

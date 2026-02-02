@@ -29,6 +29,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -64,28 +65,34 @@ fun AddEventScreen(
         factory = EventViewModelFactory(LocalContext.current.applicationContext)
     ),
 ) {
-    val eventName by viewModel.newEventName
-    val eventSection by viewModel.newEventSection
-    val eventDate by viewModel.newEventDate
-    val eventStartTime by viewModel.newEventStartTime
-    val eventEndTime by viewModel.newEventEndTime
-    val eventLocation by viewModel.newEventLocation
-    val eventIsCreated by viewModel.newEventIsCreated
-    val eventNameError by viewModel.newEventNameError
-    val eventLocationError by viewModel.newEventLocationError
-    val errorMessage by viewModel.errorMessage
+    val eventName by viewModel.newEventName.collectAsState()
+    val eventSection by viewModel.newEventSection.collectAsState()
+    val eventDate by viewModel.newEventDate.collectAsState()
+    val eventStartTime by viewModel.newEventStartTime.collectAsState()
+    val eventEndTime by viewModel.newEventEndTime.collectAsState()
+    val eventLocation by viewModel.newEventLocation.collectAsState()
+
+    val uiState by viewModel.uiState.collectAsState()
+    val isEventCreated = uiState.isEventCreated
+    val eventNameErrorRes = uiState.nameError
+    val eventLocationErrorRes = uiState.locationError
+    val errorMessageRes = uiState.errorMessage
 
     val focusManager = LocalFocusManager.current
     val snackbarHostState = remember { SnackbarHostState() }
 
-    LaunchedEffect(eventIsCreated) {
-        if (eventIsCreated) {
+    val eventNameError = eventNameErrorRes?.let { stringResource(it) }
+    val eventLocationError = eventLocationErrorRes?.let { stringResource(it) }
+    val errorMessage = errorMessageRes?.let { stringResource(it) }
+
+    LaunchedEffect(isEventCreated) {
+        if (isEventCreated) {
             viewModel.resetEventCreationState()
             navController.navigateUp()
         }
     }
 
-    LaunchedEffect(errorMessage) {
+    LaunchedEffect(errorMessageRes) {
         errorMessage?.let {
             snackbarHostState.showSnackbar(
                 message = it,

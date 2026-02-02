@@ -1,40 +1,40 @@
 package be.he2b.scoutpocket.viewmodel
 
 import android.content.Context
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import be.he2b.scoutpocket.R
 import be.he2b.scoutpocket.database.entity.Event
 import be.he2b.scoutpocket.database.repository.EventRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
+data class AgendaUiState(
+    val upcomingEvents: List<Event> = emptyList(),
+    val pastEvents: List<Event> = emptyList(),
+    val allEvents: List<Event> = emptyList(),
+    val isLoading: Boolean = false,
+    val errorMessage: Int? = null
+)
+
 class AgendaViewModel(
     private val eventRepository: EventRepository,
-    private val context: Context,
 ) : ViewModel() {
 
-    var upcomingEvents = mutableStateOf<List<Event>>(emptyList())
-        private set
-    var pastEvents = mutableStateOf<List<Event>>(emptyList())
-        private set
-    var allEvents = mutableStateOf<List<Event>>(emptyList())
-        private set
-
-    var isLoading = mutableStateOf(true)
-        private set
-    var errorMessage = mutableStateOf<String?>(null)
-        private set
+    private val _uiState = MutableStateFlow(AgendaUiState())
+    val uiState: StateFlow<AgendaUiState> = _uiState.asStateFlow()
 
     init {
         loadEvents()
     }
 
     fun loadEvents() {
-        isLoading.value = true
-        errorMessage.value = null
+        _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
         viewModelScope.launch {
             try {
@@ -44,21 +44,23 @@ class AgendaViewModel(
                         it.date.isAfter(today) || it.date.isEqual(today)
                     }
 
-                    upcomingEvents.value = future
-                    pastEvents.value = past.reversed()
-
-                    allEvents.value = list
-                    isLoading.value = false
+                    _uiState.update { currentState ->
+                        currentState.copy(
+                            upcomingEvents = future,
+                            pastEvents = past.reversed(),
+                            allEvents = list,
+                            isLoading = false
+                        )
+                    }
                 }
             } catch (e: Exception) {
-                errorMessage.value = context.getString(R.string.events_loading_error)
-                isLoading.value = false
+                _uiState.update { it.copy(errorMessage = R.string.events_loading_error, isLoading = false) }
             }
         }
     }
 
     fun clearError() {
-        errorMessage.value = null
+        _uiState.update { it.copy(errorMessage = null) }
     }
 }
 
@@ -67,7 +69,7 @@ class AgendaViewModelFactory(private val context: Context) : ViewModelProvider.F
         if (modelClass.isAssignableFrom(AgendaViewModel::class.java)) {
             val repository = EventRepository(context)
             @Suppress("UNCHECKED_CAST")
-            return AgendaViewModel(repository, context) as T
+            return AgendaViewModel(repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

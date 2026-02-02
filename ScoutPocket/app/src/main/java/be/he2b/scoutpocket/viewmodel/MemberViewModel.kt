@@ -1,10 +1,9 @@
 package be.he2b.scoutpocket.viewmodel
 
+import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
-import android.provider.OpenableColumns
 import android.util.Log
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -16,74 +15,68 @@ import be.he2b.scoutpocket.database.repository.MemberRepository
 import be.he2b.scoutpocket.database.repository.PresenceRepository
 import be.he2b.scoutpocket.model.PresenceStatus
 import be.he2b.scoutpocket.model.Section
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.BufferedReader
 import java.io.InputStreamReader
+
+data class MemberUiState(
+    val members: List<Member> = emptyList(),
+    val isLoading: Boolean = false,
+    val errorMessage: Int? = null,
+    val importSuccessMessage: Int? = null,
+    val importSuccessArgs: Pair<Int, Int>? = null,
+    val isMemberCreated: Boolean = false,
+    val lastNameError: Int? = null,
+    val firstNameError: Int? = null,
+    val csvFileContent: String? = null,
+)
 
 class MemberViewModel(
     private val memberRepository: MemberRepository,
     private val eventRepository: EventRepository,
     private val presenceRepository: PresenceRepository,
-    private val context: Context
 ) : ViewModel() {
 
-    var csvFileContent = mutableStateOf<String?>(null)
-        private set
+    private val _uiState = MutableStateFlow(MemberUiState())
+    val uiState: StateFlow<MemberUiState> = _uiState.asStateFlow()
 
     // New member
-    var newMemberLastName = mutableStateOf("")
-    var newMemberFirstName = mutableStateOf("")
-    var newMemberSection = mutableStateOf(Section.BALADINS)
-    var newMemberIsCreated = mutableStateOf(false)
-    var newMemberLastNameError = mutableStateOf<String?>(null)
-    var newMemberFirstNameError = mutableStateOf<String?>(null)
-
-    var members = mutableStateOf<List<Member>>(emptyList())
-        private set
-
-    var isLoading = mutableStateOf(true)
-        private set
-    var errorMessage = mutableStateOf<String?>(null)
-        private set
-    var importSuccessMessage = mutableStateOf<String?>(null)
-        private set
+    var newMemberLastName = MutableStateFlow("")
+    var newMemberFirstName = MutableStateFlow("")
+    var newMemberSection = MutableStateFlow(Section.BALADINS)
 
     init {
         loadMembers()
     }
 
     fun loadMembers() {
-        isLoading.value = true
-        errorMessage.value = null
+        _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
         viewModelScope.launch {
             try {
-                memberRepository
-                    .getAllMembers()
-                    .collect { list ->
-                        members.value = list
-                        isLoading.value = false
-                    }
+                memberRepository.getAllMembers().collect { list ->
+                    _uiState.update { it.copy(members = list, isLoading = false) }
+                }
             } catch (e: Exception) {
-                errorMessage.value = context.getString(R.string.members_loading_error)
-            } finally {
-                isLoading.value = false
+                _uiState.update { it.copy(errorMessage = R.string.members_loading_error, isLoading = false) }
             }
         }
     }
 
     private fun validateForm(): Boolean {
-        newMemberLastNameError.value = null
-        newMemberFirstNameError.value = null
-
+        _uiState.update { it.copy(lastNameError = null, firstNameError = null) }
         var isValid = true
 
         if (newMemberLastName.value.isBlank()) {
-            newMemberLastNameError.value = context.getString(R.string.member_lastname_error)
+            _uiState.update { it.copy(lastNameError = R.string.member_lastname_error) }
             isValid = false
         } else if (newMemberFirstName.value.isBlank()) {
-            newMemberFirstNameError.value = context.getString(R.string.member_firstname_error)
+            _uiState.update { it.copy(firstNameError = R.string.member_firstname_error) }
             isValid = false
         }
 
@@ -91,17 +84,11 @@ class MemberViewModel(
     }
 
     fun createMember() {
-        if (!validateForm()) {
-            return
-        }
+        if (!validateForm()) return
 
-        errorMessage.value = null
-        newMemberIsCreated.value = false
+        _uiState.update { it.copy(isLoading = true, errorMessage = null, isMemberCreated = false) }
 
         viewModelScope.launch {
-            isLoading.value = true
-            errorMessage.value = null
-
             try {
                 val newMember = Member(
                     lastName = newMemberLastName.value.trim(),
@@ -128,56 +115,44 @@ class MemberViewModel(
                     presenceRepository.addPresences(presencesToInsert)
                 }
 
-                loadMembers()
-
-                newMemberIsCreated.value = true
+                _uiState.update { it.copy(isMemberCreated = true, isLoading = false) }
+                resetForm()
             } catch (e: Exception) {
-                errorMessage.value = context.getString(R.string.member_creation_error)
-            } finally {
-                isLoading.value = false
-
-                if (newMemberIsCreated.value) {
-                    newMemberLastName.value = ""
-                    newMemberFirstName.value = ""
-                }
+                _uiState.update { it.copy(errorMessage = R.string.member_creation_error, isLoading = false) }
             }
         }
     }
 
-    fun importMembers(fileUri: Uri) {
+    fun importMembers(fileUri: Uri, contentResolver: ContentResolver) {
+        _uiState.update { it.copy(isLoading = true, errorMessage = null, importSuccessMessage = null, csvFileContent = null) }
+
         viewModelScope.launch {
-            isLoading.value = true
-            errorMessage.value = null
-            importSuccessMessage.value = null
-            csvFileContent.value = null
-
             try {
-                val fileName = getFileName(context, fileUri)
-                if (!fileName.endsWith(".csv", ignoreCase = true)) {
-                    errorMessage.value = context.getString(R.string.csv_extension_error)
-                    return@launch
-                }
+//                val fileName = getFileName(context, fileUri)
+//                if (!fileName.endsWith(".csv", ignoreCase = true)) {
+//                    errorMessage.value = context.getString(R.string.csv_extension_error)
+//                    return@launch
+//                }
+//
+//                val mimeType = context.contentResolver.getType(fileUri)
+//                val validMimeTypes = listOf("text/csv", "text/comma-separated-values", "text/plain")
+//                if (mimeType !in validMimeTypes) {
+//                    errorMessage.value = context.getString(R.string.csv_mimetype_error, mimeType ?: "unknown")
+//                    return@launch
+//                }
 
-                val mimeType = context.contentResolver.getType(fileUri)
-                val validMimeTypes = listOf("text/csv", "text/comma-separated-values", "text/plain")
-                if (mimeType !in validMimeTypes) {
-                    errorMessage.value = context.getString(R.string.csv_mimetype_error, mimeType ?: "unknown")
-                    return@launch
-                }
-
-                val contentResolver = context.contentResolver
                 contentResolver.openInputStream(fileUri)?.use { inputStream ->
                     val reader = BufferedReader(InputStreamReader(inputStream))
                     val content = reader.readText()
 
                     if (!isValidCSV(content)) {
-                        errorMessage.value = context.getString(R.string.csv_invalid_error)
+                        _uiState.update { it.copy(errorMessage = R.string.csv_invalid_error, isLoading = false) }
                         return@launch
                     }
 
                     val importedMembers = parseCSV(content)
                     if (importedMembers.isEmpty()) {
-                        errorMessage.value = context.getString(R.string.csv_no_members_error)
+                        _uiState.update { it.copy(errorMessage = R.string.csv_no_members_error, isLoading = false) }
                         return@launch
                     }
 
@@ -189,14 +164,8 @@ class MemberViewModel(
                         }
                     }
 
-                    if (duplicates.isNotEmpty()) {
-                        duplicates.forEach { duplicate ->
-                            Log.w("CSV", "Membre déjà existant ignoré: ${duplicate.firstName} ${duplicate.lastName}")
-                        }
-                    }
-
                     if (newMembers.isEmpty()) {
-                        errorMessage.value = context.getString(R.string.csv_all_duplicates_error)
+                        _uiState.update { it.copy(errorMessage = R.string.csv_all_duplicates_error, isLoading = false) }
                         return@launch
                     }
 
@@ -220,34 +189,20 @@ class MemberViewModel(
                         }
                     }
 
-                    csvFileContent.value = content
-                    loadMembers()
-
-                    importSuccessMessage.value = context.getString(
-                        R.string.csv_import_success,
-                        newMembers.size,
-                        duplicates.size
-                    )
+                    _uiState.update {
+                        it.copy(
+                            csvFileContent = content,
+                            importSuccessMessage = R.string.csv_import_success,
+                            importSuccessArgs = Pair(newMembers.size, duplicates.size),
+                            isLoading = false
+                        )
+                    }
                 }
             } catch (e: Exception) {
-                Log.e("CSV", "Erreur lors de l'import", e)
-                errorMessage.value = context.getString(R.string.csv_read_error)
-            } finally {
-                isLoading.value = false
+                Log.e("CSV", "Error import", e)
+                _uiState.update { it.copy(errorMessage = R.string.csv_read_error, isLoading = false) }
             }
         }
-    }
-
-    private fun getFileName(context: Context, uri: Uri): String {
-        var fileName = ""
-        context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
-            val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-            if (nameIndex != -1 && cursor.moveToFirst()) {
-                fileName = cursor.getString(nameIndex)
-            }
-        }
-
-        return fileName
     }
 
     private fun isValidCSV(content: String): Boolean {
@@ -343,15 +298,11 @@ class MemberViewModel(
     }
 
     fun clearError() {
-        errorMessage.value = null
-    }
-
-    fun clearImportSuccess() {
-        importSuccessMessage.value = null
+        _uiState.update { it.copy(errorMessage = null) }
     }
 
     fun resetMemberCreationState() {
-        newMemberIsCreated.value = false
+        _uiState.update { it.copy(isMemberCreated = false) }
         resetForm()
     }
 
@@ -359,8 +310,7 @@ class MemberViewModel(
         newMemberLastName.value = ""
         newMemberFirstName.value = ""
         newMemberSection.value = Section.BALADINS
-        newMemberLastNameError.value = null
-        newMemberFirstNameError.value = null
+        _uiState.update { it.copy(lastNameError = null, firstNameError = null) }
     }
 
 }
@@ -373,7 +323,7 @@ class MemberViewModelFactory(private val context: Context) : ViewModelProvider.F
             val presenceRepository = PresenceRepository(context)
 
             @Suppress("UNCHECKED_CAST")
-            return MemberViewModel(memberRepository, eventRepository, presenceRepository, context) as T
+            return MemberViewModel(memberRepository, eventRepository, presenceRepository) as T
         }
         throw IllegalArgumentException(context.getString(R.string.unknown_viewmodel_class, modelClass.name))
     }
