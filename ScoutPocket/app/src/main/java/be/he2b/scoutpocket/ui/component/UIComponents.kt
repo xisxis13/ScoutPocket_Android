@@ -72,11 +72,11 @@ import be.he2b.scoutpocket.ui.theme.ScoutPocketTheme
 import com.composables.icons.lucide.Calendar
 import com.composables.icons.lucide.Check
 import com.composables.icons.lucide.ChevronRight
-import com.composables.icons.lucide.CircleHelp
 import com.composables.icons.lucide.Clock
 import com.composables.icons.lucide.Ellipsis
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.MapPin
+import com.composables.icons.lucide.Minus
 import com.composables.icons.lucide.Pencil
 import com.composables.icons.lucide.Plus
 import com.composables.icons.lucide.Share
@@ -406,7 +406,7 @@ fun PresenceButton(
         val presenceIcon = when (status) {
             PresenceStatus.PRESENT -> Lucide.Check
             PresenceStatus.ABSENT -> Lucide.X
-            else -> Lucide.CircleHelp
+            else -> Lucide.Minus
         }
 
         val presenceColor = status.contentColor()

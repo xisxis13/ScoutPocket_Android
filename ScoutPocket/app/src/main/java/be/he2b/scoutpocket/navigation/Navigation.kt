@@ -9,6 +9,8 @@ import com.composables.icons.lucide.Users
 
 enum class AppScreen(val route: String) {
     Login("login"),
+    UnitSetup("unit_setup"),
+    UnitRequests("unit_requests"),
     Main("main"),
     Home("home"),
     Agenda("agenda"),

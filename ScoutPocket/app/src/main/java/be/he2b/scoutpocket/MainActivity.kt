@@ -18,6 +18,7 @@ import androidx.navigation.compose.rememberNavController
 import be.he2b.scoutpocket.navigation.AppScreen
 import be.he2b.scoutpocket.ui.screens.LoginScreen
 import be.he2b.scoutpocket.ui.screens.MainScreen
+import be.he2b.scoutpocket.ui.screens.UnitSetupScreen
 import be.he2b.scoutpocket.ui.theme.ScoutPocketTheme
 import be.he2b.scoutpocket.viewmodel.LoginViewModel
 import be.he2b.scoutpocket.viewmodel.LoginViewModelFactory
@@ -53,6 +54,11 @@ class MainActivity : ComponentActivity() {
                             LoginScreen(
                                 viewModel = loginViewModel,
                                 navController = navController,
+                            )
+                        }
+                        composable(AppScreen.UnitSetup.route) {
+                            UnitSetupScreen(
+                                navController = navController
                             )
                         }
                         composable(AppScreen.Main.route) {

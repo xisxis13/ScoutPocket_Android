@@ -2,11 +2,6 @@ package be.he2b.scoutpocket
 
 import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import be.he2b.scoutpocket.network.AuthBody
-import be.he2b.scoutpocket.network.AuthHTTPClient
-import be.he2b.scoutpocket.network.AuthManager
-import be.he2b.scoutpocket.network.AuthResponse
-import be.he2b.scoutpocket.network.AuthService
 import be.he2b.scoutpocket.viewmodel.LoginViewModel
 import io.mockk.clearAllMocks
 import io.mockk.coEvery

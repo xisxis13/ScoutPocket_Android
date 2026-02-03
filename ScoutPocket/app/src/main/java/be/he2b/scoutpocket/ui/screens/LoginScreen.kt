@@ -1,11 +1,9 @@
 package be.he2b.scoutpocket.ui.screens
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,6 +21,9 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -51,7 +53,6 @@ import be.he2b.scoutpocket.R
 import be.he2b.scoutpocket.navigation.AppScreen
 import be.he2b.scoutpocket.ui.component.ExpressiveTextField
 import be.he2b.scoutpocket.viewmodel.LoginViewModel
-import com.composables.icons.lucide.CircleAlert
 import com.composables.icons.lucide.Eye
 import com.composables.icons.lucide.EyeOff
 import com.composables.icons.lucide.Lock
@@ -65,14 +66,15 @@ fun LoginScreen(
     viewModel: LoginViewModel,
     navController: NavController,
 ) {
+    val uiState by viewModel.uiState.collectAsState()
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
-
-    val uiState by viewModel.uiState.collectAsState()
 
     val isEmailValid = uiState.isEmailValid
     val isPasswordValid = uiState.isPasswordValid
     var isAuthenticated = uiState.isAuthenticated
+    val needsUnitSetup = uiState.needsUnitSetup
+    val isPendingApproval = uiState.isPendingApproval
     val isLoading = uiState.isLoading
     val errorMessageRes = uiState.errorMessage
 
@@ -80,26 +82,43 @@ fun LoginScreen(
 
     val focusManager = LocalFocusManager.current
     var passwordVisible by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
 
-    LaunchedEffect(isAuthenticated) {
+    LaunchedEffect(isAuthenticated, needsUnitSetup, errorMessage) {
         if (isAuthenticated) {
-            navController.navigate(AppScreen.Main.name) {
+            navController.navigate(AppScreen.Main.route) {
                 popUpTo(AppScreen.Login.name) { inclusive = true }
             }
         }
+
+        if (needsUnitSetup) {
+            navController.navigate(AppScreen.UnitSetup.route) {
+                popUpTo(AppScreen.Login.name) { inclusive = true }
+            }
+        }
+
+        if (isPendingApproval) {
+            snackbarHostState.showSnackbar("Votre demande est en attente de validation par le staff.")
+        }
+
+        errorMessageRes?.let { errorResId ->
+            snackbarHostState.showSnackbar(context.getString(errorResId))
+        }
     }
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(
-                color = MaterialTheme.colorScheme.surface,
-            ),
-    ) {
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackbarHostState,
+            )
+        },
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
+                .padding(paddingValues)
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
@@ -157,6 +176,7 @@ fun LoginScreen(
                 label = stringResource(R.string.login_email_label),
                 leadingIcon = Lucide.Mail,
                 isError = !isEmailValid,
+                enable = !isLoading,
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
@@ -179,6 +199,7 @@ fun LoginScreen(
                 label = stringResource(R.string.login_password_label),
                 leadingIcon = Lucide.Lock,
                 isError = !isPasswordValid,
+                enable = !isLoading,
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
@@ -208,35 +229,7 @@ fun LoginScreen(
                 },
             )
 
-            if (errorMessage != null) {
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Surface(
-                    shape = MaterialTheme.shapes.medium,
-                    color = MaterialTheme.colorScheme.errorContainer,
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Icon(
-                            imageVector = Lucide.CircleAlert,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onErrorContainer,
-                        )
-                        Text(
-                            text = errorMessage!!,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onErrorContainer,
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             Button(
                 onClick = {
@@ -281,6 +274,33 @@ fun LoginScreen(
                 }
             }
 
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Button(
+                onClick = {
+                    viewModel.toggleMode()
+                },
+                enabled = !isLoading,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = MaterialTheme.shapes.large,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                ),
+            ) {
+                Text(
+                    text = if (uiState.isLoginMode)
+                        "Pas encore de compte ? Créer un compte"
+                    else
+                        "Déjà un compte ? Se connecter",
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
+
             // TODO: Delete for final version
             Spacer(modifier = Modifier.height(32.dp))
 
@@ -304,7 +324,6 @@ fun LoginScreen(
                     fontWeight = FontWeight.SemiBold,
                 )
             }
-
         }
     }
 }

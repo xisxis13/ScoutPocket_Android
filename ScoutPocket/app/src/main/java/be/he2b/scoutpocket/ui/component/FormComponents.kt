@@ -62,6 +62,7 @@ fun ExpressiveTextField(
     leadingIcon: ImageVector? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
     isError: Boolean = false,
+    enable: Boolean = true,
     errorMessage: String? = null,
     singleLine: Boolean = true,
     maxLines: Int = 1,
@@ -89,6 +90,7 @@ fun ExpressiveTextField(
         trailingIcon = trailingIcon,
         visualTransformation = visualTransformation,
         isError = isError,
+        enabled = enable,
         supportingText = if (isError && errorMessage != null) {
             { Text(errorMessage) }
         } else {

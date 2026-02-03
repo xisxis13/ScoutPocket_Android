@@ -40,11 +40,13 @@ import androidx.navigation.NavController
 import be.he2b.scoutpocket.R
 import be.he2b.scoutpocket.navigation.AppScreen
 import be.he2b.scoutpocket.ui.component.ProfileMenuItem
+import be.he2b.scoutpocket.utils.SessionManager
 import be.he2b.scoutpocket.viewmodel.LoginViewModel
 import be.he2b.scoutpocket.viewmodel.LoginViewModelFactory
 import com.composables.icons.lucide.Info
 import com.composables.icons.lucide.LogOut
 import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.Shield
 import com.composables.icons.lucide.User
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -154,6 +156,18 @@ fun ProfileScreen(
                     navController.navigate(AppScreen.About.route)
                 },
             )
+
+            if (SessionManager.isAdmin()) {
+                ProfileMenuItem(
+                    icon = Lucide.Shield,
+                    title = "Gérer les demandes",
+                    subtitle = "Accepter les nouveaux chefs",
+                    onClick = {
+                        navController.navigate(AppScreen.UnitRequests.route)
+                    }
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
