@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import be.he2b.scoutpocket.R
+import be.he2b.scoutpocket.database.entity.Unit
 import be.he2b.scoutpocket.database.entity.UnitMembership
 import be.he2b.scoutpocket.network.SupabaseClient
 import be.he2b.scoutpocket.utils.SessionManager
@@ -139,9 +140,10 @@ class LoginViewModel() : ViewModel() {
 
                     SessionManager.setSession(
                         unitId = "",
+                        unitName = "",
                         role = "MEMBER",
                         firstName = fName,
-                        lastName = lName
+                        lastName = lName,
                     )
                 }
 
@@ -184,8 +186,23 @@ class LoginViewModel() : ViewModel() {
 
             when {
                 activeMembership != null -> {
+                    val unitId = activeMembership.unitId
+                    var unitName: String? = "Unité"
+
+                    try {
+                        val units = SupabaseClient.client
+                            .from("units")
+                            .select { filter { eq("id", unitId) } }
+                            .decodeList<Unit>()
+
+                        unitName = units.firstOrNull()?.name
+                    } catch (e: Exception) {
+                        Log.e("LoginViewModel", "Impossible de récupérer le nom de l'unité")
+                    }
+
                     SessionManager.setSession(
                         unitId = activeMembership.unitId,
+                        unitName = unitName,
                         role = activeMembership.role,
                         firstName = activeMembership.firstName,
                         lastName = activeMembership.lastName,

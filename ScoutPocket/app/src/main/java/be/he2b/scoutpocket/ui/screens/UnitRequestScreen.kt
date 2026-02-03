@@ -1,7 +1,6 @@
 package be.he2b.scoutpocket.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,10 +15,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -27,13 +26,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import be.he2b.scoutpocket.R
+import be.he2b.scoutpocket.ui.component.EmptyState
 import be.he2b.scoutpocket.viewmodel.AdminViewModel
 import be.he2b.scoutpocket.viewmodel.AdminViewModelFactory
+import com.composables.icons.lucide.ArrowLeft
 import com.composables.icons.lucide.Check
 import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.Users
 import com.composables.icons.lucide.X
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,19 +57,42 @@ fun UnitRequestsScreen(
     }
 
     Scaffold(
+        modifier = Modifier
+            .fillMaxSize(),
         topBar = {
-            TopAppBar(title = { Text("Demandes d'adhésion") })
-        },
-        snackbarHost = {
-            SnackbarHost(
-                hostState = snackbarHostState
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "Demandes d'adhésion",
+                        style = MaterialTheme.typography.headlineLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(
+                            Lucide.ArrowLeft,
+                            contentDescription = stringResource(R.string.back_button),
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface
+                )
             )
         },
     ) { padding ->
         if (uiState.pendingRequests.isEmpty()) {
-            Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                Text("Aucune demande en attente.")
-            }
+            EmptyState(
+                icon = Lucide.Users,
+                title = "Aucune demande d'adhésion",
+                subtitle = "Les demandes d'adhésion à votre unité apparaitront ici",
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding),
+            )
         } else {
             LazyColumn(
                 modifier = Modifier.padding(padding).padding(16.dp),

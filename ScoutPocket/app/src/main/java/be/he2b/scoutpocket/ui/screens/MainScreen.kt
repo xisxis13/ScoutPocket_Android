@@ -103,6 +103,7 @@ fun MainScreen(
         currentRoute == AppScreen.AddEvent.route -> false
         currentRoute == AppScreen.AddMember.route -> false
         currentRoute == AppScreen.About.route -> false
+        currentRoute == AppScreen.UnitRequests.route -> false
         else -> true
     }
 

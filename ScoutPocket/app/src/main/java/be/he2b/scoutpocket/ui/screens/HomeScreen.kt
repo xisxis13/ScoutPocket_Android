@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,12 +27,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import be.he2b.scoutpocket.R
 import be.he2b.scoutpocket.navigation.AppScreen
+import be.he2b.scoutpocket.utils.SessionManager
 import com.composables.icons.lucide.Calendar
 import com.composables.icons.lucide.CalendarPlus
 import com.composables.icons.lucide.Lucide
@@ -45,6 +48,8 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController
 ) {
+    val userName = SessionManager.currentUserFirstName
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
@@ -56,11 +61,20 @@ fun HomeScreen(
                             style = MaterialTheme.typography.headlineLarge,
                             fontWeight = FontWeight.Bold
                         )
-                        Text(
-                            stringResource(R.string.home_welcome_subtitle),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        Row {
+                            Text(
+                                stringResource(R.string.home_welcome_subtitle),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            Text(
+                                text = " $userName",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontStyle = FontStyle.Italic,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(

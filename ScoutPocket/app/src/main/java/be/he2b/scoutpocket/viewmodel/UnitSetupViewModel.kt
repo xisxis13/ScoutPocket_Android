@@ -76,6 +76,7 @@ class UnitSetupViewModel : ViewModel() {
 
                 SessionManager.setSession(
                     unitId = code,
+                    unitName = name,
                     role = "ADMIN",
                     firstName = fName,
                     lastName = lName

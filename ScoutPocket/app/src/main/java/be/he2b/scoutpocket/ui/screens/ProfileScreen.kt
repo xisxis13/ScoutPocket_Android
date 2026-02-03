@@ -25,6 +25,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -60,8 +61,11 @@ fun ProfileScreen(
     onLogout: () -> Unit,
 ) {
 
-    val userName = SessionManager.getFullName()
+    val userFirstName = SessionManager.currentUserFirstName
+    val userLastName = SessionManager.currentUserLastName
     val userRole = SessionManager.currentUserRole ?: "Membre"
+    val unitName = SessionManager.currentUnitName ?: "Mon Unité"
+    val unitCode = SessionManager.currentUnitId.collectAsState().value ?: "---"
 
     val displayRole = if (userRole == "ADMIN") {
         "Chef d'Unité"
@@ -127,7 +131,7 @@ fun ProfileScreen(
 
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = userName,
+                            text = "$userFirstName ${userLastName?.uppercase()}",
                             style = MaterialTheme.typography.titleLarge,
                             color = MaterialTheme.colorScheme.onPrimary,
                             fontWeight = FontWeight.Bold
@@ -146,6 +150,14 @@ fun ProfileScreen(
                                 fontWeight = FontWeight.Medium
                             )
                         }
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        Text(
+                            text = "$unitCode - $unitName",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.onPrimary,
+                        )
                     }
                 }
             }
