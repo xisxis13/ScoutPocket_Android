@@ -121,7 +121,6 @@ class LoginViewModel() : ViewModel() {
                 } else {
                     throw Exception("User ID null after login")
                 }
-                // Dans LoginViewModel.kt, méthode authenticate()
 
             } catch (e: Exception) {
                 Log.e("LoginViewModel", "Auth Error: ${e.message}")
@@ -154,7 +153,12 @@ class LoginViewModel() : ViewModel() {
 
             when {
                 activeMembership != null -> {
-                    SessionManager.setSession(activeMembership.unitId, activeMembership.role)
+                    SessionManager.setSession(
+                        unitId = activeMembership.unitId,
+                        role = activeMembership.role,
+                        firstName = activeMembership.firstName,
+                        lastName = activeMembership.lastName,
+                    )
                     _uiState.update { it.copy(isAuthenticated = true, isLoading = false) }
                 }
                 pendingMembership != null -> {

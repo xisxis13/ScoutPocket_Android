@@ -59,7 +59,18 @@ fun ProfileScreen(
     navController: NavController,
     onLogout: () -> Unit,
 ) {
-    val userEmail = viewModel.email.value
+
+    val userName = SessionManager.getFullName()
+    val userRole = SessionManager.currentUserRole ?: "Membre"
+
+    val displayRole = if (userRole == "ADMIN") {
+        "Chef d'Unité"
+    } else if (userRole == "ANIMATEUR") {
+        "Animateur"
+    } else {
+        "Membre"
+    }
+
     var showLogoutDialog by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -116,7 +127,7 @@ fun ProfileScreen(
 
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = if (userEmail.isNotBlank()) userEmail else stringResource(R.string.profile_not_logged_in),
+                            text = userName,
                             style = MaterialTheme.typography.titleLarge,
                             color = MaterialTheme.colorScheme.onPrimary,
                             fontWeight = FontWeight.Bold
@@ -128,7 +139,7 @@ fun ProfileScreen(
                             modifier = Modifier.padding(top = 8.dp)
                         ) {
                             Text(
-                                text = stringResource(R.string.profile_role_chef),
+                                text = displayRole,
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onPrimary,
                                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),

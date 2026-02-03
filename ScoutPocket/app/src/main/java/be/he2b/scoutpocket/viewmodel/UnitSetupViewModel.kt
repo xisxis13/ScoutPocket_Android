@@ -74,7 +74,12 @@ class UnitSetupViewModel : ViewModel() {
 
                 SupabaseClient.client.from("unit_memberships").insert(membership)
 
-                SessionManager.setSession(code, "ADMIN")
+                SessionManager.setSession(
+                    unitId = code,
+                    role = "ADMIN",
+                    firstName = fName,
+                    lastName = lName
+                )
                 _uiState.update { it.copy(isSetupComplete = true, isLoading = false) }
             } catch (e: Exception) {
                 // TODO: Change the error content
