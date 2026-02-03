@@ -16,6 +16,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import be.he2b.scoutpocket.navigation.AppScreen
+import be.he2b.scoutpocket.network.SupabaseClient
 import be.he2b.scoutpocket.ui.screens.LoginScreen
 import be.he2b.scoutpocket.ui.screens.MainScreen
 import be.he2b.scoutpocket.ui.screens.UnitSetupScreen
@@ -26,6 +27,7 @@ import be.he2b.scoutpocket.viewmodel.LoginViewModelFactory
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        SupabaseClient.initialize(applicationContext)
         enableEdgeToEdge()
         setContent {
             ScoutPocketTheme {
