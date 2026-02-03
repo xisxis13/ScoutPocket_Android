@@ -37,12 +37,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import be.he2b.scoutpocket.navigation.AppScreen
+import be.he2b.scoutpocket.ui.component.ExpressiveTextField
 import be.he2b.scoutpocket.viewmodel.UnitSetupUiState
 import be.he2b.scoutpocket.viewmodel.UnitSetupViewModel
 import be.he2b.scoutpocket.viewmodel.UnitSetupViewModelFactory
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.Plus
 import com.composables.icons.lucide.Search
+import com.composables.icons.lucide.User
 
 @Composable
 fun UnitSetupScreen(
@@ -52,6 +54,9 @@ fun UnitSetupScreen(
 
     val uiState by viewModel.uiState.collectAsState()
     var selectedTab by remember { mutableStateOf(0) }
+
+    val firstNameInput = viewModel.firstNameInput.collectAsState()
+    val lastNameInput = viewModel.lastNameInput.collectAsState()
 
     val isSetupComplete = uiState.isSetupComplete
 
@@ -82,6 +87,26 @@ fun UnitSetupScreen(
                 text = "Tu dois appartenir à une unité pour continuer.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text("Qui es-tu ?", style = MaterialTheme.typography.titleMedium)
+
+            ExpressiveTextField(
+                value = firstNameInput.value,
+                onValueChange = { viewModel.firstNameInput.value = it },
+                label = "Prénom (ex: Baloo)",
+                leadingIcon = Lucide.User
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            ExpressiveTextField(
+                value = lastNameInput.value,
+                onValueChange = { viewModel.lastNameInput.value = it },
+                label = "Nom de famille",
+                leadingIcon = Lucide.User
             )
 
             Spacer(modifier = Modifier.height(24.dp))

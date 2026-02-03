@@ -9,4 +9,6 @@ data class UnitMembership(
     @SerialName("unit_id") val unitId: String,
     val role: String,
     val status: String,
+    @SerialName("first_name") val firstName: String? = null,
+    @SerialName("last_name") val lastName: String? = null,
 )

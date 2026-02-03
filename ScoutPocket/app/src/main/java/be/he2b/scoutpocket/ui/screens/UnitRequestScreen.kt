@@ -81,12 +81,11 @@ fun UnitRequestsScreen(
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = "Nouvel Animateur",
+                                    text = "${request.firstName ?: "Inconnu"} ${request.lastName ?: ""}",
                                     style = MaterialTheme.typography.titleMedium
                                 )
-                                // Ici on affiche l'ID faute de mieux pour l'instant
                                 Text(
-                                    text = "ID: ${request.userId.take(8)}...",
+                                    text = "Veut rejoindre l'unité",
                                     style = MaterialTheme.typography.bodySmall
                                 )
                             }

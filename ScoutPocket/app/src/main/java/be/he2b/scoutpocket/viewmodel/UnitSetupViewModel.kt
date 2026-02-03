@@ -32,6 +32,8 @@ class UnitSetupViewModel : ViewModel() {
 
     val unitNameInput = MutableStateFlow("")
     val unitCodeInput = MutableStateFlow("")
+    val firstNameInput = MutableStateFlow("")
+    val lastNameInput = MutableStateFlow("")
 
     val searchInput = MutableStateFlow("")
 
@@ -39,7 +41,10 @@ class UnitSetupViewModel : ViewModel() {
         val name = unitNameInput.value.trim()
         val code = unitCodeInput.value.trim().uppercase()
 
-        if (name.isBlank() || code.isBlank()) {
+        val fName = firstNameInput.value.trim()
+        val lName = lastNameInput.value.trim()
+
+        if (name.isBlank() || code.isBlank() || fName.isBlank() || lName.isBlank()) {
             // TODO: Change the error content
             _uiState.update { it.copy(errorMessage = R.string.event_name_error) }
             return
@@ -63,6 +68,8 @@ class UnitSetupViewModel : ViewModel() {
                     unitId = code,
                     role = "ADMIN",
                     status = "APPROVED",
+                    firstName = fName,
+                    lastName = lName,
                 )
 
                 SupabaseClient.client.from("unit_memberships").insert(membership)
@@ -103,6 +110,14 @@ class UnitSetupViewModel : ViewModel() {
     }
 
     fun requestToJoin(unit: Unit) {
+        val fName = firstNameInput.value.trim()
+        val lName = lastNameInput.value.trim()
+
+        if (fName.isBlank() && lName.isBlank()) {
+            // TODO: Change error text : "Le nom et le prénom ne peuvent pas être vide"
+            _uiState.update { it.copy(errorMessage = R.string.event_name_error) }
+            return
+        }
         _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
         viewModelScope.launch {
@@ -115,6 +130,8 @@ class UnitSetupViewModel : ViewModel() {
                     unitId = unitId,
                     role = "ANIMATEUR",
                     status = "PENDING",
+                    firstName = fName,
+                    lastName = lName,
                 )
 
                 SupabaseClient.client.from("unit_memberships").insert(membership)
