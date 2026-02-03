@@ -53,12 +53,14 @@ import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
+// TODO: Add placeholder parameter
 @Composable
 fun ExpressiveTextField(
     modifier: Modifier = Modifier,
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
+    placeHolder: String? = null,
     leadingIcon: ImageVector? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
     isError: Boolean = false,
@@ -74,6 +76,9 @@ fun ExpressiveTextField(
         value = value,
         onValueChange = onValueChange,
         label = { Text(label) },
+        placeholder = placeHolder?.let {
+            { Text(it) }
+        },
         leadingIcon = leadingIcon?.let {
             {
                 Icon(

@@ -11,6 +11,7 @@ enum class AppScreen(val route: String) {
     Login("login"),
     UnitSetup("unit_setup"),
     UnitRequests("unit_requests"),
+    WaitingRoom("waiting_room"),
     Main("main"),
     Home("home"),
     Agenda("agenda"),

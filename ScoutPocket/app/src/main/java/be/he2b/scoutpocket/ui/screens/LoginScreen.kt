@@ -26,6 +26,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -59,6 +60,8 @@ import com.composables.icons.lucide.Lock
 import com.composables.icons.lucide.LogIn
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.Mail
+import com.composables.icons.lucide.User
+import com.composables.icons.lucide.UserPlus
 
 @Composable
 fun LoginScreen(
@@ -69,12 +72,15 @@ fun LoginScreen(
     val uiState by viewModel.uiState.collectAsState()
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
+    val firstName by viewModel.firstName.collectAsState()
+    val lastName by viewModel.lastName.collectAsState()
 
     val isEmailValid = uiState.isEmailValid
     val isPasswordValid = uiState.isPasswordValid
     var isAuthenticated = uiState.isAuthenticated
     val needsUnitSetup = uiState.needsUnitSetup
     val isPendingApproval = uiState.isPendingApproval
+    val isLoginMode = uiState.isLoginMode
     val isLoading = uiState.isLoading
     val errorMessageRes = uiState.errorMessage
 
@@ -121,7 +127,7 @@ fun LoginScreen(
                 .padding(paddingValues)
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterVertically),
         ) {
             Surface(
                 modifier = Modifier.size(120.dp),
@@ -151,85 +157,138 @@ fun LoginScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                Text(
+                    text = stringResource(R.string.app_name),
+                    style = MaterialTheme.typography.displaySmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
 
-            Text(
-                text = stringResource(R.string.app_name),
-                style = MaterialTheme.typography.displaySmall,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
+                Text(
+                    text = stringResource(R.string.login_welcome_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
 
-            Text(
-                text = stringResource(R.string.login_welcome_title),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 8.dp)
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                // Email
+                ExpressiveTextField(
+                    value = email,
+                    onValueChange = {
+                        viewModel.updateEmail(it)
+                    },
+                    label = stringResource(R.string.login_email_label),
+                    leadingIcon = Lucide.Mail,
+                    isError = !isEmailValid,
+                    enable = !isLoading,
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Email,
+                        imeAction = ImeAction.Next
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onNext = {
+                            focusManager.moveFocus(FocusDirection.Down)
+                        }
+                    ),
+                )
 
-            Spacer(modifier = Modifier.height(40.dp))
-
-            ExpressiveTextField(
-                value = email,
-                onValueChange = {
-                    viewModel.updateEmail(it)
-                },
-                label = stringResource(R.string.login_email_label),
-                leadingIcon = Lucide.Mail,
-                isError = !isEmailValid,
-                enable = !isLoading,
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Next
-                ),
-                keyboardActions = KeyboardActions(
-                    onNext = {
-                        focusManager.moveFocus(FocusDirection.Down)
-                    }
-                ),
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            ExpressiveTextField(
-                value = password,
-                onValueChange = {
-                    viewModel.updatePassword(it)
-                },
-                label = stringResource(R.string.login_password_label),
-                leadingIcon = Lucide.Lock,
-                isError = !isPasswordValid,
-                enable = !isLoading,
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Password,
-                    imeAction = ImeAction.Done
-                ),
-                keyboardActions = KeyboardActions(
-                    onDone = {
-                        focusManager.clearFocus()
-                        viewModel.authenticate()
-                    }
-                ),
-                trailingIcon = {
-                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        Icon(
-                            if (passwordVisible) Lucide.EyeOff else Lucide.Eye,
-                            contentDescription = stringResource(
-                                if (passwordVisible) R.string.login_password_hide
-                                else R.string.login_password_show
+                // Password
+                ExpressiveTextField(
+                    value = password,
+                    onValueChange = {
+                        viewModel.updatePassword(it)
+                    },
+                    label = stringResource(R.string.login_password_label),
+                    leadingIcon = Lucide.Lock,
+                    isError = !isPasswordValid,
+                    enable = !isLoading,
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Password,
+                        imeAction = if (isLoginMode) ImeAction.Done else ImeAction.Next,
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            focusManager.clearFocus()
+                            viewModel.authenticate()
+                        }
+                    ),
+                    trailingIcon = {
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(
+                                if (passwordVisible) Lucide.EyeOff else Lucide.Eye,
+                                contentDescription = stringResource(
+                                    if (passwordVisible) R.string.login_password_hide
+                                    else R.string.login_password_show
+                                )
                             )
-                        )
-                    }
-                },
-                visualTransformation = if (passwordVisible) {
-                    VisualTransformation.None
-                } else {
-                    PasswordVisualTransformation()
-                },
-            )
+                        }
+                    },
+                    visualTransformation = if (passwordVisible) {
+                        VisualTransformation.None
+                    } else {
+                        PasswordVisualTransformation()
+                    },
+                )
 
-            Spacer(modifier = Modifier.height(24.dp))
+                if (!isLoginMode) {
+                    // FirstName
+                    ExpressiveTextField(
+                        value = firstName,
+                        onValueChange = {
+                            viewModel.updateFirstName(it)
+                        },
+                        label = "Prénom",
+                        leadingIcon = Lucide.User,
+                        enable = !isLoading,
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Next
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onNext = {
+                                focusManager.moveFocus(FocusDirection.Down)
+                            }
+                        ),
+                    )
+
+                    // LastName
+                    ExpressiveTextField(
+                        value = lastName,
+                        onValueChange = {
+                            viewModel.updateLastName(it)
+                        },
+                        label = "Nom de famille",
+                        leadingIcon = Lucide.User,
+                        enable = !isLoading,
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Done
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onDone = {
+                                focusManager.clearFocus()
+                                viewModel.authenticate()
+                            }
+                        ),
+                    )
+                }
+            }
 
             Button(
                 onClick = {
@@ -258,7 +317,7 @@ fun LoginScreen(
                     )
                 } else {
                     Icon(
-                        imageVector = Lucide.LogIn,
+                        imageVector = if (isLoginMode) Lucide.LogIn else Lucide.UserPlus,
                         contentDescription = null,
                         modifier = Modifier
                             .size(20.dp),
@@ -267,43 +326,32 @@ fun LoginScreen(
                     Spacer(modifier = Modifier.width(8.dp))
 
                     Text(
-                        text = stringResource(R.string.login_button),
+                        text = if (isLoginMode) stringResource(R.string.login_button) else "S'inscrire",
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.SemiBold,
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
-
-            Button(
+            TextButton(
                 onClick = {
                     viewModel.toggleMode()
                 },
                 enabled = !isLoading,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = MaterialTheme.shapes.large,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                ),
-            ) {
-                Text(
-                    text = if (uiState.isLoginMode)
-                        "Pas encore de compte ? Créer un compte"
-                    else
-                        "Déjà un compte ? Se connecter",
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.SemiBold,
-                )
-            }
+                content = {
+                    Text(
+                        text = if (isLoginMode)
+                            "Pas encore de compte ? Créer un compte"
+                        else
+                            "Déjà un compte ? Se connecter",
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                },
+            )
 
             // TODO: Delete for final version
-            Spacer(modifier = Modifier.height(32.dp))
-
             Button(
                 onClick = {
                     navController.navigate(AppScreen.Main.route)

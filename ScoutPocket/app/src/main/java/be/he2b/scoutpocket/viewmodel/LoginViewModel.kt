@@ -12,6 +12,7 @@ import be.he2b.scoutpocket.utils.SessionManager
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -36,6 +37,8 @@ class LoginViewModel() : ViewModel() {
 
     val email = MutableStateFlow("")
     val password = MutableStateFlow("")
+    val firstName = MutableStateFlow("")
+    val lastName = MutableStateFlow("")
 
     private val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$".toRegex()
 
@@ -53,7 +56,7 @@ class LoginViewModel() : ViewModel() {
 
             if (session != null) {
                 _uiState.update { it.copy(isLoading = true) }
-                fetchUserUnit(session.user?.id ?: "")
+                fetchUserUnit(session.user?.id ?: "", isAutoLogin = true)
             }
         }
     }
@@ -72,10 +75,20 @@ class LoginViewModel() : ViewModel() {
         }
     }
 
+    fun updateFirstName(newName: String) {
+        firstName.value = newName
+    }
+
+    fun updateLastName(newName: String) {
+        lastName.value = newName
+    }
+
     private fun validateForm(): Boolean {
         var isValid = true
         val emailValue = email.value.trim()
         val passwordValue = password.value.trim()
+        val firstNameValue = firstName.value.trim()
+        val lastNameValue = lastName.value.trim()
 
         if (emailValue.isEmpty()) {
             _uiState.update { it.copy(isEmailValid = false, errorMessage = R.string.email_empty_error) }
@@ -88,6 +101,14 @@ class LoginViewModel() : ViewModel() {
         if (isValid && passwordValue.length < 6) {
             _uiState.update { it.copy(isPasswordValid = false, errorMessage = R.string.password_empty_error) }
             isValid = false
+        }
+
+        if (!_uiState.value.isLoginMode) {
+            if (isValid && (firstNameValue.isEmpty() || lastNameValue.isEmpty())) {
+                // TODO: Change error message
+                _uiState.update { it.copy(errorMessage = R.string.event_name_error) }
+                isValid = false
+            }
         }
 
         return isValid
@@ -108,16 +129,26 @@ class LoginViewModel() : ViewModel() {
                         this.password = this@LoginViewModel.password.value.trim()
                     }
                 } else {
+                    val fName = firstName.value.trim()
+                    val lName = lastName.value.trim()
+
                     SupabaseClient.client.auth.signUpWith(Email) {
                         this.email = this@LoginViewModel.email.value.trim()
                         this.password = this@LoginViewModel.password.value.trim()
                     }
+
+                    SessionManager.setSession(
+                        unitId = "",
+                        role = "MEMBER",
+                        firstName = fName,
+                        lastName = lName
+                    )
                 }
 
                 val userId = SupabaseClient.client.auth.currentUserOrNull()?.id
 
                 if (userId != null) {
-                    fetchUserUnit(userId)
+                    fetchUserUnit(userId, isAutoLogin = false)
                 } else {
                     throw Exception("User ID null after login")
                 }
@@ -136,7 +167,7 @@ class LoginViewModel() : ViewModel() {
         }
     }
 
-    private suspend fun fetchUserUnit(userId: String) {
+    private suspend fun fetchUserUnit(userId: String, isAutoLogin: Boolean = false) {
         try {
             val memberShips = SupabaseClient.client
                 .from("unit_memberships")
@@ -165,14 +196,36 @@ class LoginViewModel() : ViewModel() {
                     _uiState.update { it.copy(isPendingApproval = true, isLoading = false) }
                 }
                 else -> {
-                    _uiState.update { it.copy(needsUnitSetup = true, isLoading = false) }
+                    if (isAutoLogin) {
+                        Log.w("Auth", "Utilisateur sans unité détecté au démarrage -> Suppression")
+                        cancelRegistration()
+                    } else {
+                        _uiState.update { it.copy(needsUnitSetup = true, isLoading = false) }
+                    }
                 }
             }
         } catch (e: Exception) {
             Log.e("Auth", "Fetch Unit Error", e)
-            // En cas d'erreur réseau, on ne force pas le setup, on affiche une erreur
             _uiState.update { it.copy(errorMessage = R.string.login_network_error, isLoading = false) }
         }
+    }
+
+    fun cancelRegistration() {
+        viewModelScope.launch {
+            try {
+                Log.d("Auth", "Annulation de l'inscription : Suppression du compte...")
+                SupabaseClient.client.postgrest.rpc("delete_user")
+
+                logout()
+            } catch (e: Exception) {
+                Log.e("Auth", "Erreur lors de la suppression: ${e.message}")
+                logout()
+            }
+        }
+    }
+
+    fun refreshUserStatus() {
+        checkAutoLogin()
     }
 
     fun logout() {
@@ -182,6 +235,8 @@ class LoginViewModel() : ViewModel() {
                 SessionManager.clearSession()
                 email.value = ""
                 password.value = ""
+                firstName.value = ""
+                lastName.value = ""
                 _uiState.update { LoginUiState() }
             } catch (e: Exception) {
 

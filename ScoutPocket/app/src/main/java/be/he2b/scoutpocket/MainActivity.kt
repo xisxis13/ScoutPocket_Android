@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -20,6 +21,7 @@ import be.he2b.scoutpocket.network.SupabaseClient
 import be.he2b.scoutpocket.ui.screens.LoginScreen
 import be.he2b.scoutpocket.ui.screens.MainScreen
 import be.he2b.scoutpocket.ui.screens.UnitSetupScreen
+import be.he2b.scoutpocket.ui.screens.WaitingRoomScreen
 import be.he2b.scoutpocket.ui.theme.ScoutPocketTheme
 import be.he2b.scoutpocket.viewmodel.LoginViewModel
 import be.he2b.scoutpocket.viewmodel.LoginViewModelFactory
@@ -41,16 +43,31 @@ class MainActivity : ComponentActivity() {
 
                     val uiState by loginViewModel.uiState.collectAsState()
 
-                    val isAuthenticated = uiState.isAuthenticated
                     val navController = rememberNavController()
+
+                    LaunchedEffect(uiState) {
+                        when {
+                            uiState.isAuthenticated -> {
+                                navController.navigate(AppScreen.Main.route) {
+                                    popUpTo(0) { inclusive = true }
+                                }
+                            }
+                            uiState.isPendingApproval -> {
+                                navController.navigate(AppScreen.WaitingRoom.route) {
+                                    popUpTo(0) { inclusive = true }
+                                }
+                            }
+                            uiState.needsUnitSetup -> {
+                                navController.navigate(AppScreen.UnitSetup.route) {
+                                    popUpTo(0) { inclusive = true }
+                                }
+                            }
+                        }
+                    }
 
                     NavHost(
                         navController,
-                        startDestination = if (isAuthenticated) {
-                            AppScreen.Main.route
-                        } else {
-                            AppScreen.Login.route
-                        }
+                        startDestination = AppScreen.Login.route,
                     ) {
                         composable(AppScreen.Login.route) {
                             LoginScreen(
@@ -60,7 +77,24 @@ class MainActivity : ComponentActivity() {
                         }
                         composable(AppScreen.UnitSetup.route) {
                             UnitSetupScreen(
-                                navController = navController
+                                navController = navController,
+                                onCancel = {
+                                    loginViewModel.cancelRegistration()
+                                },
+                                onSuccess = {
+                                    loginViewModel.refreshUserStatus()
+                                },
+                            )
+                        }
+                        composable(AppScreen.WaitingRoom.route) {
+                            WaitingRoomScreen(
+                                onRefresh = {
+                                    loginViewModel.refreshUserStatus()
+                                },
+                                onLogout = {
+                                    loginViewModel.logout()
+                                    navController.navigate(AppScreen.Login.route) { popUpTo(0) }
+                                }
                             )
                         }
                         composable(AppScreen.Main.route) {

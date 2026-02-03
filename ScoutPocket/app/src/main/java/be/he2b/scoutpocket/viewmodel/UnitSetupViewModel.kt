@@ -32,8 +32,8 @@ class UnitSetupViewModel : ViewModel() {
 
     val unitNameInput = MutableStateFlow("")
     val unitCodeInput = MutableStateFlow("")
-    val firstNameInput = MutableStateFlow("")
-    val lastNameInput = MutableStateFlow("")
+    val firstNameInput = MutableStateFlow(SessionManager.currentUserFirstName ?: "")
+    val lastNameInput = MutableStateFlow(SessionManager.currentUserLastName ?: "")
 
     val searchInput = MutableStateFlow("")
 
