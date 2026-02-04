@@ -10,11 +10,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import be.he2b.scoutpocket.navigation.AppScreen
 import be.he2b.scoutpocket.network.SupabaseClient
@@ -25,6 +27,8 @@ import be.he2b.scoutpocket.ui.screens.WaitingRoomScreen
 import be.he2b.scoutpocket.ui.theme.ScoutPocketTheme
 import be.he2b.scoutpocket.viewmodel.LoginViewModel
 import be.he2b.scoutpocket.viewmodel.LoginViewModelFactory
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,26 +44,61 @@ class MainActivity : ComponentActivity() {
                     val loginViewModel: LoginViewModel = viewModel(
                         factory = LoginViewModelFactory(LocalContext.current.applicationContext)
                     )
-
                     val uiState by loginViewModel.uiState.collectAsState()
-
                     val navController = rememberNavController()
 
-                    LaunchedEffect(uiState) {
+                    val isAuthenticated by remember(loginViewModel) {
+                        loginViewModel.uiState
+                            .map { it.isAuthenticated }
+                            .distinctUntilChanged()
+                    }.collectAsState(initial = false)
+
+                    val isPendingApproval by remember(loginViewModel) {
+                        loginViewModel.uiState
+                            .map { it.isPendingApproval }
+                            .distinctUntilChanged()
+                    }.collectAsState(initial = false)
+
+                    val needsUnitSetup by remember(loginViewModel) {
+                        loginViewModel.uiState
+                            .map { it.needsUnitSetup }
+                            .distinctUntilChanged()
+                    }.collectAsState(initial = false)
+
+                    val navBackStackEntry by navController.currentBackStackEntryAsState()
+                    val currentRoute = navBackStackEntry?.destination?.route
+
+                    LaunchedEffect(isAuthenticated, isPendingApproval, needsUnitSetup, currentRoute) {
                         when {
-                            uiState.isAuthenticated -> {
-                                navController.navigate(AppScreen.Main.route) {
-                                    popUpTo(0) { inclusive = true }
+                            isAuthenticated -> {
+                                if (currentRoute == AppScreen.Login.route ||
+                                    currentRoute == AppScreen.UnitSetup.route ||
+                                    currentRoute == AppScreen.WaitingRoom.route) {
+
+                                    navController.navigate(AppScreen.Main.route) {
+                                        popUpTo(0) { inclusive = true }
+                                    }
                                 }
                             }
-                            uiState.isPendingApproval -> {
-                                navController.navigate(AppScreen.WaitingRoom.route) {
-                                    popUpTo(0) { inclusive = true }
+                            isPendingApproval -> {
+                                if (currentRoute != AppScreen.WaitingRoom.route) {
+                                    navController.navigate(AppScreen.WaitingRoom.route) {
+                                        popUpTo(0) { inclusive = true }
+                                    }
                                 }
                             }
-                            uiState.needsUnitSetup -> {
-                                navController.navigate(AppScreen.UnitSetup.route) {
-                                    popUpTo(0) { inclusive = true }
+                            needsUnitSetup -> {
+                                if (currentRoute != AppScreen.UnitSetup.route) {
+                                    navController.navigate(AppScreen.UnitSetup.route) {
+                                        popUpTo(0) { inclusive = true }
+                                    }
+                                }
+                            }
+                            else -> {
+                                if (currentRoute != AppScreen.Login.route) {
+                                    navController.navigate(AppScreen.Login.route) {
+                                        popUpTo(0) { inclusive = true }
+                                    }
                                 }
                             }
                         }

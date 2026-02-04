@@ -325,15 +325,6 @@ fun NavigationBar(
     Box(
         modifier = modifier
             .fillMaxWidth()
-//            .dropShadow(
-//                shape = CircleShape,
-//                shadow = Shadow(
-//                    radius = 15.dp,
-//                    spread = 0.dp,
-//                    color = Color(0xFF000000).copy(alpha = 0.10f),
-//                    offset = DpOffset(x = 0.dp, y = 2.dp)
-//                )
-//            )
             .clip(CircleShape)
             .background(MaterialTheme.colorScheme.surface)
             .border(
