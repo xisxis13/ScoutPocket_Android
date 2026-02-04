@@ -210,6 +210,28 @@ class LoginViewModel() : ViewModel() {
                     _uiState.update { it.copy(isAuthenticated = true, isLoading = false) }
                 }
                 pendingMembership != null -> {
+                    val unitId = pendingMembership.unitId
+                    var unitName: String? = "Unité"
+
+                    try {
+                        val units = SupabaseClient.client
+                            .from("units")
+                            .select { filter { eq("id", unitId) } }
+                            .decodeList<Unit>()
+
+                        unitName = units.firstOrNull()?.name
+                    } catch (e: Exception) {
+                        Log.e("LoginViewModel", "Impossible de récupérer le nom de l'unité")
+                    }
+
+                    SessionManager.setSession(
+                        unitId = unitId,
+                        role = pendingMembership.role,
+                        firstName = pendingMembership.firstName,
+                        lastName = pendingMembership.lastName,
+                        unitName = unitName
+                    )
+
                     _uiState.update { it.copy(isPendingApproval = true, isLoading = false) }
                 }
                 else -> {
