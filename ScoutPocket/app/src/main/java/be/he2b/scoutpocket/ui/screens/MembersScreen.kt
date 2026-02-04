@@ -163,7 +163,7 @@ fun MembersScreen(
 
                             Text(
                                 text = section.label,
-                                style = MaterialTheme.typography.headlineSmall,
+                                style = MaterialTheme.typography.titleLarge,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 fontWeight = FontWeight.Bold,
                             )

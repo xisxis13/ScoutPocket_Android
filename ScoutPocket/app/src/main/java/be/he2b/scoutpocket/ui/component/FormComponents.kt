@@ -53,7 +53,6 @@ import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-// TODO: Add placeholder parameter
 @Composable
 fun ExpressiveTextField(
     modifier: Modifier = Modifier,
@@ -105,12 +104,13 @@ fun ExpressiveTextField(
         maxLines = maxLines,
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions,
-        shape = MaterialTheme.shapes.large,
+        shape = MaterialTheme.shapes.extraLarge,
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = MaterialTheme.colorScheme.primary,
             unfocusedBorderColor = MaterialTheme.colorScheme.outline,
         ),
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth(),
     )
 }
 
@@ -135,7 +135,7 @@ fun SectionDropdown(
                 Icon(
                     Lucide.Flag,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = selectedSection.textColor(),
                 )
             },
             trailingIcon = {
@@ -150,7 +150,7 @@ fun SectionDropdown(
             },
             readOnly = true,
             singleLine = true,
-            shape = MaterialTheme.shapes.large,
+            shape = MaterialTheme.shapes.extraLarge,
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = MaterialTheme.colorScheme.primary,
                 unfocusedBorderColor = MaterialTheme.colorScheme.outline,

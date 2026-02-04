@@ -8,14 +8,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -33,6 +33,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import be.he2b.scoutpocket.R
 import be.he2b.scoutpocket.ui.component.EmptyState
+import be.he2b.scoutpocket.ui.theme.StateAbsentBackground
+import be.he2b.scoutpocket.ui.theme.StateAbsentContent
+import be.he2b.scoutpocket.ui.theme.StatePresentBackground
+import be.he2b.scoutpocket.ui.theme.StatePresentContent
 import be.he2b.scoutpocket.viewmodel.AdminViewModel
 import be.he2b.scoutpocket.viewmodel.AdminViewModelFactory
 import com.composables.icons.lucide.ArrowLeft
@@ -95,39 +99,84 @@ fun UnitRequestsScreen(
             )
         } else {
             LazyColumn(
-                modifier = Modifier.padding(padding).padding(16.dp),
+                modifier = Modifier
+                    .padding(padding)
+                    .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(uiState.pendingRequests) { request ->
-                    Card(
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth().padding(16.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = "${request.firstName ?: "Inconnu"} ${request.lastName ?: ""}",
-                                    style = MaterialTheme.typography.titleMedium
-                                )
-                                Text(
-                                    text = "Veut rejoindre l'unité",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            }
+                    RequestCard(
+                        userFirstName = request.firstName,
+                        userLastName = request.lastName,
+                        onReject = { viewModel.rejectUser(request.userId) },
+                        onApprove = { viewModel.approveUser(request.userId) },
+                    )
+                }
+            }
+        }
+    }
+}
 
-                            Row {
-                                IconButton(onClick = { viewModel.rejectUser(request.userId) }) {
-                                    Icon(Lucide.X, "Refuser", tint = MaterialTheme.colorScheme.error)
-                                }
-                                IconButton(onClick = { viewModel.approveUser(request.userId) }) {
-                                    Icon(Lucide.Check, "Accepter", tint = MaterialTheme.colorScheme.primary)
-                                }
-                            }
-                        }
-                    }
+@Composable
+fun RequestCard(
+    userFirstName: String?,
+    userLastName: String?,
+    onApprove: () -> Unit,
+    onReject: () -> Unit,
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.surfaceContainer,
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "${userFirstName ?: "Inconnu"} ${userLastName ?: ""}",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    text = "Veut rejoindre l'unité",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            Row {
+                IconButton(
+                    onClick = onReject,
+                    colors = IconButtonDefaults.iconButtonColors(
+                        contentColor = StateAbsentContent,
+                        containerColor = StateAbsentBackground,
+                        disabledContentColor = StateAbsentContent.copy(0.5f),
+                        disabledContainerColor = StateAbsentBackground.copy(0.5f),
+                    ),
+                ) {
+                    Icon(
+                        imageVector = Lucide.X,
+                        contentDescription = "Refuser",
+                    )
+                }
+                IconButton(
+                    onClick = onApprove,
+                    colors = IconButtonDefaults.iconButtonColors(
+                        contentColor = StatePresentContent,
+                        containerColor = StatePresentBackground,
+                        disabledContentColor = StatePresentContent.copy(0.5f),
+                        disabledContainerColor = StatePresentBackground.copy(0.5f),
+                    ),
+                ) {
+                    Icon(
+                        imageVector = Lucide.Check,
+                        contentDescription = "Accepter",
+                        tint = StatePresentContent,
+                    )
                 }
             }
         }
