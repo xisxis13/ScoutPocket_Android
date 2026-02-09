@@ -85,7 +85,7 @@ import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 fun getSegmentedShape(index: Int, totalCount: Int): Shape {
-    val radius = 24.dp
+    val radius = 28.dp
     val smallRadius = 4.dp
 
     return when {
@@ -194,7 +194,7 @@ fun MemberRowContent(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "${member.firstName.take(1)}${member.lastName.take(1)}",
+                text = "${member.lastName.take(1)}${member.firstName.take(1)}",
                 style = MaterialTheme.typography.titleMedium,
                 color = member.section.textColor(),
                 fontWeight = FontWeight.SemiBold
@@ -202,7 +202,7 @@ fun MemberRowContent(
         }
 
         Text(
-            text = "${member.firstName} ${member.lastName.uppercase()}",
+            text = "${member.lastName.uppercase()} ${member.firstName}",
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f),
@@ -293,7 +293,8 @@ fun SwipeableMemberRow(
                     onDragStopped = { velocity ->
                         val threshold = -actionWidthPx * 0.4f
 
-                        val shouldOpen = offsetX.value < threshold || (velocity < -500f && offsetX.value < 0f)
+                        val shouldOpen =
+                            offsetX.value < threshold || (velocity < -500f && offsetX.value < 0f)
 
                         scope.launch {
                             if (shouldOpen) {

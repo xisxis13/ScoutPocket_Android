@@ -16,6 +16,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -23,12 +25,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import be.he2b.scoutpocket.R
 import be.he2b.scoutpocket.ui.component.EmptyState
@@ -46,6 +50,9 @@ fun MembersScreen(
     viewModel: MemberViewModel,
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    var selectedIndex by remember { mutableIntStateOf(0) }
+    var selectedTab by remember { mutableStateOf(0) }
 
     val members = uiState.members
     val membersBySection = remember(members) {
@@ -157,12 +164,90 @@ fun MembersScreen(
                     contentPadding = PaddingValues(top = 0.dp, bottom = 160.dp, start = 16.dp, end = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(2.dp),
                 ) {
+                    item {
+                        Spacer(modifier = Modifier.height(24.dp))
+
+//                        ConnectedButtonGroup(
+//                            options = listOf(
+//                                "Baladins",
+//                                "Louveteaux",
+//                                "Éclaireurs",
+//                                "Pionniers",
+//                            ),
+//                            selectedIndex = selectedIndex,
+//                            onIndexSelected = { selectedIndex = it },
+//                            modifier = Modifier.fillMaxWidth(),
+//                        )
+
+                        TabRow(
+                            selectedTabIndex = selectedTab,
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            contentColor = MaterialTheme.colorScheme.primary
+                        ) {
+                            Tab(
+                                selected = selectedTab == 0,
+                                onClick = { selectedTab = 0 },
+                                text = {
+                                    Text(
+                                        text = "Tout le monde",
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                },
+                                // icon = { Icon(Lucide.Users, null) }
+                            )
+                            Tab(
+                                selected = selectedTab == 1,
+                                onClick = { selectedTab = 1 },
+                                text = {
+                                    Text(
+                                        text = "Baladins",
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                },
+                                // icon = { Icon(Lucide.Plus, null) }
+                            )
+                            Tab(
+                                selected = selectedTab == 2,
+                                onClick = { selectedTab = 2 },
+                                text = {
+                                    Text(
+                                        text = "Louveteaux",
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                },
+                                // icon = { Icon(Lucide.Search, null) }
+                            )
+                            Tab(
+                                selected = selectedTab == 3,
+                                onClick = { selectedTab = 3 },
+                                text = {
+                                    Text(
+                                        text = "Éclaireurs",
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                },
+                                // icon = { Icon(Lucide.Search, null) }
+                            )
+                            Tab(
+                                selected = selectedTab == 4,
+                                onClick = { selectedTab = 4 },
+                                text = {
+                                    Text(
+                                        text = "Pionniers",
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                },
+                                // icon = { Icon(Lucide.Search, null) }
+                            )
+                        }
+                    }
+
                     membersBySection.forEach { (section, membersInSection) ->
                         item(key = "header_${section.name}") {
                             Spacer(modifier = Modifier.height(24.dp))
 
                             Text(
-                                text = section.label,
+                                text = "${section.label} - ${membersInSection.size}",
                                 style = MaterialTheme.typography.titleLarge,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 fontWeight = FontWeight.Bold,

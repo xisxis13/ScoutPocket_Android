@@ -136,7 +136,7 @@ fun RequestCard(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "${userFirstName ?: "Inconnu"} ${userLastName ?: ""}",
+                    text = "${userFirstName ?: "Inconnu"} ${userLastName?.uppercase() ?: ""}",
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.SemiBold

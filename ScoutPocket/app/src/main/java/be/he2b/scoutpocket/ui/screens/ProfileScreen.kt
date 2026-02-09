@@ -110,7 +110,7 @@ fun ProfileScreen(
                 modifier = Modifier
                     .fillMaxWidth(),
                 shape = MaterialTheme.shapes.extraLarge,
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.primaryContainer,
             ) {
                 Column(
                     modifier = Modifier
@@ -127,7 +127,7 @@ fun ProfileScreen(
                             modifier = Modifier
                                 .size(72.dp),
                             shape = MaterialTheme.shapes.large,
-                            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.15f),
+                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.15f),
                         ) {
 
                             Box(
@@ -136,7 +136,7 @@ fun ProfileScreen(
                                 Icon(
                                     imageVector = Lucide.User,
                                     contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onPrimary,
+                                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
                                     modifier = Modifier.size(36.dp),
                                 )
                             }
@@ -148,7 +148,7 @@ fun ProfileScreen(
                             Text(
                                 text = "$userFirstName",
                                 style = MaterialTheme.typography.headlineLarge,
-                                color = MaterialTheme.colorScheme.onPrimary,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
                             )
 
                             Spacer(modifier = Modifier.height(2.dp))
@@ -156,7 +156,7 @@ fun ProfileScreen(
                             Text(
                                 text = "$userLastName",
                                 style = MaterialTheme.typography.titleSmall,
-                                color = MaterialTheme.colorScheme.onPrimary
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                         }
                     }
@@ -165,7 +165,7 @@ fun ProfileScreen(
                         modifier = Modifier
                             .fillMaxWidth(),
                         thickness = 0.5.dp,
-                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f),
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.2f),
                     )
 
                     Column(
@@ -175,14 +175,14 @@ fun ProfileScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Surface(
-                            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.15f),
+                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.15f),
                             shape = MaterialTheme.shapes.extraLarge,
                         ) {
                             Text(
                                 text = displayRole,
                                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
                                 style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onPrimary
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                         }
 
@@ -191,7 +191,7 @@ fun ProfileScreen(
                         Text(
                             text = "$unitCode - $unitName",
                             style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.onPrimary,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
                         )
                     }
                 }

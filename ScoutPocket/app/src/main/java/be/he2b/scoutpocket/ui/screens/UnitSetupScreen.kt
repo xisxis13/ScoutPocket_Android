@@ -240,7 +240,7 @@ fun CreateUnitForm(viewModel: UnitSetupViewModel, isLoading: Boolean) {
                 viewModel.unitCodeInput.value = it
             },
             label = "Code de l'unité",
-            // TODO: Add placeholder
+            placeHolder = "ex.: HD022",
             leadingIcon = Lucide.Binary,
             singleLine = true,
             keyboardOptions = KeyboardOptions(

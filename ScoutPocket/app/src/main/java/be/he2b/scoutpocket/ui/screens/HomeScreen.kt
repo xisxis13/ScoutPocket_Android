@@ -39,6 +39,23 @@ import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.Sparkles
 import com.composables.icons.lucide.UserPlus
 import com.composables.icons.lucide.Users
+import java.time.LocalTime
+
+fun welcomeMessage(): String {
+    val actualHour = LocalTime.now().hour
+
+    return when (actualHour) {
+        in 5..17 -> {
+            "Bonjour,"
+        }
+        in 18..22 -> {
+            "Bonsoir,"
+        }
+        else -> {
+            "Bonne nuit,"
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,8 +84,7 @@ fun HomeScreen(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    // TODO: Create a dynamic message with time ("Bonjour", "Bonsoir", "Bonne nuit")
-                    text = "Bonjour,",
+                    text = welcomeMessage(),
                     style = MaterialTheme.typography.headlineMedium,
                     color = MaterialTheme.colorScheme.onBackground,
                     lineHeight = 48.sp

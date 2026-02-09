@@ -363,8 +363,12 @@ fun EventDetailsScreen(
                             item(key = "header_${section.name}") {
                                 Spacer(modifier = Modifier.height(24.dp))
 
+                                val presentCount = membersInSection.count { member ->
+                                    presencesMap[member.id]?.status == PresenceStatus.PRESENT
+                                }
+
                                 Text(
-                                    text = section.label,
+                                    text = "${section.label} - $presentCount/${membersInSection.size}",
                                     style = MaterialTheme.typography.titleLarge,
                                     color = MaterialTheme.colorScheme.onSurface,
                                     fontWeight = FontWeight.Bold,
@@ -388,7 +392,6 @@ fun EventDetailsScreen(
                                             .fillMaxSize(),
                                         shape = itemShape,
                                         color = MaterialTheme.colorScheme.surfaceContainer,
-                                        shadowElevation = 0.dp
                                     ) {
                                         val displayPresence = presence ?: Presence(
                                             eventId = eventId,

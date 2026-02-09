@@ -47,6 +47,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import be.he2b.scoutpocket.R
@@ -165,14 +166,15 @@ fun LoginScreen(
                 Text(
                     text = stringResource(R.string.app_name),
                     style = MaterialTheme.typography.displaySmall,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = MaterialTheme.colorScheme.primary,
                 )
 
                 Text(
-                    text = stringResource(R.string.login_welcome_title),
+                    text = if (isLoginMode) "Bon retour parmi nous !" else "Bienvenue !\n Créez un compte pour continuer",
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 8.dp)
+                    modifier = Modifier.padding(top = 8.dp),
+                    textAlign = TextAlign.Center,
                 )
             }
 
@@ -303,7 +305,7 @@ fun LoginScreen(
                     CircularProgressIndicator(
                         modifier = Modifier
                             .size(24.dp),
-                        color = MaterialTheme.colorScheme.onPrimary,
+                        color = MaterialTheme.colorScheme.primary,
                     )
 
                     Spacer(modifier = Modifier.width(8.dp))
@@ -311,7 +313,7 @@ fun LoginScreen(
                     Text(
                         text = stringResource(R.string.loading_authentification),
                         style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onPrimary,
+                        color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.SemiBold,
                     )
                 } else {

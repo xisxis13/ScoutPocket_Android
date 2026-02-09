@@ -345,11 +345,26 @@ private fun CSVImportSection(
                     .padding(24.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Text(stringResource(R.string.csv_format_rule1))
-                Text(stringResource(R.string.csv_format_rule2))
-                Text(stringResource(R.string.csv_format_rule3))
-                Text(stringResource(R.string.csv_format_rule4))
-                Text(stringResource(R.string.csv_format_rule5))
+                Text(
+                    text = stringResource(R.string.csv_format_rule1),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Text(
+                    text = stringResource(R.string.csv_format_rule2),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Text(
+                    text = stringResource(R.string.csv_format_rule3),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Text(
+                    text = stringResource(R.string.csv_format_rule4),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Text(
+                    text = stringResource(R.string.csv_format_rule5),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
             }
         }
 
@@ -377,7 +392,7 @@ private fun CSVImportSection(
                 Text(
                     text = stringResource(R.string.csv_example_content),
                     modifier = Modifier.padding(16.dp),
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodyMedium,
                     fontFamily = FontFamily.Monospace,
                 )
             }
